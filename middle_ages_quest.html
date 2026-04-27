@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Middle Ages Quest — Battle Edition</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f5f1e8 0%, #e8dfc8 100%);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    color: #2C2C2A;
+  }
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(60, 52, 137, 0.15);
+    padding: 32px;
+  }
+  .crest { display: flex; align-items: center; gap: 14px; margin-bottom: 1.25rem; }
+  .crest-shield {
+    width: 48px; height: 48px; border-radius: 6px;
+    background: #E6F1FB;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .crest h1 { margin: 0; font-size: 26px; font-weight: 600; color: #042C53; }
+  .crest p { margin: 0; font-size: 14px; color: #5F5E5A; }
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .stat-card {
+    background: #F1EFE8;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .stat-label { font-size: 11px; color: #5F5E5A; margin-bottom: 4px; font-weight: 500; }
+  .stat-value { font-size: 20px; font-weight: 600; color: #042C53; }
+  .progress-track {
+    height: 8px;
+    background: #F1EFE8;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #378ADD, #1D9E75);
+    transition: width 0.4s ease;
+    border-radius: 4px;
+  }
+  .scene {
+    background: #FFFFFF;
+    border: 1px solid #D3D1C7;
+    border-radius: 12px;
+    padding: 1.5rem;
+    min-height: 380px;
+  }
+  .scene-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tag-quiz { background: #E6F1FB; color: #0C447C; }
+  .tag-match { background: #EEEDFE; color: #3C3489; }
+  .tag-true { background: #E1F5EE; color: #085041; }
+  .tag-castle { background: #FAEEDA; color: #633806; }
+  .tag-final { background: #FBEAF0; color: #72243E; }
+  .tag-round { background: #FAEEDA; color: #633806; }
+  .question {
+    font-size: 17px;
+    font-weight: 500;
+    margin: 0 0 1rem;
+    line-height: 1.5;
+    color: #2C2C2A;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    text-align: left;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border: 1.5px solid #D3D1C7;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    color: #2C2C2A;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: #F1EFE8;
+    border-color: #888780;
+    transform: translateX(2px);
+  }
+  .option-btn.correct {
+    background: #E1F5EE;
+    border-color: #1D9E75;
+    color: #085041;
+    font-weight: 500;
+  }
+  .option-btn.wrong {
+    background: #FCEBEB;
+    border-color: #E24B4A;
+    color: #791F1F;
+  }
+  .option-btn:disabled { cursor: default; }
+  .feedback {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.good { background: #E1F5EE; color: #085041; }
+  .feedback.bad { background: #FCEBEB; color: #791F1F; }
+  .next-btn {
+    margin-top: 16px;
+    padding: 11px 22px;
+    background: #185FA5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    display: none;
+    transition: background 0.15s;
+  }
+  .next-btn.show { display: inline-block; }
+  .next-btn:hover { background: #0C447C; }
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .match-col h4 {
+    font-size: 13px;
+    color: #5F5E5A;
+    margin: 0 0 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .match-item {
+    padding: 11px 13px;
+    border: 1.5px solid #D3D1C7;
+    border-radius: 8px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    background: #FFFFFF;
+  }
+  .match-item:hover:not(.matched):not(.selected) {
+    background: #F1EFE8;
+  }
+  .match-item.selected {
+    background: #E6F1FB;
+    border-color: #378ADD;
+    color: #0C447C;
+    font-weight: 500;
+  }
+  .match-item.matched {
+    background: #E1F5EE;
+    border-color: #1D9E75;
+    color: #085041;
+    cursor: default;
+    font-weight: 500;
+  }
+  .end-screen { text-align: center; padding: 1.5rem 0; }
+  .end-screen h2 {
+    font-size: 26px;
+    margin: 0 0 8px;
+    color: #042C53;
+  }
+  .end-screen .score-big {
+    font-size: 56px;
+    font-weight: 700;
+    color: #185FA5;
+    margin: 16px 0;
+  }
+  .end-screen p {
+    color: #5F5E5A;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto 1.25rem;
+  }
+  .restart-btn {
+    padding: 12px 24px;
+    background: #185FA5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .restart-btn:hover { background: #0C447C; }
+  .badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 1.25rem 0;
+  }
+  .badge {
+    background: #F1EFE8;
+    color: #5F5E5A;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .badge.earned {
+    background: #FAEEDA;
+    color: #633806;
+  }
+  .start-screen { text-align: center; padding: 1rem 0; }
+  .start-screen h2 {
+    font-size: 22px;
+    margin: 0 0 12px;
+    color: #042C53;
+  }
+  .start-screen p {
+    color: #5F5E5A;
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto 1.5rem;
+  }
+  .round-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 480px;
+    margin: 0 auto 1.5rem;
+    text-align: left;
+  }
+  .round-card {
+    background: #F1EFE8;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+  }
+  .round-card .num {
+    color: #185FA5;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .round-card .name {
+    color: #042C53;
+    font-weight: 600;
+    font-size: 14px;
+    margin: 4px 0 2px;
+  }
+  .round-card .desc {
+    color: #5F5E5A;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .how-to-play {
+    background: #FAF6EC;
+    border: 1px solid #FAC775;
+    border-radius: 10px;
+    padding: 16px 20px;
+    max-width: 540px;
+    margin: 0 auto 1.5rem;
+    text-align: left;
+  }
+  .how-to-play h3 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #633806;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .how-to-play ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #5F5E5A;
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .how-to-play ul li strong {
+    color: #2C2C2A;
+    font-weight: 600;
+  }
+  .round-intro { text-align: center; padding: 0.5rem 0; }
+  .round-intro .round-num {
+    font-size: 13px;
+    color: #185FA5;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+  .round-intro h2 {
+    font-size: 32px;
+    margin: 0 0 8px;
+    color: #042C53;
+  }
+  .round-intro .tagline {
+    color: #5F5E5A;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+  }
+  .round-intro .battle-svg { margin: 0 auto 1.25rem; display: block; }
+  .round-summary { text-align: center; padding: 0.5rem 0; }
+  .round-summary h2 {
+    font-size: 26px;
+    margin: 0 0 4px;
+    color: #042C53;
+  }
+  .round-summary .round-score {
+    font-size: 48px;
+    font-weight: 700;
+    color: #1D9E75;
+    margin: 16px 0 4px;
+  }
+  .round-summary .score-suffix {
+    color: #5F5E5A;
+    font-size: 14px;
+    margin-bottom: 1rem;
+  }
+  .round-summary .verdict {
+    font-size: 15px;
+    color: #042C53;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    max-width: 460px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+  .round-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    max-width: 380px;
+    margin: 0 auto 1.5rem;
+  }
+  .round-stat {
+    background: #F1EFE8;
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .round-stat .label {
+    font-size: 11px;
+    color: #5F5E5A;
+    margin-bottom: 2px;
+  }
+  .round-stat .value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #042C53;
+  }
+  .q-counter {
+    font-size: 11px;
+    color: #5F5E5A;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: #888780;
+  }
+  @media (max-width: 600px) {
+    .container { padding: 20px; }
+    .crest h1 { font-size: 22px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .stat-value { font-size: 18px; }
+    .match-grid { grid-template-columns: 1fr; }
+    .round-list { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="crest">
+    <div class="crest-shield">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L3 5v7c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-3z" stroke="#0C447C" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Middle Ages Quest</h1>
+      <p>Battle Edition · Three rounds of randomized challenges</p>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-label">Round</div>
+      <div class="stat-value" id="round-display">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Score</div>
+      <div class="stat-value" id="score">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Streak</div>
+      <div class="stat-value" id="streak">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Best Streak</div>
+      <div class="stat-value" id="best-streak">0</div>
+    </div>
+  </div>
+
+  <div class="progress-track">
+    <div class="progress-fill" id="progress" style="width: 0%;"></div>
+  </div>
+
+  <div class="scene" id="scene"></div>
+</div>
+
+<footer>Middle Ages Study Guide · Part 1 · Topic 9 · Lessons 1–5</footer>
+
+<script>
+(function() {
+  // ============================================================
+  // QUESTION POOL — covers ALL knowledge points from study guide
+  // ============================================================
+
+  const SINGLE_QUESTIONS = [
+    // ===== CHURCH & RELIGION =====
+    {
+      type: 'quiz', topic: 'church',
+      question: 'Why was the Catholic Church the center of authority in medieval Europe?',
+      options: [
+        { text: 'It controlled the path to heaven and collected a 10% tax from everyone', correct: true },
+        { text: 'It owned all the swords and knights in Europe', correct: false },
+        { text: 'It built the first castles and forts', correct: false },
+        { text: 'It taught everyone how to farm and rotate crops', correct: false }
+      ],
+      explain: 'The Church controlled access to heaven through sacraments, and people from peasants to kings followed the Pope to avoid being kicked out. The 10% tax (a tithe) made the Church very wealthy.'
+    },
+    {
+      type: 'quiz', topic: 'church',
+      question: 'What are sacraments?',
+      options: [
+        { text: 'Sacred rites of the Christian Church like communion and baptism', correct: true },
+        { text: 'Gold coins paid to the king', correct: false },
+        { text: 'A type of medieval armor', correct: false },
+        { text: 'Land grants from the Pope', correct: false }
+      ],
+      explain: 'Sacraments are sacred rites of the Christian Church — like communion and baptism. The Church controlled access to them, which gave it enormous power.'
+    },
+    {
+      type: 'quiz', topic: 'church',
+      question: 'What were mendicant orders?',
+      options: [
+        { text: 'Wealthy bishops who lived in palaces', correct: false },
+        { text: 'Beggars who preached to ordinary people', correct: true },
+        { text: 'Royal advisors to the king', correct: false },
+        { text: 'Knights who protected the Pope', correct: false }
+      ],
+      explain: 'Mendicant orders were religious groups whose members lived as beggars and preached to ordinary people, rather than living in wealthy monasteries.'
+    },
+    {
+      type: 'truefalse', topic: 'church',
+      question: 'The Catholic Church collected a tax of about 10% from everyone in medieval Europe.',
+      answer: true,
+      explain: 'True! This tax was called a "tithe." Whether you were a peasant or a king, you paid the Church 10% of your income, which made it incredibly wealthy and powerful.'
+    },
+    {
+      type: 'truefalse', topic: 'church',
+      question: 'Sacraments include things like communion and baptism.',
+      answer: true,
+      explain: 'True! Sacraments are the sacred rites of the Christian Church. Communion and baptism are two of the most important ones.'
+    },
+
+    // ===== FEUDALISM =====
+    {
+      type: 'quiz', topic: 'feudalism',
+      question: 'How did the system of feudalism work in medieval Europe?',
+      options: [
+        { text: 'Everyone voted on a king every five years', correct: false },
+        { text: 'A "land-for-loyalty" pyramid where kings gave land to lords, lords gave land to knights', correct: true },
+        { text: 'The Church owned all land and rented it out', correct: false },
+        { text: 'Whoever had the biggest army automatically owned all the land', correct: false }
+      ],
+      explain: 'Feudalism was a "land-for-loyalty" pyramid. The king gave land to lords, who gave land to knights for military service. Loyalty flowed up; protection flowed down.'
+    },
+    {
+      type: 'quiz', topic: 'feudalism',
+      question: 'A vassal is a nobleman who received what in return for their service?',
+      options: [
+        { text: 'Gold coins', correct: false },
+        { text: 'Land (called a fief)', correct: true },
+        { text: 'A castle full of knights', correct: false },
+        { text: 'Free entry into the Church', correct: false }
+      ],
+      explain: 'A vassal got a fief (land) from a lord in exchange for loyalty and military service. This was the heart of the feudal "land-for-loyalty" deal.'
+    },
+    {
+      type: 'quiz', topic: 'feudalism',
+      question: 'What is a fief?',
+      options: [
+        { text: 'A type of medieval sword', correct: false },
+        { text: 'A castle owned by the king', correct: false },
+        { text: 'Land granted by a lord to a vassal', correct: true },
+        { text: 'A religious ceremony for knights', correct: false }
+      ],
+      explain: 'A fief is land granted by a lord to a vassal. In exchange for the fief, the vassal swore loyalty and provided military service to the lord.'
+    },
+    {
+      type: 'quiz', topic: 'feudalism',
+      question: 'What was chivalry?',
+      options: [
+        { text: 'A type of expensive armor', correct: false },
+        { text: 'A code of conduct that knights lived by — brave, loyal, generous', correct: true },
+        { text: 'A medieval form of taxation', correct: false },
+        { text: "A type of knight's horse", correct: false }
+      ],
+      explain: 'Chivalry was a code of conduct that knights lived by. The ideal knight was brave, loyal, and generous — a model of honor.'
+    },
+    {
+      type: 'quiz', topic: 'feudalism',
+      question: 'Who were knights in medieval Europe?',
+      options: [
+        { text: 'Religious leaders who served the Pope', correct: false },
+        { text: 'Warriors mounted on horseback', correct: true },
+        { text: 'Wealthy merchants in the cities', correct: false },
+        { text: 'Farmers who owned their own land', correct: false }
+      ],
+      explain: 'Knights were warriors mounted on horseback. They served lords in exchange for land (fiefs) and lived by the code of chivalry.'
+    },
+    {
+      type: 'truefalse', topic: 'feudalism',
+      question: 'A vassal received a fief (land) from a lord in exchange for military service.',
+      answer: true,
+      explain: 'True! This was the core of feudalism — a "land-for-loyalty" deal. Vassals got land and protection; lords got loyal soldiers.'
+    },
+    {
+      type: 'truefalse', topic: 'feudalism',
+      question: 'Knights fought mainly on foot, not on horseback.',
+      answer: false,
+      explain: 'False! Knights were warriors mounted on horseback. The horse was a huge part of their identity and battle effectiveness.'
+    },
+    {
+      type: 'truefalse', topic: 'feudalism',
+      question: 'Chivalry was a code of conduct that all serfs had to follow.',
+      answer: false,
+      explain: 'False! Chivalry was the code for knights — not serfs. It called for bravery, loyalty, and generosity.'
+    },
+
+    // ===== MANOR LIFE =====
+    {
+      type: 'quiz', topic: 'manor',
+      question: 'What was a manor?',
+      options: [
+        { text: 'A type of medieval church', correct: false },
+        { text: 'An agricultural estate of the lord — the heart of the medieval economy', correct: true },
+        { text: 'A trading port on the coast', correct: false },
+        { text: 'A royal palace where the king lived', correct: false }
+      ],
+      explain: "A manor was the agricultural estate of a lord — the heart of medieval economy. It included the lord's house or castle plus villages, fields, and forests."
+    },
+    {
+      type: 'quiz', topic: 'manor',
+      question: 'Why did each manor have to make almost everything itself?',
+      options: [
+        { text: "The lord wouldn't let anyone leave", correct: false },
+        { text: 'It was too dangerous to travel to other towns to trade', correct: true },
+        { text: 'The Church banned all shopping', correct: false },
+        { text: "They didn't have any money yet", correct: false }
+      ],
+      explain: 'Manorialism meant each manor was like a fenced-in neighborhood. Vikings and other invaders made travel dangerous, so each manor became self-sufficient — growing food, making clothes, and producing tools on its own.'
+    },
+    {
+      type: 'quiz', topic: 'manor',
+      question: 'Who were serfs?',
+      options: [
+        { text: 'Slaves who could be bought and sold', correct: false },
+        { text: "Peasants legally bound to the lord's land — not slaves, but unable to leave", correct: true },
+        { text: 'Knights in training', correct: false },
+        { text: 'Traveling merchants who served the king', correct: false }
+      ],
+      explain: "Serfs were peasants legally bound to the lord's land. They were NOT slaves — they couldn't be bought or sold. But they also couldn't leave the manor freely."
+    },
+    {
+      type: 'truefalse', topic: 'manor',
+      question: 'Serfs were slaves who could be bought and sold by their lord.',
+      answer: false,
+      explain: "False! Serfs were peasants legally bound to the lord's land. They were NOT slaves — they could not be bought or sold. But they also couldn't leave the manor freely."
+    },
+    {
+      type: 'truefalse', topic: 'manor',
+      question: "A manor included the lord's home, villages, fields, and forests — almost like a small self-contained world.",
+      answer: true,
+      explain: 'True! A manor was a complete agricultural estate. With travel being dangerous, manors had to be self-sufficient and produce nearly everything they needed.'
+    },
+
+    // ===== INVASIONS =====
+    {
+      type: 'quiz', topic: 'invasions',
+      question: 'What impact did Viking invasions have on medieval Europe?',
+      options: [
+        { text: 'They built the first universities', correct: false },
+        { text: 'They destroyed central power because kings were too slow to protect people', correct: true },
+        { text: 'They created a unified European trade network', correct: false },
+        { text: 'They spread Christianity to new regions', correct: false }
+      ],
+      explain: 'Viking raids destroyed central power because kings were too slow to protect people. This is a big reason feudalism developed — local lords could defend their people much faster than a distant king.'
+    },
+    {
+      type: 'truefalse', topic: 'invasions',
+      question: "Viking raids weakened the power of kings because kings couldn't protect their people quickly enough.",
+      answer: true,
+      explain: "True! When raiders attacked, distant kings couldn't respond fast enough. Local lords stepped up — and feudalism grew from this need for local protection."
+    },
+
+    // ===== INNOVATIONS / TRADE =====
+    {
+      type: 'quiz', topic: 'innovations',
+      question: 'What is crop rotation?',
+      options: [
+        { text: 'Changing the use of fields over time so soil stays fertile', correct: true },
+        { text: 'Moving crops between manors to share food', correct: false },
+        { text: 'A type of harvest festival', correct: false },
+        { text: 'A way to mark the changing seasons', correct: false }
+      ],
+      explain: 'Crop rotation means changing what grows in fields over time. This kept the soil fertile and grew more food, which let towns and populations grow.'
+    },
+    {
+      type: 'quiz', topic: 'innovations',
+      question: 'What did "bills of exchange" let medieval merchants do?',
+      options: [
+        { text: 'Trade swords for shields at the market', correct: false },
+        { text: 'Deposit money in a bank in one city and withdraw it from a different city', correct: true },
+        { text: "Pay the Church's 10% tax in installments", correct: false },
+        { text: 'Get a fief from the king without being a vassal', correct: false }
+      ],
+      explain: 'Bills of exchange were like medieval bank checks — much safer than carrying gold across dangerous roads. They helped trade and towns grow.'
+    },
+    {
+      type: 'quiz', topic: 'innovations',
+      question: 'What were guilds?',
+      options: [
+        { text: 'Groups of workers in the same craft, joined together to protect their economic interests', correct: true },
+        { text: 'Religious orders run by the Pope', correct: false },
+        { text: 'Knights who served the same lord', correct: false },
+        { text: 'Royal councils that advised the king', correct: false }
+      ],
+      explain: 'Guilds were groups of workers practicing the same craft, joined together to protect their economic interests. They were funded by member fees and made sure workers did quality work.'
+    },
+    {
+      type: 'quiz', topic: 'innovations',
+      question: 'Why were innovations like crop rotation, bills of exchange, and guilds important?',
+      options: [
+        { text: 'They were demanded by the Pope', correct: false },
+        { text: 'They helped towns and trade grow — more food, safer money, better quality work', correct: true },
+        { text: 'They made knights more powerful', correct: false },
+        { text: 'They ended feudalism overnight', correct: false }
+      ],
+      explain: 'These three innovations worked together: crop rotation grew more food for more people, bills of exchange acted like safe bank checks for merchants, and guilds made sure workers did quality work. Together they helped towns grow.'
+    },
+    {
+      type: 'truefalse', topic: 'innovations',
+      question: 'Bills of exchange let medieval merchants travel without carrying lots of gold.',
+      answer: true,
+      explain: 'True! Bills of exchange were like medieval bank checks — much safer than carrying gold across dangerous roads filled with bandits.'
+    },
+    {
+      type: 'truefalse', topic: 'innovations',
+      question: 'Guilds were religious orders that answered to the Pope.',
+      answer: false,
+      explain: 'False! Guilds were groups of craft workers who joined together to protect their economic interests — like medieval professional associations or unions.'
+    },
+    {
+      type: 'truefalse', topic: 'innovations',
+      question: 'Crop rotation helped grow more food, which let medieval populations expand.',
+      answer: true,
+      explain: 'True! By changing which crops grew in each field over time, soil stayed fertile and produced more food year after year.'
+    },
+
+    // ===== IDEAS / GOTHIC / NATURAL LAW =====
+    {
+      type: 'quiz', topic: 'ideas',
+      question: 'What is "natural law" in medieval thinking?',
+      options: [
+        { text: 'The law of gravity and physics', correct: false },
+        { text: "A law that doesn't change over time or society, discoverable through human reason", correct: true },
+        { text: 'Laws about how to manage natural parks', correct: false },
+        { text: 'Laws made by nature spirits', correct: false }
+      ],
+      explain: "Natural law is a kind of law that doesn't change from one society to the next or over time. Thomas Aquinas taught that humans could discover it through the power of reason."
+    },
+    {
+      type: 'quiz', topic: 'ideas',
+      question: 'What was Gothic architecture?',
+      options: [
+        { text: 'Old Roman building style', correct: false },
+        { text: 'A new building style combining religious symbolism with engineering advances', correct: true },
+        { text: 'An ancient Greek pagan style', correct: false },
+        { text: 'Egyptian-inspired pyramid design', correct: false }
+      ],
+      explain: 'Gothic was a new building style that combined religious symbolism with engineering advances like pointed arches and stained glass. Cathedrals like Notre-Dame in Paris were built in this dramatic style.'
+    },
+    {
+      type: 'truefalse', topic: 'ideas',
+      question: 'Natural law changes from society to society and from time to time.',
+      answer: false,
+      explain: "False! Natural law is the opposite — it doesn't change. It's the same across all societies and times, and humans can discover it through reason."
+    },
+    {
+      type: 'truefalse', topic: 'ideas',
+      question: 'Gothic architecture used engineering advances like pointed arches and stained glass.',
+      answer: true,
+      explain: 'True! Gothic combined religious symbolism with engineering breakthroughs. Pointed arches and flying buttresses let cathedrals reach taller than ever before.'
+    },
+
+    // ===== PEOPLE =====
+    {
+      type: 'quiz', topic: 'people',
+      question: 'Who was Benedict?',
+      options: [
+        { text: 'A French king who fought the Vikings', correct: false },
+        { text: 'An Italian monk who created rules for monastic life — the Benedictine Rule', correct: true },
+        { text: 'A philosopher influenced by Aristotle', correct: false },
+        { text: 'A knight who served Charlemagne', correct: false }
+      ],
+      explain: 'Benedict was an Italian monk who created the Benedictine Rule — guidelines for monastic life that shaped Christian monasteries across Europe.'
+    },
+    {
+      type: 'quiz', topic: 'people',
+      question: 'Who was Thomas Aquinas?',
+      options: [
+        { text: 'A king who united France', correct: false },
+        { text: 'A Pope who crowned Charlemagne', correct: false },
+        { text: 'A professor at the University of Paris who taught about natural law and that faith and reason both come from God', correct: true },
+        { text: 'A monk who fought in the Crusades', correct: false }
+      ],
+      explain: "Thomas Aquinas was a professor at the University of Paris. Influenced by Aristotle, he taught the concept of natural law and believed faith and reason both come from God — so there's no need for conflict between them."
+    },
+    {
+      type: 'quiz', topic: 'people',
+      question: 'Who was Charles Martel?',
+      options: [
+        { text: 'A Pope who crowned Charlemagne', correct: false },
+        { text: 'An Italian monk who created the Benedictine Rule', correct: false },
+        { text: 'The leader who united the Franks and stopped the Muslim invasion of Western Europe at the Battle of Tours', correct: true },
+        { text: 'A philosopher who studied with Aristotle', correct: false }
+      ],
+      explain: 'Charles Martel ("Charles the Hammer") united the Franks under his rule and stopped the Muslim invasion of Western Europe at the Battle of Tours. He was Charlemagne\'s grandfather.'
+    },
+    {
+      type: 'quiz', topic: 'people',
+      question: 'Who was Charlemagne?',
+      options: [
+        { text: 'An Italian monk who lived in a monastery', correct: false },
+        { text: "Charles Martel's grandson, King of the Franks, who was crowned Emperor of the Romans by Pope Leo III", correct: true },
+        { text: 'A Viking warrior who raided Europe', correct: false },
+        { text: 'A professor at the University of Paris', correct: false }
+      ],
+      explain: 'Charlemagne ("Charles the Great") was Charles Martel\'s grandson, King of France, who reunited much of the Western Roman Empire and was crowned Emperor of the Romans by Pope Leo III. He wanted a unified Christian Europe.'
+    },
+    {
+      type: 'quiz', topic: 'people',
+      question: 'Who stopped the Muslim invasion of Western Europe at the Battle of Tours?',
+      options: [
+        { text: 'Charlemagne', correct: false },
+        { text: 'Thomas Aquinas', correct: false },
+        { text: 'Benedict', correct: false },
+        { text: 'Charles Martel', correct: true }
+      ],
+      explain: 'Charles Martel ("Charles the Hammer") united the Franks and stopped the Muslim invasion at the Battle of Tours. His grandson Charlemagne would later build on his legacy.'
+    },
+    {
+      type: 'quiz', topic: 'people',
+      question: 'What does "Charlemagne" mean?',
+      options: [
+        { text: 'Charles the Hammer', correct: false },
+        { text: 'Charles the Great', correct: true },
+        { text: 'Charles the Wise', correct: false },
+        { text: 'Charles the Brave', correct: false }
+      ],
+      explain: '"Charlemagne" means Charles the Great. (Don\'t confuse him with his grandfather Charles Martel — "Charles the Hammer.")'
+    },
+    {
+      type: 'quiz', topic: 'people',
+      question: 'Thomas Aquinas was influenced by which ancient philosopher?',
+      options: [
+        { text: 'Plato', correct: false },
+        { text: 'Aristotle', correct: true },
+        { text: 'Socrates', correct: false },
+        { text: 'Pythagoras', correct: false }
+      ],
+      explain: "Thomas Aquinas was deeply influenced by Aristotle. He used Aristotle's ideas to argue that faith and reason both come from God and don't have to conflict."
+    },
+    {
+      type: 'truefalse', topic: 'people',
+      question: 'Charlemagne was crowned "Emperor of the Romans" by Pope Leo III.',
+      answer: true,
+      explain: 'True! Charlemagne (Charles the Great) was the grandson of Charles Martel and reunited much of the Western Roman Empire. Pope Leo III crowned him Emperor of the Romans.'
+    },
+    {
+      type: 'truefalse', topic: 'people',
+      question: 'Benedict was a French king known for fighting the Vikings.',
+      answer: false,
+      explain: 'False! Benedict was an Italian monk who created rules for monastic life — the Benedictine Rule.'
+    },
+    {
+      type: 'truefalse', topic: 'people',
+      question: 'Thomas Aquinas believed faith and reason had to be in conflict with each other.',
+      answer: false,
+      explain: "False! He believed the opposite — that both faith and reason come from God, so there's no need for them to conflict."
+    },
+    {
+      type: 'truefalse', topic: 'people',
+      question: 'Charlemagne was the grandson of Charles Martel.',
+      answer: true,
+      explain: 'True! Charles Martel was the grandfather; Charlemagne ("Charles the Great") was his grandson who reunited much of the Western Roman Empire.'
+    },
+    {
+      type: 'truefalse', topic: 'people',
+      question: 'Charlemagne wanted a unified Christian Europe.',
+      answer: true,
+      explain: 'True! Charlemagne dreamed of a unified Christian Europe and worked to make that a reality, which is part of why Pope Leo III crowned him Emperor of the Romans.'
+    }
+  ];
+
+  const MATCHING_SETS = [
+    {
+      name: 'Basic terms',
+      pairs: [
+        { left: 'Sacraments', right: 'Sacred rites like communion and baptism' },
+        { left: 'Chivalry', right: 'A code of conduct for knights' },
+        { left: 'Serfs', right: "Peasants bound to the lord's land" },
+        { left: 'Guilds', right: 'Groups of workers in the same craft' }
+      ]
+    },
+    {
+      name: 'Feudalism terms',
+      pairs: [
+        { left: 'Vassal', right: 'Nobleman who received land for service' },
+        { left: 'Fief', right: 'Land granted by a lord' },
+        { left: 'Manor', right: 'Agricultural estate of the lord' },
+        { left: 'Knights', right: 'Warriors mounted on horseback' }
+      ]
+    },
+    {
+      name: 'Famous faces',
+      pairs: [
+        { left: 'Benedict', right: 'Italian monk who created the Benedictine Rule' },
+        { left: 'Thomas Aquinas', right: 'Believed faith and reason both come from God' },
+        { left: 'Charles Martel', right: 'Stopped Muslim invasion at Battle of Tours' },
+        { left: 'Charlemagne', right: 'Crowned Emperor of the Romans by Pope Leo III' }
+      ]
+    },
+    {
+      name: 'Innovations & ideas',
+      pairs: [
+        { left: 'Crop rotation', right: 'Changing the use of fields over time' },
+        { left: 'Bills of exchange', right: 'Deposit in one city, withdraw in another' },
+        { left: 'Mendicant orders', right: 'Beggars who preached to ordinary people' },
+        { left: 'Natural law', right: "Law that doesn't change across time or society" }
+      ]
+    },
+    {
+      name: 'Big concepts',
+      pairs: [
+        { left: 'Feudalism', right: 'Land-for-loyalty pyramid' },
+        { left: 'Manorialism', right: 'Self-sufficient agricultural communities' },
+        { left: 'Gothic', right: 'Religious symbolism + engineering advances' },
+        { left: 'The Church', right: 'Center of medieval authority' }
+      ]
+    }
+  ];
+
+  // ============================================================
+  // ROUND CONFIGURATION
+  // ============================================================
+
+  const ROUNDS = [
+    { num: 1, name: 'The Village', tagline: 'Your quest begins in a peaceful medieval village...', color: '#185FA5' },
+    { num: 2, name: 'The Manor', tagline: 'You journey deeper into feudal lands...', color: '#0F6E56' },
+    { num: 3, name: 'The Castle', tagline: 'The final stronghold awaits — make it count!', color: '#993556' }
+  ];
+
+  const QUESTIONS_PER_ROUND = 4; // 4 single + 1 matching = 5 challenges per round
+
+  // ============================================================
+  // GAME STATE
+  // ============================================================
+
+  let state = {};
+
+  function newGame() {
+    const shuffledSingles = shuffle([...SINGLE_QUESTIONS]);
+    const shuffledMatches = shuffle([...MATCHING_SETS]);
+
+    const rounds = ROUNDS.map((r, i) => {
+      const singles = shuffledSingles.slice(i * QUESTIONS_PER_ROUND, (i + 1) * QUESTIONS_PER_ROUND);
+      const match = shuffledMatches[i];
+      return {
+        ...r,
+        challenges: [...singles, { type: 'match', ...match }]
+      };
+    });
+
+    state = {
+      phase: 'start',
+      rounds: rounds,
+      currentRound: 0,
+      currentChallenge: 0,
+      score: 0,
+      streak: 0,
+      bestStreak: 0,
+      roundScores: [0, 0, 0],
+      roundCorrect: [0, 0, 0],
+      roundTotal: [0, 0, 0],
+      badges: []
+    };
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ============================================================
+  // SCORING & STATS
+  // ============================================================
+
+  const sceneEl = document.getElementById('scene');
+  const scoreEl = document.getElementById('score');
+  const streakEl = document.getElementById('streak');
+  const bestStreakEl = document.getElementById('best-streak');
+  const roundEl = document.getElementById('round-display');
+  const progressEl = document.getElementById('progress');
+
+  function updateStats() {
+    scoreEl.textContent = state.score;
+    streakEl.textContent = state.streak;
+    bestStreakEl.textContent = state.bestStreak;
+
+    if (state.phase === 'start') {
+      roundEl.textContent = '—';
+      progressEl.style.width = '0%';
+    } else if (state.phase === 'gameEnd') {
+      roundEl.textContent = '✓';
+      progressEl.style.width = '100%';
+    } else {
+      roundEl.textContent = (state.currentRound + 1) + '/3';
+      const totalChallenges = ROUNDS.length * (QUESTIONS_PER_ROUND + 1);
+      const completed = state.currentRound * (QUESTIONS_PER_ROUND + 1) + state.currentChallenge;
+      progressEl.style.width = Math.min(100, Math.round((completed / totalChallenges) * 100)) + '%';
+    }
+  }
+
+  function awardPoints(points) {
+    state.score += points;
+    state.streak += 1;
+    state.roundScores[state.currentRound] += points;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    if (state.streak === 3 && !state.badges.includes('streak3')) state.badges.push('streak3');
+    if (state.streak === 5 && !state.badges.includes('streak5')) state.badges.push('streak5');
+    if (state.streak === 8 && !state.badges.includes('streak8')) state.badges.push('streak8');
+  }
+
+  function breakStreak() {
+    state.streak = 0;
+  }
+
+  function recordCorrect(isCorrect) {
+    state.roundTotal[state.currentRound]++;
+    if (isCorrect) state.roundCorrect[state.currentRound]++;
+  }
+
+  // ============================================================
+  // PHASE TRANSITIONS
+  // ============================================================
+
+  function nextChallenge() {
+    state.currentChallenge++;
+    const round = state.rounds[state.currentRound];
+    if (state.currentChallenge >= round.challenges.length) {
+      if (state.roundCorrect[state.currentRound] === state.roundTotal[state.currentRound] && !state.badges.includes('perfectRound')) {
+        state.badges.push('perfectRound');
+      }
+      state.phase = 'roundEnd';
+    } else {
+      state.phase = 'question';
+    }
+    render();
+  }
+
+  function nextRound() {
+    state.currentRound++;
+    state.currentChallenge = 0;
+    if (state.currentRound >= state.rounds.length) {
+      state.phase = 'gameEnd';
+    } else {
+      state.phase = 'roundIntro';
+    }
+    render();
+  }
+
+  // ============================================================
+  // RENDER FUNCTIONS
+  // ============================================================
+
+  function render() {
+    updateStats();
+    if (state.phase === 'start') return renderStart();
+    if (state.phase === 'roundIntro') return renderRoundIntro();
+    if (state.phase === 'question') return renderChallenge();
+    if (state.phase === 'roundEnd') return renderRoundEnd();
+    if (state.phase === 'gameEnd') return renderGameEnd();
+  }
+
+  function renderStart() {
+    sceneEl.innerHTML = `
+      <div class="start-screen">
+        <span class="scene-tag tag-quiz">Battle Edition · 3 rounds</span>
+        <h2>Welcome, scholar!</h2>
+        <p>Three battle rounds. Five challenges per round. Random questions every game — no two playthroughs are the same.</p>
+
+        <div class="how-to-play">
+          <h3>📜 How to play</h3>
+          <ul>
+            <li><strong>3 battle rounds:</strong> The Village → The Manor → The Castle</li>
+            <li><strong>5 challenges per round:</strong> 4 questions + 1 matching set</li>
+            <li><strong>Random every time:</strong> Questions are pulled from a pool of 40+ challenges</li>
+            <li><strong>Score points:</strong> 10 per correct answer, 5 per match (60 max per round)</li>
+            <li><strong>Earn badges:</strong> 3, 5, and 8-streaks, plus a perfect round bonus</li>
+            <li><strong>Learn either way:</strong> Every answer shows the explanation</li>
+          </ul>
+        </div>
+
+        <div class="round-list">
+          <div class="round-card">
+            <div class="num">Round 1</div>
+            <div class="name">🏘️ The Village</div>
+            <div class="desc">Your quest begins. Test your basic medieval knowledge.</div>
+          </div>
+          <div class="round-card">
+            <div class="num">Round 2</div>
+            <div class="name">🏰 The Manor</div>
+            <div class="desc">Deeper challenges await as you journey on.</div>
+          </div>
+          <div class="round-card">
+            <div class="num">Round 3</div>
+            <div class="name">⚔️ The Castle</div>
+            <div class="desc">The final stronghold. Make every answer count!</div>
+          </div>
+        </div>
+
+        <button class="restart-btn" id="start-btn">Begin the quest →</button>
+      </div>
+    `;
+    document.getElementById('start-btn').onclick = () => {
+      state.phase = 'roundIntro';
+      render();
+    };
+  }
+
+  function renderRoundIntro() {
+    const round = state.rounds[state.currentRound];
+    const icons = ['🏘️', '🏰', '⚔️'];
+    sceneEl.innerHTML = `
+      <div class="round-intro">
+        <span class="scene-tag tag-round">Round ${round.num} of 3</span>
+        <svg class="battle-svg" width="100" height="80" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg">
+          <rect x="15" y="35" width="70" height="35" fill="#888780" stroke="#444441" stroke-width="1"/>
+          <rect x="5" y="25" width="15" height="50" fill="#444441"/>
+          <rect x="80" y="25" width="15" height="50" fill="#444441"/>
+          <rect x="42" y="40" width="14" height="30" fill="#2C2C2A"/>
+          <polygon points="5,25 12.5,12 20,25" fill="${round.color}"/>
+          <polygon points="80,25 87.5,12 95,25" fill="${round.color}"/>
+        </svg>
+        <div class="round-num">Round ${round.num}</div>
+        <h2>${icons[state.currentRound]} ${round.name}</h2>
+        <p class="tagline">${round.tagline}</p>
+        <p style="color: #5F5E5A; font-size: 14px; margin-bottom: 1.5rem;">
+          <strong style="color: #042C53;">${round.challenges.length} challenges</strong> await — 4 questions and 1 matching set.<br>
+          Answer carefully, scholar. Your streak begins anew with each round.
+        </p>
+        <button class="restart-btn" id="round-start-btn" style="background: ${round.color};">Enter the battle →</button>
+      </div>
+    `;
+    document.getElementById('round-start-btn').onclick = () => {
+      state.streak = 0;
+      state.phase = 'question';
+      render();
+    };
+  }
+
+  function renderChallenge() {
+    const round = state.rounds[state.currentRound];
+    const challenge = round.challenges[state.currentChallenge];
+    if (challenge.type === 'quiz') return renderQuiz(challenge, round);
+    if (challenge.type === 'truefalse') return renderTrueFalse(challenge, round);
+    if (challenge.type === 'match') return renderMatch(challenge, round);
+  }
+
+  function renderQuiz(lvl, round) {
+    sceneEl.innerHTML = `
+      <span class="scene-tag tag-quiz">Round ${round.num} · ${round.name}</span>
+      <div class="q-counter">Challenge ${state.currentChallenge + 1} of ${round.challenges.length} · Multiple choice</div>
+      <p class="question">${lvl.question}</p>
+      <div class="options" id="opts"></div>
+      <div class="feedback" id="fb"></div>
+      <button class="next-btn" id="next">Next →</button>
+    `;
+    const optsEl = document.getElementById('opts');
+    const shuffledOptions = shuffle(lvl.options.slice());
+    shuffledOptions.forEach((opt) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt.text;
+      btn.onclick = () => {
+        [...optsEl.children].forEach(c => c.disabled = true);
+        const fb = document.getElementById('fb');
+        if (opt.correct) {
+          btn.classList.add('correct');
+          awardPoints(10);
+          recordCorrect(true);
+          fb.className = 'feedback show good';
+          fb.textContent = '✓ Correct! ' + lvl.explain;
+        } else {
+          btn.classList.add('wrong');
+          breakStreak();
+          recordCorrect(false);
+          const correctText = lvl.options.find(o => o.correct).text;
+          [...optsEl.children].forEach(c => {
+            if (c.textContent === correctText) c.classList.add('correct');
+          });
+          fb.className = 'feedback show bad';
+          fb.textContent = 'Not quite. ' + lvl.explain;
+        }
+        updateStats();
+        document.getElementById('next').classList.add('show');
+      };
+      optsEl.appendChild(btn);
+    });
+    document.getElementById('next').onclick = nextChallenge;
+  }
+
+  function renderTrueFalse(lvl, round) {
+    sceneEl.innerHTML = `
+      <span class="scene-tag tag-true">Round ${round.num} · ${round.name}</span>
+      <div class="q-counter">Challenge ${state.currentChallenge + 1} of ${round.challenges.length} · True or false</div>
+      <p class="question">${lvl.question}</p>
+      <div class="options" id="opts">
+        <button class="option-btn" data-val="true">True</button>
+        <button class="option-btn" data-val="false">False</button>
+      </div>
+      <div class="feedback" id="fb"></div>
+      <button class="next-btn" id="next">Next →</button>
+    `;
+    const optsEl = document.getElementById('opts');
+    [...optsEl.children].forEach(btn => {
+      btn.onclick = () => {
+        [...optsEl.children].forEach(c => c.disabled = true);
+        const userAns = btn.dataset.val === 'true';
+        const fb = document.getElementById('fb');
+        if (userAns === lvl.answer) {
+          btn.classList.add('correct');
+          awardPoints(10);
+          recordCorrect(true);
+          fb.className = 'feedback show good';
+          fb.textContent = '✓ Correct! ' + lvl.explain;
+        } else {
+          btn.classList.add('wrong');
+          breakStreak();
+          recordCorrect(false);
+          const correctBtn = [...optsEl.children].find(c => c.dataset.val === String(lvl.answer));
+          correctBtn.classList.add('correct');
+          fb.className = 'feedback show bad';
+          fb.textContent = 'Not quite. ' + lvl.explain;
+        }
+        updateStats();
+        document.getElementById('next').classList.add('show');
+      };
+    });
+    document.getElementById('next').onclick = nextChallenge;
+  }
+
+  function renderMatch(lvl, round) {
+    const leftItems = lvl.pairs.map((p, i) => ({ ...p, id: i }));
+    const rightItems = shuffle(leftItems.slice());
+    sceneEl.innerHTML = `
+      <span class="scene-tag tag-match">Round ${round.num} · ${round.name}</span>
+      <div class="q-counter">Challenge ${state.currentChallenge + 1} of ${round.challenges.length} · Matching: ${lvl.name}</div>
+      <p class="question">Click a term, then click its matching definition.</p>
+      <div class="match-grid">
+        <div class="match-col">
+          <h4>Terms</h4>
+          <div id="left-col"></div>
+        </div>
+        <div class="match-col">
+          <h4>Definitions</h4>
+          <div id="right-col"></div>
+        </div>
+      </div>
+      <div class="feedback" id="fb"></div>
+      <button class="next-btn" id="next">Next →</button>
+    `;
+    const leftCol = document.getElementById('left-col');
+    const rightCol = document.getElementById('right-col');
+    let selectedLeft = null;
+    let matchedCount = 0;
+    let madeMistake = false;
+
+    leftItems.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'match-item';
+      div.textContent = item.left;
+      div.dataset.id = item.id;
+      div.onclick = () => {
+        if (div.classList.contains('matched')) return;
+        [...leftCol.children].forEach(c => c.classList.remove('selected'));
+        div.classList.add('selected');
+        selectedLeft = div;
+      };
+      leftCol.appendChild(div);
+    });
+
+    rightItems.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'match-item';
+      div.textContent = item.right;
+      div.dataset.id = item.id;
+      div.onclick = () => {
+        if (!selectedLeft || div.classList.contains('matched')) return;
+        if (selectedLeft.dataset.id === div.dataset.id) {
+          selectedLeft.classList.remove('selected');
+          selectedLeft.classList.add('matched');
+          div.classList.add('matched');
+          awardPoints(5);
+          matchedCount++;
+          updateStats();
+          if (matchedCount === lvl.pairs.length) {
+            recordCorrect(!madeMistake);
+            const fb = document.getElementById('fb');
+            fb.className = 'feedback show good';
+            fb.textContent = madeMistake
+              ? '✓ All matched! You earned points for each correct pair.'
+              : '✓ Perfect match! All four pairs solved with no mistakes.';
+            document.getElementById('next').classList.add('show');
+          }
+          selectedLeft = null;
+        } else {
+          div.style.background = '#FCEBEB';
+          div.style.borderColor = '#E24B4A';
+          breakStreak();
+          madeMistake = true;
+          updateStats();
+          setTimeout(() => {
+            div.style.background = '';
+            div.style.borderColor = '';
+            if (selectedLeft) selectedLeft.classList.remove('selected');
+            selectedLeft = null;
+          }, 600);
+        }
+      };
+      rightCol.appendChild(div);
+    });
+    document.getElementById('next').onclick = nextChallenge;
+  }
+
+  function renderRoundEnd() {
+    const round = state.rounds[state.currentRound];
+    const correct = state.roundCorrect[state.currentRound];
+    const total = state.roundTotal[state.currentRound];
+    const points = state.roundScores[state.currentRound];
+    const isLast = state.currentRound === state.rounds.length - 1;
+
+    let verdict;
+    if (correct === total) verdict = `🏆 Flawless victory! Every challenge conquered in ${round.name}.`;
+    else if (correct >= total - 1) verdict = `⚔️ Strong showing in ${round.name} — you nearly swept the round!`;
+    else if (correct >= total / 2) verdict = `🛡️ Solid effort in ${round.name}. The quest continues.`;
+    else verdict = `📜 ${round.name} was tough. Read the explanations carefully — they'll help next round.`;
+
+    sceneEl.innerHTML = `
+      <div class="round-summary">
+        <span class="scene-tag tag-round" style="background: ${round.color}22; color: ${round.color};">Round ${round.num} complete</span>
+        <h2>${round.name} — finished!</h2>
+        <div class="round-score">+${points}</div>
+        <div class="score-suffix">points earned this round</div>
+        <p class="verdict">${verdict}</p>
+        <div class="round-stats">
+          <div class="round-stat">
+            <div class="label">Correct</div>
+            <div class="value">${correct} / ${total}</div>
+          </div>
+          <div class="round-stat">
+            <div class="label">Total score</div>
+            <div class="value">${state.score} pts</div>
+          </div>
+        </div>
+        <button class="restart-btn" id="next-round-btn" style="background: ${isLast ? '#993556' : round.color};">
+          ${isLast ? 'See final results →' : 'Onward to Round ' + (round.num + 1) + ' →'}
+        </button>
+      </div>
+    `;
+    document.getElementById('next-round-btn').onclick = nextRound;
+  }
+
+  function renderGameEnd() {
+    const total = state.score;
+    const totalCorrect = state.roundCorrect.reduce((a, b) => a + b, 0);
+    const totalQuestions = state.roundTotal.reduce((a, b) => a + b, 0);
+    const maxScore = ROUNDS.length * (QUESTIONS_PER_ROUND * 10 + 4 * 5); // 180
+    const percent = Math.round((total / maxScore) * 100);
+
+    let rank, msg;
+    if (percent >= 90) {
+      rank = '👑 Medieval Scholar';
+      msg = 'Outstanding! You could advise a king. Your knowledge of the Middle Ages is masterful.';
+    } else if (percent >= 75) {
+      rank = '🛡️ Court Apprentice';
+      msg = "Great work! You know your medieval history well. A few more reviews and you'll be a true master.";
+    } else if (percent >= 50) {
+      rank = '⚔️ Loyal Squire';
+      msg = 'Solid effort, brave scholar! Review the topics you missed and try again to climb the ranks.';
+    } else {
+      rank = '📜 Brave Beginner';
+      msg = 'Quest complete! Take another look at your study guide and challenge the quest again — practice makes perfect.';
+    }
+
+    const allBadges = [
+      { id: 'streak3', label: '3-streak', earned: state.bestStreak >= 3 },
+      { id: 'streak5', label: '5-streak', earned: state.bestStreak >= 5 },
+      { id: 'streak8', label: '8-streak', earned: state.bestStreak >= 8 },
+      { id: 'perfectRound', label: 'Perfect round', earned: state.badges.includes('perfectRound') },
+      { id: 'finish', label: 'Quest complete', earned: true }
+    ];
+
+    const badgeHtml = allBadges.map(b =>
+      `<span class="badge ${b.earned ? 'earned' : ''}">${b.earned ? '★ ' : '☆ '}${b.label}</span>`
+    ).join('');
+
+    const roundBreakdownHtml = state.rounds.map((r, i) => `
+      <div class="round-stat">
+        <div class="label">Round ${r.num}: ${r.name}</div>
+        <div class="value">${state.roundScores[i]} pts · ${state.roundCorrect[i]}/${state.roundTotal[i]}</div>
+      </div>
+    `).join('');
+
+    sceneEl.innerHTML = `
+      <div class="end-screen">
+        <span class="scene-tag tag-final">🏆 Quest complete</span>
+        <h2>${rank}</h2>
+        <div class="score-big">${total}<span style="font-size: 28px; color: #888780; font-weight: 400;"> / ${maxScore}</span></div>
+        <p style="margin-top: -10px; color: #5F5E5A;">${totalCorrect} of ${totalQuestions} challenges conquered (${percent}%)</p>
+
+        <div class="round-stats" style="grid-template-columns: 1fr; max-width: 420px; margin-top: 1.25rem; margin-bottom: 1.25rem;">
+          ${roundBreakdownHtml}
+        </div>
+
+        <div class="badge-row">${badgeHtml}</div>
+        <p>${msg}</p>
+        <button class="restart-btn" id="restart-btn">⚔️ Play again — fresh questions!</button>
+      </div>
+    `;
+    document.getElementById('restart-btn').onclick = () => {
+      newGame();
+      render();
+    };
+  }
+
+  // ============================================================
+  // BOOT
+  // ============================================================
+
+  newGame();
+  render();
+})();
+</script>
+</body>
+</html>
