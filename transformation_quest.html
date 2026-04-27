@@ -1,0 +1,3116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transformation Quest — Three Realms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@500;600;700&family=DM+Sans:wght@400;500;700&family=Cabin:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =================================================================
+   TRANSFORMATION QUEST — v2 (Boss Battle Edition)
+   3 Quest Sets · 15 challenges each · Desert / Ocean / Sky themes
+   ================================================================= */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100%;
+  font-family: 'Cabin', 'DM Sans', system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  overflow-x: hidden;
+  transition: background 0.6s ease;
+}
+
+/* ---------- THEME: DESERT ---------- */
+[data-theme="desert"] {
+  --bg: #fef3c7;
+  --bg-2: #fde68a;
+  --paper: #fffbeb;
+  --ink: #451a03;
+  --ink-soft: #92400e;
+  --accent: #ea580c;
+  --accent-2: #fbbf24;
+  --accent-3: #dc2626;
+  --accent-4: #1e40af;
+  --good: #059669;
+  --bad: #b91c1c;
+  --grid: #d6c7a8;
+  --grid-axis: #451a03;
+  --boss-glow: rgba(234, 88, 12, 0.45);
+  --bg-pattern:
+    radial-gradient(ellipse at 50% 100%, rgba(234, 88, 12, 0.18), transparent 60%),
+    radial-gradient(ellipse at 0% 0%, rgba(251, 191, 36, 0.25), transparent 50%);
+}
+
+/* ---------- THEME: OCEAN ---------- */
+[data-theme="ocean"] {
+  --bg: #cffafe;
+  --bg-2: #a5f3fc;
+  --paper: #f0f9ff;
+  --ink: #0c2340;
+  --ink-soft: #1e3a5f;
+  --accent: #0891b2;
+  --accent-2: #06b6d4;
+  --accent-3: #f59e0b;
+  --accent-4: #be123c;
+  --good: #059669;
+  --bad: #b91c1c;
+  --grid: #a5d8e2;
+  --grid-axis: #0c2340;
+  --boss-glow: rgba(8, 145, 178, 0.45);
+  --bg-pattern:
+    radial-gradient(ellipse at 50% 100%, rgba(8, 145, 178, 0.22), transparent 55%),
+    radial-gradient(ellipse at 80% 0%, rgba(190, 18, 60, 0.15), transparent 45%);
+}
+
+/* ---------- THEME: SKY ---------- */
+[data-theme="sky"] {
+  --bg: #ede9fe;
+  --bg-2: #ddd6fe;
+  --paper: #faf5ff;
+  --ink: #1e1b4b;
+  --ink-soft: #4c1d95;
+  --accent: #7c3aed;
+  --accent-2: #ec4899;
+  --accent-3: #facc15;
+  --accent-4: #06b6d4;
+  --good: #059669;
+  --bad: #b91c1c;
+  --grid: #c4b5fd;
+  --grid-axis: #1e1b4b;
+  --boss-glow: rgba(124, 58, 237, 0.55);
+  --bg-pattern:
+    radial-gradient(ellipse at 30% 0%, rgba(236, 72, 153, 0.22), transparent 55%),
+    radial-gradient(ellipse at 70% 100%, rgba(124, 58, 237, 0.30), transparent 60%);
+}
+
+/* ---------- THEME: NEUTRAL (start screen / final) ---------- */
+[data-theme="neutral"] {
+  --bg: #fff7ec;
+  --bg-2: #fde68a;
+  --paper: #ffffff;
+  --ink: #16213a;
+  --ink-soft: #4a5874;
+  --accent: #ff4d6d;
+  --accent-2: #2dd4bf;
+  --accent-3: #fbbf24;
+  --accent-4: #6366f1;
+  --good: #10b981;
+  --bad: #ef4444;
+  --grid: #d8dde9;
+  --grid-axis: #16213a;
+  --boss-glow: rgba(255, 77, 109, 0.4);
+  --bg-pattern:
+    radial-gradient(circle at 12% 18%, rgba(255,77,109,0.12), transparent 40%),
+    radial-gradient(circle at 88% 10%, rgba(45,212,191,0.14), transparent 45%),
+    radial-gradient(circle at 50% 95%, rgba(99,102,241,0.10), transparent 40%);
+}
+
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background: var(--bg-pattern);
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.6s ease;
+}
+
+/* Theme-specific decorative backdrops */
+.backdrop {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.backdrop * { position: absolute; }
+
+/* Desert: pyramids + sun */
+[data-theme="desert"] .backdrop::before {
+  content: "";
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fbbf24 0%, #f59e0b 60%, transparent 70%);
+  top: 5%; right: 8%;
+  opacity: 0.55;
+  filter: blur(2px);
+  animation: sunPulse 6s ease-in-out infinite;
+}
+[data-theme="desert"] .backdrop::after {
+  content: "";
+  bottom: 0; left: 0; right: 0;
+  height: 200px;
+  background:
+    linear-gradient(135deg, transparent 50%, #d4a574 50.1%) 5% 100% / 280px 200px no-repeat,
+    linear-gradient(225deg, transparent 50%, #c89968 50.1%) 25% 100% / 320px 230px no-repeat,
+    linear-gradient(135deg, transparent 50%, #b8895a 50.1%) 70% 100% / 360px 260px no-repeat;
+  opacity: 0.45;
+}
+@keyframes sunPulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* Ocean: waves + bubbles */
+[data-theme="ocean"] .backdrop::before {
+  content: "";
+  bottom: 0; left: -10%; right: -10%;
+  height: 180px;
+  background:
+    repeating-radial-gradient(circle at 50% 100%, rgba(6, 182, 212, 0.15) 0 30px, transparent 30px 60px);
+  opacity: 0.7;
+  animation: waveFloat 4s ease-in-out infinite;
+}
+[data-theme="ocean"] .backdrop::after {
+  content: "";
+  top: 10%; left: 5%;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  box-shadow:
+    50px 80px 0 -2px rgba(255,255,255,0.4),
+    180px 40px 0 0 rgba(255,255,255,0.5),
+    280px 120px 0 -3px rgba(255,255,255,0.35),
+    420px 60px 0 -1px rgba(255,255,255,0.4),
+    560px 200px 0 -2px rgba(255,255,255,0.45),
+    720px 90px 0 0 rgba(255,255,255,0.5),
+    920px 160px 0 -2px rgba(255,255,255,0.4),
+    -40px 380px 0 -1px rgba(255,255,255,0.45),
+    150px 460px 0 0 rgba(255,255,255,0.5),
+    340px 520px 0 -2px rgba(255,255,255,0.4),
+    560px 480px 0 -1px rgba(255,255,255,0.45);
+  animation: bubbleRise 8s linear infinite;
+}
+@keyframes waveFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes bubbleRise {
+  0% { transform: translateY(0); opacity: 0.5; }
+  100% { transform: translateY(-90vh); opacity: 0; }
+}
+
+/* Sky: lightning + clouds */
+[data-theme="sky"] .backdrop::before {
+  content: "";
+  top: 0; left: 0; right: 0;
+  height: 280px;
+  background:
+    radial-gradient(ellipse 200px 60px at 15% 30%, rgba(255,255,255,0.7), transparent 60%),
+    radial-gradient(ellipse 260px 70px at 75% 50%, rgba(255,255,255,0.55), transparent 60%),
+    radial-gradient(ellipse 180px 50px at 45% 80%, rgba(255,255,255,0.5), transparent 60%),
+    radial-gradient(ellipse 220px 60px at 95% 20%, rgba(255,255,255,0.6), transparent 60%);
+  opacity: 0.85;
+  animation: cloudDrift 30s linear infinite;
+}
+[data-theme="sky"] .backdrop::after {
+  content: "⚡";
+  font-size: 40px;
+  color: rgba(250, 204, 21, 0.55);
+  top: 20%; right: 15%;
+  text-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
+  animation: lightningFlash 5s ease-in-out infinite;
+}
+@keyframes cloudDrift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-30px); }
+}
+@keyframes lightningFlash {
+  0%, 60%, 100% { opacity: 0; transform: scale(0.9); }
+  62%, 65% { opacity: 1; transform: scale(1.2); }
+  68% { opacity: 0.5; transform: scale(1); }
+}
+
+/* ============ APP CONTAINER ============ */
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 22px 18px 80px;
+}
+
+/* ============ TOP HUD ============ */
+.hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.hud-left { display: flex; align-items: center; gap: 12px; }
+.hud-mark {
+  width: 42px; height: 42px;
+  background: var(--ink);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  transform: rotate(-4deg);
+  box-shadow: 3px 3px 0 var(--accent);
+}
+.hud-titles h1 {
+  font-family: 'Bungee', 'Fredoka', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  color: var(--ink);
+}
+.hud-titles p {
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 3px;
+  font-weight: 600;
+}
+.hud-right {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  padding: 6px 10px;
+  box-shadow: 2px 2px 0 var(--ink);
+  font-family: 'Bungee', 'Fredoka', sans-serif;
+  font-size: 13px;
+}
+.chip-label {
+  font-size: 9px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+/* ============ SCREENS ============ */
+.screen { display: none; }
+.screen.active {
+  display: block;
+  animation: screenIn 0.5s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ============ TITLE SCREEN ============ */
+.title-card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 26px;
+  padding: 50px 30px 40px;
+  text-align: center;
+  box-shadow: 0 12px 0 rgba(22,33,58,0.18), 0 24px 60px -10px rgba(22,33,58,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.title-card::before {
+  content: "";
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg,
+    rgba(255,77,109,0.06), rgba(45,212,191,0.06),
+    rgba(99,102,241,0.06), rgba(251,191,36,0.06),
+    rgba(255,77,109,0.06));
+  animation: rotateBg 30s linear infinite;
+  z-index: 0;
+}
+.title-card > * { position: relative; z-index: 1; }
+@keyframes rotateBg { to { transform: rotate(360deg); } }
+
+.title-card h2 {
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(38px, 7vw, 68px);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+.title-card h2 .glow {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-4));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+.title-card .tagline {
+  font-size: 16px;
+  color: var(--ink-soft);
+  max-width: 540px;
+  margin: 0 auto 24px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.quest-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  max-width: 740px;
+  margin: 0 auto 30px;
+}
+@media (max-width: 720px) {
+  .quest-cards { grid-template-columns: 1fr; }
+}
+
+.qc {
+  padding: 18px 14px;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+  transform: rotate(var(--r, 0deg));
+  transition: transform 0.25s ease;
+}
+.qc:hover { transform: rotate(0deg) translateY(-4px); }
+.qc:nth-child(1) {
+  --r: -2deg;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+.qc:nth-child(2) {
+  --r: 1.5deg;
+  background: linear-gradient(135deg, #cffafe, #a5f3fc);
+}
+.qc:nth-child(3) {
+  --r: -1deg;
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+}
+.qc-emoji { font-size: 36px; line-height: 1; margin-bottom: 4px; }
+.qc-num {
+  font-family: 'Bungee', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+.qc-name {
+  font-family: 'Bungee', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.qc-tag {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+/* ============ BUTTONS ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: 3px solid var(--ink);
+  border-radius: 100px;
+  background: var(--accent);
+  color: white;
+  font-family: 'Bungee', 'Fredoka', sans-serif;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 0.12s, box-shadow 0.12s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ink);
+}
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.btn.ghost {
+  background: var(--paper);
+  color: var(--ink);
+}
+.btn.small {
+  padding: 9px 18px;
+  font-size: 13px;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.btn.small:hover { box-shadow: 5px 5px 0 var(--ink); }
+.btn.huge {
+  padding: 18px 50px;
+  font-size: 22px;
+  border-width: 4px;
+  box-shadow: 7px 7px 0 var(--ink);
+}
+.btn.huge:hover { box-shadow: 10px 10px 0 var(--ink); }
+
+/* ============ QUEST INTRO SCREEN ============ */
+.intro-card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 28px;
+  padding: 40px 30px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 0 rgba(22,33,58,0.18);
+  min-height: 480px;
+}
+.intro-banner {
+  display: inline-block;
+  padding: 6px 18px;
+  background: var(--ink);
+  color: white;
+  border-radius: 100px;
+  font-family: 'Bungee', sans-serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+.intro-name {
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(34px, 5.5vw, 56px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+  color: var(--ink);
+  text-shadow: 4px 4px 0 var(--accent-2);
+}
+.intro-tag {
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-soft);
+  margin-bottom: 28px;
+  font-weight: 500;
+}
+.boss-arena {
+  position: relative;
+  height: 220px;
+  margin: 24px auto 28px;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.boss-arena .boss-sprite {
+  animation: bossFloatIntro 3s ease-in-out infinite;
+}
+@keyframes bossFloatIntro {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.02); }
+}
+.boss-spotlight {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 280px; height: 80px;
+  background: radial-gradient(ellipse, var(--boss-glow), transparent 70%);
+  filter: blur(8px);
+  animation: spotlightPulse 2s ease-in-out infinite;
+}
+@keyframes spotlightPulse {
+  0%,100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+}
+
+.intro-mission {
+  background: var(--bg);
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  padding: 18px;
+  max-width: 540px;
+  margin: 0 auto 22px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+  font-weight: 500;
+  position: relative;
+}
+.intro-mission .label {
+  position: absolute;
+  top: -10px; left: 16px;
+  background: var(--accent);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-family: 'Bungee', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  border: 2px solid var(--ink);
+}
+
+/* ============ BATTLE SCREEN ============ */
+.battle-stage {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 22px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 0 rgba(22,33,58,0.18);
+  position: relative;
+  overflow: hidden;
+}
+.battle-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, var(--boss-glow));
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.boss-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+.boss-mini {
+  width: 88px; height: 88px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.boss-mini .boss-sprite {
+  width: 100%; height: 100%;
+  animation: bossIdle 2.4s ease-in-out infinite;
+}
+@keyframes bossIdle {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-4px); }
+}
+.boss-info {
+  flex: 1;
+  min-width: 0;
+}
+.boss-info .name {
+  font-family: 'Bungee', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  color: var(--ink);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.boss-info .name .lvl {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+/* ============ HP BARS ============ */
+.hpbar {
+  position: relative;
+  height: 18px;
+  background: var(--ink);
+  border-radius: 100px;
+  border: 2px solid var(--ink);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.hpbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background-size: 200% 100%;
+  animation: hpShimmer 4s linear infinite;
+  width: 100%;
+  transition: width 0.8s cubic-bezier(.2,.9,.3,1.2);
+  border-radius: 100px;
+}
+.hpbar-fill.low {
+  background: linear-gradient(90deg, #b91c1c, #ef4444);
+}
+.hpbar-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', 'Bungee', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+  letter-spacing: 1px;
+}
+@keyframes hpShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg);
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  padding: 8px 14px;
+  margin-top: 14px;
+  position: relative;
+  z-index: 1;
+}
+.player-icon {
+  font-size: 24px;
+}
+.player-info {
+  flex: 1;
+}
+.player-info .lbl {
+  font-family: 'Bungee', sans-serif;
+  font-size: 11px;
+  color: var(--ink-soft);
+  letter-spacing: 1.5px;
+}
+
+/* ============ QUESTION + GRID ============ */
+.q-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 880px) { .q-grid { grid-template-columns: 1fr; } }
+
+.q-card {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 0 5px 0 rgba(22,33,58,0.16);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.q-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--ink);
+  color: var(--bg);
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-family: 'Bungee', sans-serif;
+  font-size: 10px;
+  letter-spacing: 2px;
+  align-self: flex-start;
+  margin-bottom: 10px;
+}
+.q-tag.translate { background: var(--accent); color: white; }
+.q-tag.reflect   { background: var(--accent-4); color: white; }
+.q-tag.rotate    { background: var(--accent-2); color: var(--ink); }
+
+.q-title {
+  font-family: 'Bungee', 'Fredoka', sans-serif;
+  font-size: 19px;
+  line-height: 1.3;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+.q-detail {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.q-detail code, .q-detail strong code {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  border: 1px solid var(--grid);
+}
+
+.original-coords {
+  background: var(--bg);
+  border: 2px dashed var(--ink);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.instr {
+  margin-top: auto;
+  background: var(--bg);
+  border: 2px solid var(--ink);
+  border-left-width: 5px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+.instr strong { color: var(--accent); }
+
+/* ============ GRID PANEL ============ */
+.grid-panel {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 0 5px 0 rgba(22,33,58,0.16);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.grid-svg-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 460px;
+  position: relative;
+}
+.grid-svg { width: 100%; height: 100%; display: block; }
+.grid-cell { fill: transparent; cursor: pointer; }
+.grid-cell:hover { fill: rgba(255, 77, 109, 0.10); }
+
+.shape-original { fill: rgba(255,77,109,0.18); stroke: var(--accent); stroke-width: 2.5; }
+.shape-image    { fill: rgba(45,212,191,0.25); stroke: var(--accent-2); stroke-width: 2.5; }
+.shape-correct  { fill: rgba(16,185,129,0.30); stroke: var(--good); stroke-width: 2.8; }
+.shape-wrong    { fill: rgba(239,68,68,0.20); stroke: var(--bad); stroke-width: 2.5; }
+
+.vertex-original { fill: var(--accent); stroke: var(--ink); stroke-width: 2; }
+.vertex-image    { fill: var(--accent-2); stroke: var(--ink); stroke-width: 2.5; }
+.vertex-pending  { fill: rgba(45, 212, 191, 0.4); stroke: var(--accent-2); stroke-width: 2; stroke-dasharray: 3 3; }
+
+.legend {
+  display: flex; gap: 14px; font-size: 11px; color: var(--ink-soft);
+}
+.legend-dot {
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 50%; margin-right: 5px; vertical-align: middle;
+  border: 2px solid var(--ink);
+}
+.legend-dot.orig { background: var(--accent); }
+.legend-dot.img  { background: var(--accent-2); }
+
+.vertex-tracker {
+  display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;
+}
+.vt-pill {
+  padding: 3px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  background: var(--bg);
+  font-weight: 600;
+}
+.vt-pill.done { background: var(--accent-2); font-weight: 700; }
+.vt-pill.next {
+  background: var(--accent); color: white;
+  animation: pillPulse 1.2s ease-in-out infinite;
+}
+@keyframes pillPulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* ============ MULTIPLE CHOICE ============ */
+.mc-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: auto;
+}
+@media (max-width: 520px) { .mc-wrap { grid-template-columns: 1fr; } }
+.mc-option {
+  padding: 12px 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--paper);
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  text-align: left;
+  transition: all 0.15s;
+  box-shadow: 3px 3px 0 var(--ink);
+  line-height: 1.4;
+  font-weight: 600;
+}
+.mc-option:hover {
+  background: var(--bg);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.mc-option.selected {
+  background: var(--accent-3);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+.mc-option.correct { background: var(--good); color: white; }
+.mc-option.wrong   { background: var(--bad); color: white; }
+
+/* ============ FEEDBACK ============ */
+.feedback {
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  display: none;
+}
+.feedback.show { display: block; animation: screenIn 0.4s; }
+.feedback.correct { background: #d1fae5; }
+.feedback.wrong   { background: #fee2e2; }
+.feedback h3 {
+  font-family: 'Bungee', sans-serif;
+  font-size: 18px;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.feedback p { font-size: 13px; line-height: 1.5; color: var(--ink); }
+
+/* ============ ACTION BAR ============ */
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.action-bar .right { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ============ BATTLE EFFECTS ============ */
+.battle-stage.hit-flash {
+  animation: hitFlash 0.5s;
+}
+@keyframes hitFlash {
+  0% { background: var(--paper); }
+  20% { background: #ffd1d1; box-shadow: 0 0 30px rgba(239,68,68,0.6); }
+  100% { background: var(--paper); }
+}
+.boss-mini.hit { animation: bossHit 0.6s; }
+@keyframes bossHit {
+  0% { transform: translateX(0); filter: none; }
+  15% { transform: translateX(-10px); filter: brightness(1.5) hue-rotate(-30deg); }
+  30% { transform: translateX(10px); filter: brightness(1.5) hue-rotate(-30deg); }
+  45% { transform: translateX(-6px); }
+  60% { transform: translateX(6px); }
+  100% { transform: translateX(0); filter: none; }
+}
+.boss-mini.defeated {
+  animation: bossDefeat 1.2s forwards;
+}
+@keyframes bossDefeat {
+  0%   { transform: rotate(0) scale(1); opacity: 1; }
+  20%  { transform: rotate(-15deg) scale(1.05); }
+  40%  { transform: rotate(20deg) scale(0.95); }
+  60%  { transform: rotate(-25deg) scale(1.1); filter: brightness(1.5); }
+  100% { transform: rotate(720deg) scale(0.2); opacity: 0; }
+}
+.player-row.hurt { animation: playerHurt 0.6s; }
+@keyframes playerHurt {
+  0%, 100% { transform: translateX(0); background: var(--bg); }
+  20% { transform: translateX(-6px); background: #fee2e2; }
+  40% { transform: translateX(6px); background: #fee2e2; }
+  60% { transform: translateX(-3px); }
+}
+
+/* Floating damage numbers */
+.damage-num {
+  position: absolute;
+  font-family: 'Bungee', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: white;
+  text-shadow:
+    -2px -2px 0 var(--ink),
+     2px -2px 0 var(--ink),
+    -2px  2px 0 var(--ink),
+     2px  2px 0 var(--ink);
+  pointer-events: none;
+  z-index: 100;
+  animation: dmgFloat 1.2s cubic-bezier(.2,.7,.4,1) forwards;
+}
+.damage-num.crit {
+  font-size: 36px;
+  color: var(--accent-3);
+}
+@keyframes dmgFloat {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+  20%  { opacity: 1; transform: translate(-50%, -10px) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+}
+
+/* Streak banner */
+.streak-flash {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  font-family: 'Bungee', sans-serif;
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 3px 3px 0 var(--ink), 6px 6px 30px rgba(0,0,0,0.3);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 200;
+  letter-spacing: 2px;
+}
+.streak-flash.show {
+  animation: streakAnim 1.4s cubic-bezier(.2,.9,.3,1.2);
+}
+@keyframes streakAnim {
+  0%   { transform: translate(-50%, -50%) scale(0.3) rotate(-15deg); opacity: 0; }
+  25%  { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); opacity: 1; }
+  60%  { transform: translate(-50%, -50%) scale(1) rotate(-3deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0.7) rotate(0); opacity: 0; }
+}
+
+/* ============ VICTORY / DEFEAT SCREENS ============ */
+.victory-card, .defeat-card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 28px;
+  padding: 50px 30px;
+  text-align: center;
+  box-shadow: 0 12px 0 rgba(22,33,58,0.18);
+  position: relative;
+  overflow: hidden;
+}
+.victory-card h2 {
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(36px, 6vw, 60px);
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+  color: var(--good);
+  text-shadow: 4px 4px 0 var(--ink);
+}
+.defeat-card h2 {
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(36px, 6vw, 60px);
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+  color: var(--bad);
+  text-shadow: 4px 4px 0 var(--ink);
+}
+.victory-card .sub, .defeat-card .sub {
+  font-size: 17px;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+  font-weight: 500;
+}
+.victory-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  max-width: 540px;
+  margin: 0 auto 26px;
+}
+.vs-item {
+  padding: 14px 8px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: var(--bg);
+}
+.vs-icon { font-size: 26px; }
+.vs-val {
+  font-family: 'Bungee', sans-serif;
+  font-size: 22px;
+  margin-top: 2px;
+}
+.vs-lbl {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* ============ FINAL SUMMARY ============ */
+.final-card {
+  background: var(--paper);
+  border: 4px solid var(--ink);
+  border-radius: 28px;
+  padding: 50px 30px;
+  text-align: center;
+  box-shadow: 0 12px 0 rgba(22,33,58,0.18);
+  position: relative;
+  overflow: hidden;
+}
+.final-card h2 {
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(38px, 6vw, 64px);
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 6px;
+  color: var(--ink);
+  text-shadow: 4px 4px 0 var(--accent-3);
+}
+.final-card .crown { font-size: 70px; line-height: 1; margin-bottom: 8px; }
+.final-score {
+  font-family: 'Bungee', sans-serif;
+  font-size: 88px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--accent);
+  margin: 16px 0 4px;
+  text-shadow: 4px 4px 0 var(--ink);
+}
+.final-out {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+.final-grade {
+  display: inline-block;
+  padding: 10px 26px;
+  background: var(--accent-3);
+  border: 3px solid var(--ink);
+  border-radius: 100px;
+  font-family: 'Bungee', sans-serif;
+  font-size: 22px;
+  box-shadow: 4px 4px 0 var(--ink);
+  margin-bottom: 26px;
+  transform: rotate(-2deg);
+  color: var(--ink);
+}
+
+.set-results {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  max-width: 700px;
+  margin: 0 auto 30px;
+}
+@media (max-width: 720px) { .set-results { grid-template-columns: 1fr; } }
+.sr {
+  padding: 18px 12px;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  background: var(--bg);
+}
+.sr-icon { font-size: 30px; line-height: 1; margin-bottom: 4px; }
+.sr-name {
+  font-family: 'Bungee', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.sr-stats {
+  display: flex;
+  justify-content: space-around;
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+.sr-stats b {
+  display: block;
+  font-family: 'Bungee', sans-serif;
+  font-size: 18px;
+  color: var(--ink);
+}
+.sr.victory { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+.sr.defeated { background: linear-gradient(135deg, #fee2e2, #fecaca); }
+
+/* ============ PARTICLE BURST ============ */
+.particle {
+  position: fixed;
+  pointer-events: none;
+  width: 12px; height: 16px;
+  z-index: 999;
+  border-radius: 2px;
+}
+
+/* ============ TRANSITION OVERLAY ============ */
+.transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  display: none;
+}
+.transition-overlay.active { display: block; }
+.transition-wipe {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: translateY(-100%);
+}
+.transition-overlay.active .transition-wipe {
+  animation: wipeDown 1.4s cubic-bezier(.5,0,.5,1) forwards;
+}
+@keyframes wipeDown {
+  0%   { transform: translateY(-100%); }
+  45%  { transform: translateY(0); }
+  55%  { transform: translateY(0); }
+  100% { transform: translateY(110%); }
+}
+
+.transition-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(40px, 8vw, 80px);
+  color: white;
+  letter-spacing: 4px;
+  white-space: nowrap;
+  opacity: 0;
+}
+.transition-overlay.active .transition-text {
+  animation: transText 1.4s ease forwards;
+}
+@keyframes transText {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+  35%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  65%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+/* ============ TRICKS MODAL ============ */
+.chip-btn {
+  cursor: pointer;
+  background: var(--accent-3);
+  color: var(--ink);
+  font-family: 'Bungee', 'Fredoka', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  padding: 7px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  box-shadow: 2px 2px 0 var(--ink);
+  transition: transform 0.12s, box-shadow 0.12s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.chip-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.chip-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(22, 33, 58, 0.7);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 600;
+  padding: 40px 18px;
+  overflow-y: auto;
+}
+.modal-backdrop.active {
+  display: flex;
+  animation: modalFade 0.3s ease;
+}
+@keyframes modalFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-card {
+  background: #fffbf0;
+  border: 4px solid #16213a;
+  border-radius: 24px;
+  max-width: 760px;
+  width: 100%;
+  box-shadow: 0 12px 0 rgba(22,33,58,0.18), 0 30px 70px -10px rgba(0,0,0,0.5);
+  position: relative;
+  margin: auto;
+  animation: modalSlide 0.4s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes modalSlide {
+  from { opacity: 0; transform: translateY(40px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+.modal-close {
+  position: absolute;
+  top: -18px; right: -18px;
+  width: 46px; height: 46px;
+  background: #16213a;
+  color: white;
+  border: 3px solid #fffbf0;
+  border-radius: 50%;
+  font-size: 26px;
+  font-family: 'Bungee', sans-serif;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 3px 3px 0 #ff4d6d;
+  transition: transform 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+.modal-close:hover { transform: rotate(90deg); }
+
+.modal-header {
+  padding: 28px 30px 18px;
+  border-bottom: 3px dashed #d8dde9;
+}
+.modal-header h2 {
+  font-family: 'Bungee', sans-serif;
+  font-size: clamp(24px, 4vw, 32px);
+  letter-spacing: -0.5px;
+  color: #16213a;
+  margin-bottom: 6px;
+  line-height: 1.05;
+}
+.modal-header p {
+  font-size: 13px;
+  color: #4a5874;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.modal-body {
+  padding: 22px 26px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tricks-section {
+  border: 2.5px solid #16213a;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ts-bg);
+}
+.tricks-section header {
+  padding: 11px 18px;
+  background: var(--ts-head);
+  color: var(--ts-head-fg, white);
+  font-family: 'Bungee', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.tricks-section.t-translate { --ts-bg: #ffe5ec; --ts-head: #ff4d6d; --ts-head-fg: white; }
+.tricks-section.t-reflect   { --ts-bg: #e0e7ff; --ts-head: #6366f1; --ts-head-fg: white; }
+.tricks-section.t-rotate    { --ts-bg: #d6f5f1; --ts-head: #2dd4bf; --ts-head-fg: #16213a; }
+.tricks-section.t-tips      { --ts-bg: #fff3cf; --ts-head: #fbbf24; --ts-head-fg: #16213a; }
+
+.tricks-content {
+  padding: 14px 18px 16px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #16213a;
+}
+.tricks-shortcut {
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #16213a;
+}
+.tricks-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.tricks-content li {
+  padding: 4px 0 4px 18px;
+  position: relative;
+}
+.tricks-content li::before {
+  content: "•";
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  color: var(--ts-head);
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1;
+}
+.tricks-content code {
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(255,255,255,0.7);
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tricks-content p { margin: 0 0 6px; }
+.tricks-content p:last-child { margin-bottom: 0; }
+
+.rotation-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 4px;
+  font-size: 12.5px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid rgba(22,33,58,0.15);
+}
+.rotation-table th {
+  background: #16213a;
+  color: white;
+  padding: 8px 10px;
+  text-align: left;
+  font-family: 'Bungee', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+.rotation-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(22,33,58,0.08);
+  background: rgba(255,255,255,0.55);
+}
+.rotation-table tr:last-child td { border-bottom: none; }
+.rotation-table td:first-child {
+  font-family: 'Bungee', sans-serif;
+  font-size: 11px;
+  width: 22%;
+}
+.rotation-table td:nth-child(2) {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  color: #ff4d6d;
+  white-space: nowrap;
+  width: 32%;
+}
+.rotation-table td:nth-child(3) {
+  color: #4a5874;
+  font-size: 12px;
+}
+
+.tricks-tips ol {
+  padding-left: 24px;
+  margin: 4px 0 0;
+  counter-reset: tip-counter;
+  list-style: none;
+}
+.tricks-tips li {
+  padding: 5px 0 5px 6px;
+  counter-increment: tip-counter;
+  position: relative;
+}
+.tricks-tips li::before {
+  content: counter(tip-counter) ".";
+  position: absolute;
+  left: -22px;
+  color: #ff4d6d;
+  font-family: 'Bungee', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .modal-backdrop { padding: 28px 12px; }
+  .modal-header { padding: 22px 22px 14px; }
+  .modal-body { padding: 18px 18px 24px; }
+  .tricks-content { font-size: 13px; }
+  .rotation-table { font-size: 11.5px; }
+  .rotation-table td:first-child { width: 25%; }
+}
+
+</style>
+</head>
+<body data-theme="neutral">
+<div class="backdrop"></div>
+
+<div class="streak-flash" id="streakFlash"></div>
+
+<div class="transition-overlay" id="transitionOverlay">
+  <div class="transition-wipe"></div>
+  <div class="transition-text" id="transitionText">DESERT</div>
+</div>
+
+<div class="app">
+
+  <!-- ============ TOP HUD ============ -->
+  <div class="hud" id="hud">
+    <div class="hud-left">
+      <div class="hud-mark" id="hudIcon">⚔️</div>
+      <div class="hud-titles">
+        <h1 id="hudTitle">Transformation Quest</h1>
+        <p id="hudSubtitle">Three Realms · One Quest</p>
+      </div>
+    </div>
+    <div class="hud-right">
+      <button class="chip-btn" id="tricksBtn" title="Open the cheat sheet (or press ?)" aria-label="Open tricks reference"><span>📖</span><span>TRICKS</span></button>
+      <div class="chip"><span class="chip-label">SET</span><span id="hudSet">—</span></div>
+      <div class="chip"><span class="chip-label">Q</span><span id="hudQ">—</span></div>
+      <div class="chip"><span class="chip-label">SCORE</span><span id="hudScore">0</span></div>
+      <div class="chip"><span class="chip-label">STREAK</span><span id="hudStreak">0🔥</span></div>
+    </div>
+  </div>
+
+  <!-- ============ START SCREEN ============ -->
+  <section class="screen active" id="startScreen">
+    <div class="title-card">
+      <h2>TRANSFORMATION <span class="glow">QUEST</span></h2>
+      <p class="tagline">Three legendary bosses guard the secrets of geometry. Master <strong>translations</strong>, <strong>reflections</strong>, and <strong>rotations</strong> to defeat them all and earn the title of Transformer Supreme.</p>
+      <div class="quest-cards">
+        <div class="qc">
+          <div class="qc-emoji">🏜️</div>
+          <div class="qc-num">QUEST 1</div>
+          <div class="qc-name">Desert Pyramids</div>
+          <div class="qc-tag">vs. The Sphinx</div>
+        </div>
+        <div class="qc">
+          <div class="qc-emoji">🌊</div>
+          <div class="qc-num">QUEST 2</div>
+          <div class="qc-name">Ocean Voyage</div>
+          <div class="qc-tag">vs. The Kraken</div>
+        </div>
+        <div class="qc">
+          <div class="qc-emoji">☁️</div>
+          <div class="qc-num">QUEST 3</div>
+          <div class="qc-name">Sky Citadel</div>
+          <div class="qc-tag">vs. Tempest the Storm Dragon</div>
+        </div>
+      </div>
+      <button class="btn huge" id="startBtn">⚔️ Begin the Quest</button>
+      <p style="margin-top:18px;font-size:12px;color:var(--ink-soft);">15 challenges per quest · 45 in total · randomized each playthrough</p>
+    </div>
+  </section>
+
+  <!-- ============ QUEST INTRO SCREEN ============ -->
+  <section class="screen" id="introScreen">
+    <div class="intro-card">
+      <div class="intro-banner" id="introBanner">QUEST 1 OF 3</div>
+      <h2 class="intro-name" id="introName">The Pharaoh's Trial</h2>
+      <p class="intro-tag" id="introTag">Desert Pyramids · Guardian of the Sands</p>
+      <div class="boss-arena">
+        <div class="boss-spotlight"></div>
+        <div id="introBoss" style="width:200px;height:220px;position:relative;z-index:1;"></div>
+      </div>
+      <div class="intro-mission" id="introMission">
+        <span class="label">MISSION</span>
+        Mission text loaded dynamically.
+      </div>
+      <button class="btn huge" id="introBtn">⚔️ Engage</button>
+    </div>
+  </section>
+
+  <!-- ============ BATTLE SCREEN ============ -->
+  <section class="screen" id="battleScreen">
+
+    <div class="battle-stage" id="battleStage">
+      <div class="boss-row">
+        <div class="boss-mini" id="bossMini"></div>
+        <div class="boss-info">
+          <div class="name"><span id="bossName">—</span> <span class="lvl" id="bossLvl"></span></div>
+          <div class="hpbar">
+            <div class="hpbar-fill" id="bossHPFill"></div>
+            <div class="hpbar-text" id="bossHPText">100 / 100</div>
+          </div>
+        </div>
+      </div>
+      <div class="player-row" id="playerRow">
+        <div class="player-icon">🛡️</div>
+        <div class="player-info">
+          <div class="lbl">YOUR HP</div>
+          <div class="hpbar">
+            <div class="hpbar-fill" id="playerHPFill"></div>
+            <div class="hpbar-text" id="playerHPText">100 / 100</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-grid">
+      <div class="q-card">
+        <span class="q-tag" id="qTag">TRANSLATION</span>
+        <h3 class="q-title" id="qTitle">—</h3>
+        <p class="q-detail" id="qDetail">—</p>
+        <div class="original-coords" id="qOrigCoords"></div>
+        <div class="instr" id="qInstr"></div>
+        <div class="mc-wrap" id="mcWrap" style="display:none;"></div>
+      </div>
+
+      <div class="grid-panel">
+        <div class="vertex-tracker" id="vertexTracker"></div>
+        <div class="grid-svg-wrap">
+          <svg class="grid-svg" id="gridSvg"></svg>
+        </div>
+        <div class="legend" id="legendRow">
+          <span><span class="legend-dot orig"></span>Original</span>
+          <span><span class="legend-dot img"></span>Image</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback">
+      <h3 id="fbTitle">—</h3>
+      <p id="fbBody">—</p>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn ghost small" id="quitBtn">⤺ Abandon Quest</button>
+      <div class="right">
+        <button class="btn ghost small" id="resetBtn">↻ Reset</button>
+        <button class="btn" id="checkBtn">Check ⚔️</button>
+        <button class="btn" id="nextBtn" style="display:none;">Next →</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ SET VICTORY SCREEN ============ -->
+  <section class="screen" id="victoryScreen">
+    <div class="victory-card">
+      <div style="font-size:80px;line-height:1;margin-bottom:8px;">🏆</div>
+      <h2 id="victoryTitle">VICTORY!</h2>
+      <p class="sub" id="victorySub">Boss defeated.</p>
+      <div class="victory-stats">
+        <div class="vs-item">
+          <div class="vs-icon">⚔️</div>
+          <div class="vs-val" id="vsCorrect">0</div>
+          <div class="vs-lbl">Strikes</div>
+        </div>
+        <div class="vs-item">
+          <div class="vs-icon">⭐</div>
+          <div class="vs-val" id="vsScore">0</div>
+          <div class="vs-lbl">Score</div>
+        </div>
+        <div class="vs-item">
+          <div class="vs-icon">🔥</div>
+          <div class="vs-val" id="vsStreak">0</div>
+          <div class="vs-lbl">Best Streak</div>
+        </div>
+      </div>
+      <button class="btn huge" id="victoryBtn">Continue →</button>
+    </div>
+  </section>
+
+  <!-- ============ SET DEFEAT SCREEN ============ -->
+  <section class="screen" id="defeatScreen">
+    <div class="defeat-card">
+      <div style="font-size:80px;line-height:1;margin-bottom:8px;">💀</div>
+      <h2 id="defeatTitle">DEFEATED</h2>
+      <p class="sub" id="defeatSub">The boss bested you this time.</p>
+      <p style="font-size:14px;color:var(--ink-soft);margin-bottom:24px;max-width:420px;margin-left:auto;margin-right:auto;line-height:1.5;">Don't give up — every hero falls before they rise. Press on to the next quest, or abandon and start over.</p>
+      <button class="btn huge" id="defeatBtn">Press On →</button>
+    </div>
+  </section>
+
+  <!-- ============ FINAL SUMMARY SCREEN ============ -->
+  <section class="screen" id="finalScreen">
+    <div class="final-card">
+      <div class="crown" id="finalCrown">👑</div>
+      <h2>QUEST COMPLETE</h2>
+      <div class="final-score" id="finalScore">0</div>
+      <div class="final-out" id="finalSubText">— · —</div>
+      <div class="final-grade" id="finalGrade">CHAMPION</div>
+      <p id="finalMsg" style="font-size:15px;color:var(--ink-soft);max-width:540px;margin:0 auto 28px;line-height:1.6;font-weight:500;">—</p>
+      <div class="set-results" id="setResults"></div>
+      <button class="btn huge" id="playAgainBtn">↻ Play Again</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ TRICKS MODAL (Cheat Sheet) ============ -->
+<div class="modal-backdrop" id="tricksModal" role="dialog" aria-modal="true" aria-labelledby="tricksTitle">
+  <div class="modal-card">
+    <button class="modal-close" id="closeTricksBtn" aria-label="Close cheat sheet">×</button>
+    <div class="modal-header">
+      <h2 id="tricksTitle">📖 Transformation Tricks</h2>
+      <p>Quick reference for solving Translations, Reflections, and Rotations · Pre-Algebra Ch. 3.1 – 3.3</p>
+    </div>
+    <div class="modal-body">
+
+      <section class="tricks-section t-translate">
+        <header>➤ TRANSLATIONS (Slide)</header>
+        <div class="tricks-content">
+          <p class="tricks-shortcut">The shortcut: Just add or subtract the same numbers from every vertex.</p>
+          <ul>
+            <li><b>Right</b> = add to <i>x</i> · <b>Left</b> = subtract from <i>x</i></li>
+            <li><b>Up</b> = add to <i>y</i> · <b>Down</b> = subtract from <i>y</i></li>
+            <li>Rule form: <code>(x, y) → (x + a, y + b)</code>, where positive values mean right/up and negative values mean left/down.</li>
+            <li><b>To find the rule</b> when given before and after: subtract the originals from the images. If A(2, −1) → A′(−1, −5), then x changed by −3 and y changed by −4, so the rule is <code>(x, y) → (x − 3, y − 4)</code>.</li>
+            <li><b>Sanity check:</b> every vertex must move by the same amount in the same direction. If they don't, it isn't a translation.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="tricks-section t-reflect">
+        <header>➤ REFLECTIONS (Flip)</header>
+        <div class="tricks-content">
+          <p class="tricks-shortcut">The shortcut: Flip the sign of whichever coordinate the line of reflection controls.</p>
+          <ul>
+            <li><b>Across the x-axis</b> → flip the <i>y</i>: <code>(x, y) → (x, −y)</code></li>
+            <li><b>Across the y-axis</b> → flip the <i>x</i>: <code>(x, y) → (−x, y)</code></li>
+            <li><b>Across a horizontal line y = k</b> → <code>(x, y) → (x, 2k − y)</code>. Easier: count how far above or below the line each point is, then put the image the same distance on the other side.</li>
+            <li><b>Across a vertical line x = k</b> → <code>(x, y) → (2k − x, y)</code>. Same logic — count distance to the line, mirror it.</li>
+            <li><b>To find the line of reflection:</b> take a point and its image, find the midpoint of the segment connecting them. The line of reflection passes through that midpoint perpendicular to that segment.</li>
+            <li><b>Sanity check:</b> the image is the same size and shape, but "backwards" — orientation reverses (like a mirror image).</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="tricks-section t-rotate">
+        <header>➤ ROTATIONS (Turn — about the origin in this chapter)</header>
+        <div class="tricks-content">
+          <p class="tricks-shortcut">The shortcut: Memorize four rules. All counterclockwise rotations about the origin.</p>
+          <table class="rotation-table">
+            <thead><tr><th>Rotation</th><th>Rule</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td>90° CCW</td><td>(x, y) → (−y, &nbsp;x)</td><td>Swap, then negate the new x</td></tr>
+              <tr><td>180°</td><td>(x, y) → (−x, −y)</td><td>Negate both coordinates</td></tr>
+              <tr><td>270° CCW</td><td>(x, y) → (&nbsp;y, −x)</td><td>Swap, then negate the new y</td></tr>
+              <tr><td>360°</td><td>(x, y) → (&nbsp;x, &nbsp;y)</td><td>Back to where you started</td></tr>
+            </tbody>
+          </table>
+          <p class="tricks-shortcut" style="margin-top:14px;">Clockwise conversion trick: A clockwise rotation of n° = a counterclockwise rotation of (360 − n)°.</p>
+          <ul>
+            <li>90° CW = 270° CCW → use <code>(y, −x)</code></li>
+            <li>270° CW = 90° CCW → use <code>(−y, x)</code></li>
+            <li>180° is the same either way — direction doesn't matter for a half-turn.</li>
+          </ul>
+          <p style="margin-top:10px;"><b>Mental shortcut for 90°:</b> swap the coordinates, then flip the sign of one of them. For 90° CCW it's the <i>new x</i> that gets the negative; for 90° CW it's the <i>new y</i>.</p>
+          <p style="margin-top:6px;"><b>To identify an unknown rotation:</b> plug one vertex into each of the four rules and see which produces the image point. If A(1, 2) → A′(−2, 1), test <code>(−y, x) = (−2, 1)</code> ✓ — that's 90° CCW.</p>
+        </div>
+      </section>
+
+      <section class="tricks-section t-tips">
+        <header>➤ UNIVERSAL TEST-DAY TIPS</header>
+        <div class="tricks-content tricks-tips">
+          <ol>
+            <li><b>Work one vertex at a time.</b> Apply the rule, write the new point, move on. Don't try to do all of them in your head at once.</li>
+            <li><b>Count grid lines as a check.</b> After computing, look at the picture and verify the image landed where it should.</li>
+            <li><b>Read the direction word carefully.</b> "Left/right/up/down" for translations, "in/across the line" for reflections, "clockwise/counterclockwise" for rotations. Mixing these up is the #1 mistake.</li>
+            <li><b>Use prime notation</b> (A′, B′, C′) for image points — the problem expects it, and it keeps original and image clearly separate.</li>
+            <li><b>Original and image are always identical in size and shape.</b> Only position or orientation changes. If your image came out a different size, something went wrong.</li>
+          </ol>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* =================================================================
+   TRANSFORMATION QUEST v2 — Boss Battle Edition
+   ================================================================= */
+
+/* ---------- TRANSFORMATION HELPERS ---------- */
+const T = {
+  reflectX: p => ({x: p.x, y: -p.y}),
+  reflectY: p => ({x: -p.x, y: p.y}),
+  reflectH: (p, k) => ({x: p.x, y: 2*k - p.y}),
+  reflectV: (p, k) => ({x: 2*k - p.x, y: p.y}),
+  rot90CCW: p => ({x: -p.y, y: p.x}),
+  rot180:   p => ({x: -p.x, y: -p.y}),
+  rot90CW:  p => ({x: p.y, y: -p.x}),
+};
+const eqPt = (a, b) => a.x === b.x && a.y === b.y;
+const eqShape = (a, b) => a.length === b.length && a.every((p, i) => eqPt(p, b[i]));
+const shuffle = arr => {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+/* ---------- QUESTION POOL (45 questions: 15 per topic) ---------- */
+/* Helpers for compact construction */
+const pt = (x, y, l) => ({x, y, label: l});
+
+const QUESTION_POOL = {
+  /* ===== TRANSLATIONS ===== */
+  translate: [
+    { id: 't1', type: 'plot', topic: 'translate',
+      title: 'Translate: 3 right, 2 down',
+      detail: 'Slide every vertex <strong>3 units right</strong> and <strong>2 units down</strong>.',
+      instr: 'Click the grid where each vertex of the IMAGE lands. Place A′, then B′, then C′.',
+      original: [pt(-3,1,'A'), pt(-1,3,'B'), pt(0,0,'C')],
+      transform: pts => pts.map(p => ({x: p.x+3, y: p.y-2})),
+      explain: 'Add 3 to each x; subtract 2 from each y. Rule: (x, y) → (x + 3, y − 2).' },
+
+    { id: 't2', type: 'plot', topic: 'translate',
+      title: 'Use the rule (x − 2, y + 4)',
+      detail: 'Apply <code>(x, y) → (x − 2, y + 4)</code>.',
+      instr: 'Move every vertex 2 LEFT and 4 UP. Click in vertex order.',
+      original: [pt(1,-3,'D'), pt(4,-3,'E'), pt(2,-1,'F')],
+      transform: pts => pts.map(p => ({x: p.x-2, y: p.y+4})),
+      explain: 'Subtract 2 from each x; add 4 to each y.' },
+
+    { id: 't3', type: 'plot', topic: 'translate',
+      title: 'Translate: 0 right, 4 down',
+      detail: 'Slide the square straight <strong>down 4 units</strong>.',
+      instr: 'Click the grid in vertex order to place the image.',
+      original: [pt(1,1,'P'), pt(3,1,'Q'), pt(3,3,'R'), pt(1,3,'S')],
+      transform: pts => pts.map(p => ({x: p.x, y: p.y-4})),
+      explain: 'When the figure only moves vertically, x stays the same. Rule: (x, y) → (x, y − 4).' },
+
+    { id: 't4', type: 'plot', topic: 'translate',
+      title: 'Translate: 5 right, 3 down',
+      detail: 'Slide the triangle <strong>5 right</strong> and <strong>3 down</strong>.',
+      instr: 'Click the grid where each image vertex lands.',
+      original: [pt(-4,2,'J'), pt(-2,2,'K'), pt(-3,4,'L')],
+      transform: pts => pts.map(p => ({x: p.x+5, y: p.y-3})),
+      explain: 'Rule: (x, y) → (x + 5, y − 3).' },
+
+    { id: 't5', type: 'plot', topic: 'translate',
+      title: 'Use the rule (x + 4, y + 1)',
+      detail: 'Apply <code>(x, y) → (x + 4, y + 1)</code>.',
+      instr: '4 right, 1 up. Click vertices in order.',
+      original: [pt(-3,-1,'A'), pt(-1,-1,'B'), pt(-1,2,'C'), pt(-3,2,'D')],
+      transform: pts => pts.map(p => ({x: p.x+4, y: p.y+1})),
+      explain: 'Add 4 to each x and 1 to each y.' },
+
+    { id: 't6', type: 'plot', topic: 'translate',
+      title: 'Translate: 6 left, 4 down',
+      detail: 'Slide the triangle <strong>6 left</strong> and <strong>4 down</strong>.',
+      instr: 'Click the image vertices in order.',
+      original: [pt(2,2,'X'), pt(5,2,'Y'), pt(3,5,'Z')],
+      transform: pts => pts.map(p => ({x: p.x-6, y: p.y-4})),
+      explain: 'Rule: (x, y) → (x − 6, y − 4).' },
+
+    { id: 't7', type: 'plot', topic: 'translate',
+      title: 'Translate: 3 right, 5 up',
+      detail: 'Slide the triangle <strong>3 right</strong> and <strong>5 up</strong>.',
+      instr: 'Click the image vertices in order.',
+      original: [pt(-5,-3,'M'), pt(-3,-3,'N'), pt(-4,-5,'O')],
+      transform: pts => pts.map(p => ({x: p.x+3, y: p.y+5})),
+      explain: 'Rule: (x, y) → (x + 3, y + 5).' },
+
+    { id: 't8', type: 'plot', topic: 'translate',
+      title: 'Use the rule (x − 7, y + 6)',
+      detail: 'Apply <code>(x, y) → (x − 7, y + 6)</code>.',
+      instr: '7 left, 6 up. Click vertices in order.',
+      original: [pt(3,-2,'G'), pt(5,-4,'H'), pt(2,-5,'I')],
+      transform: pts => pts.map(p => ({x: p.x-7, y: p.y+6})),
+      explain: 'Subtract 7 from each x; add 6 to each y.' },
+
+    { id: 't9', type: 'plot', topic: 'translate',
+      title: 'Translate the pentagon',
+      detail: 'Apply <code>(x, y) → (x − 3, y − 3)</code>.',
+      instr: '5 vertices. Click each one in order.',
+      original: [pt(0,0,'A'), pt(2,0,'B'), pt(3,2,'C'), pt(1,3,'D'), pt(-1,2,'E')],
+      transform: pts => pts.map(p => ({x: p.x-3, y: p.y-3})),
+      explain: 'Same rule applies to all 5 vertices.' },
+
+    { id: 't10', type: 'plot', topic: 'translate',
+      title: 'Translate: 4 right, 7 down',
+      detail: 'Slide the rectangle <strong>4 right</strong> and <strong>7 down</strong>.',
+      instr: 'Click the image vertices in order.',
+      original: [pt(-3,3,'P'), pt(-1,3,'Q'), pt(-1,5,'R'), pt(-3,4,'S')],
+      transform: pts => pts.map(p => ({x: p.x+4, y: p.y-7})),
+      explain: 'Rule: (x, y) → (x + 4, y − 7).' },
+
+    /* MC questions */
+    { id: 't11', type: 'mc', topic: 'translate',
+      title: 'Find the translation rule',
+      detail: 'S(2, −1), T(2, 3), U(5, 0) translates to S′(−1, −5), T′(−1, −1), U′(2, −4). Which rule was used?',
+      instr: 'Pick the rule that maps every vertex correctly.',
+      original: [pt(2,-1,'S'), pt(2,3,'T'), pt(5,0,'U')],
+      image:    [pt(-1,-5,"S'"), pt(-1,-1,"T'"), pt(2,-4,"U'")],
+      options: ['(x, y) → (x − 3, y − 4)', '(x, y) → (x + 3, y + 4)', '(x, y) → (x − 4, y − 3)', '(x, y) → (x − 3, y + 4)'],
+      answer: 0,
+      explain: 'Each x decreased by 3 (2→−1, 5→2). Each y decreased by 4 (3→−1, 0→−4). Rule: (x, y) → (x − 3, y − 4).' },
+
+    { id: 't12', type: 'mc', topic: 'translate',
+      title: 'Find the translation rule',
+      detail: 'A(1, 2), B(4, 2), C(3, 5) translates to A′(−1, 5), B′(2, 5), C′(1, 8). Which rule?',
+      instr: 'Test each option against one vertex.',
+      original: [pt(1,2,'A'), pt(4,2,'B'), pt(3,5,'C')],
+      image:    [pt(-1,5,"A'"), pt(2,5,"B'"), pt(1,8,"C'")],
+      options: ['(x, y) → (x + 2, y − 3)', '(x, y) → (x − 2, y + 3)', '(x, y) → (x − 3, y + 2)', '(x, y) → (x + 3, y − 2)'],
+      answer: 1,
+      explain: 'A(1,2) → A′(−1,5): x decreased by 2, y increased by 3. Rule: (x, y) → (x − 2, y + 3).' },
+
+    { id: 't13', type: 'mc', topic: 'translate',
+      title: 'Is this a translation?',
+      detail: 'Compare the original (red) and image (teal) on the grid.',
+      instr: 'Decide whether the image is a true translation of the original.',
+      original: [pt(-5,2,'A'), pt(-3,2,'B'), pt(-3,5,'C'), pt(-5,5,'D')],
+      image:    [pt(1,-1,"A'"), pt(3,-1,"B'"), pt(3,-4,"C'"), pt(1,-4,"D'")],
+      options: ['Yes — every vertex shifted (+6, −3) the same way.', 'No — the figure has been rotated.', 'No — the figure has been reflected.', 'No — the figure has changed size.'],
+      answer: 0,
+      explain: 'Every vertex moves by (+6, −3): A(−5,2)→(1,−1), B(−3,2)→(3,−1), and so on. Same shift everywhere with no flip or turn — so it is a translation.' },
+
+    { id: 't14', type: 'mc', topic: 'translate',
+      title: 'Find the missing image point',
+      detail: 'A figure is translated using <code>(x, y) → (x + 4, y − 5)</code>. The point P(2, 6) maps to P′(?, ?).',
+      instr: 'Apply the rule to point P.',
+      original: [pt(2,6,'P')],
+      options: ['(6, 1)', '(−2, 11)', '(6, 11)', '(−2, 1)'],
+      answer: 0,
+      explain: 'P(2, 6) → P′(2 + 4, 6 − 5) = P′(6, 1).' },
+
+    { id: 't15', type: 'mc', topic: 'translate',
+      title: 'Find the translation rule',
+      detail: 'A(0, 0), B(3, 0), C(3, 2) translates to A′(5, −3), B′(8, −3), C′(8, −1).',
+      instr: 'Compute the change in x and y from any vertex.',
+      original: [pt(0,0,'A'), pt(3,0,'B'), pt(3,2,'C')],
+      image:    [pt(5,-3,"A'"), pt(8,-3,"B'"), pt(8,-1,"C'")],
+      options: ['(x, y) → (x − 5, y + 3)', '(x, y) → (x + 3, y − 5)', '(x, y) → (x + 5, y − 3)', '(x, y) → (x + 5, y + 3)'],
+      answer: 2,
+      explain: 'A(0,0) → A′(5,−3): x increased by 5, y decreased by 3. Rule: (x, y) → (x + 5, y − 3).' },
+  ],
+
+  /* ===== REFLECTIONS ===== */
+  reflect: [
+    { id: 'r1', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the x-axis',
+      detail: 'Flip the figure across the <strong>x-axis</strong>.',
+      instr: 'Rule: (x, y) → (x, −y). Click each image vertex in order.',
+      original: [pt(1,1,'A'), pt(1,4,'B'), pt(3,4,'C')],
+      transform: pts => pts.map(T.reflectX),
+      explain: 'Reflecting in the x-axis flips each y-coordinate. (x, y) → (x, −y).' },
+
+    { id: 'r2', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the y-axis',
+      detail: 'Flip the rectangle across the <strong>y-axis</strong>.',
+      instr: 'Rule: (x, y) → (−x, y). Click each image vertex in order.',
+      original: [pt(2,2,'P'), pt(5,2,'Q'), pt(5,5,'R'), pt(2,5,'S')],
+      transform: pts => pts.map(T.reflectY),
+      explain: 'Reflecting in the y-axis flips each x-coordinate. (x, y) → (−x, y).' },
+
+    { id: 'r3', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the line y = −1',
+      detail: 'The line of reflection is <strong>y = −1</strong>.',
+      instr: 'Count how far above/below y = −1 each point is, then place the image the same distance on the OTHER side.',
+      original: [pt(-2,-2,'A'), pt(-2,-4,'B'), pt(-4,-4,'C')],
+      transform: pts => pts.map(p => T.reflectH(p, -1)),
+      reflectionLine: {type:'horizontal', value:-1},
+      explain: 'For y = k, rule is (x, y) → (x, 2k − y). With k = −1: (x, y) → (x, −2 − y).' },
+
+    { id: 'r4', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the line y = 3',
+      detail: 'The line of reflection is <strong>y = 3</strong>.',
+      instr: 'Mirror each point across the horizontal line y = 3.',
+      original: [pt(4,5,'A'), pt(4,8,'B'), pt(7,8,'C')],
+      transform: pts => pts.map(p => T.reflectH(p, 3)),
+      reflectionLine: {type:'horizontal', value:3},
+      explain: 'For y = 3: (x, y) → (x, 6 − y). Distance above the line becomes distance below.' },
+
+    { id: 'r5', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the line x = 1',
+      detail: 'The line of reflection is the vertical line <strong>x = 1</strong>.',
+      instr: 'Count distance to x = 1, mirror to the other side.',
+      original: [pt(3,3,'A'), pt(3,5,'B'), pt(6,5,'C')],
+      transform: pts => pts.map(p => T.reflectV(p, 1)),
+      reflectionLine: {type:'vertical', value:1},
+      explain: 'For x = k, rule is (x, y) → (2k − x, y). With k = 1: (x, y) → (2 − x, y).' },
+
+    { id: 'r6', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the x-axis',
+      detail: 'Flip the rectangle across the <strong>x-axis</strong>.',
+      instr: 'Click each image vertex in order.',
+      original: [pt(-4,-3,'A'), pt(-4,-1,'B'), pt(-1,-1,'C'), pt(-1,-3,'D')],
+      transform: pts => pts.map(T.reflectX),
+      explain: 'Negate each y-coordinate.' },
+
+    { id: 'r7', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the y-axis',
+      detail: 'Flip the triangle across the <strong>y-axis</strong>.',
+      instr: 'Negate each x-coordinate.',
+      original: [pt(-3,-5,'J'), pt(-2,2,'K'), pt(1,-4,'L')],
+      transform: pts => pts.map(T.reflectY),
+      explain: 'Reflecting in the y-axis: (x, y) → (−x, y).' },
+
+    { id: 'r8', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the line x = 4',
+      detail: 'The line of reflection is the vertical line <strong>x = 4</strong>.',
+      instr: 'Distance to x = 4 stays the same — just put the image on the opposite side.',
+      original: [pt(1,-2,'A'), pt(3,-2,'B'), pt(2,1,'C')],
+      transform: pts => pts.map(p => T.reflectV(p, 4)),
+      reflectionLine: {type:'vertical', value:4},
+      explain: 'For x = 4: (x, y) → (8 − x, y). E.g. (1, −2) → (7, −2).' },
+
+    { id: 'r9', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the y-axis',
+      detail: 'Flip the triangle across the <strong>y-axis</strong>.',
+      instr: 'Click each image vertex in order.',
+      original: [pt(3,-1,'P'), pt(5,-1,'Q'), pt(4,-4,'R')],
+      transform: pts => pts.map(T.reflectY),
+      explain: 'Negate each x-coordinate.' },
+
+    { id: 'r10', type: 'plot', topic: 'reflect',
+      title: 'Reflect across the line y = 2',
+      detail: 'The line of reflection is <strong>y = 2</strong>.',
+      instr: 'Mirror each point across the horizontal line y = 2.',
+      original: [pt(-3,5,'A'), pt(0,5,'B'), pt(0,7,'C')],
+      transform: pts => pts.map(p => T.reflectH(p, 2)),
+      reflectionLine: {type:'horizontal', value:2},
+      explain: 'For y = 2: (x, y) → (x, 4 − y).' },
+
+    /* MC questions */
+    { id: 'r11', type: 'mc', topic: 'reflect',
+      title: 'Identify the line of reflection',
+      detail: 'A(2, 1), B(5, 1), C(5, 4) maps to A′(2, −3), B′(5, −3), C′(5, −6).',
+      instr: 'Find the midpoint between any point and its image — the line passes through it.',
+      original: [pt(2,1,'A'), pt(5,1,'B'), pt(5,4,'C')],
+      image:    [pt(2,-3,"A'"), pt(5,-3,"B'"), pt(5,-6,"C'")],
+      reflectionLine: {type:'horizontal', value:-1},
+      options: ['The x-axis (y = 0)', 'The line y = −1', 'The y-axis (x = 0)', 'The line x = −1'],
+      answer: 1,
+      explain: 'A(2, 1) maps to A′(2, −3). Midpoint y = (1 + −3)/2 = −1. The line y = −1 is exactly halfway between every point and its image.' },
+
+    { id: 'r12', type: 'mc', topic: 'reflect',
+      title: 'Identify the line of reflection',
+      detail: 'A(1, 2), B(4, 2), C(2, 5) maps to A′(−1, 2), B′(−4, 2), C′(−2, 5).',
+      instr: 'The y-coordinates stayed the same — what does that tell you?',
+      original: [pt(1,2,'A'), pt(4,2,'B'), pt(2,5,'C')],
+      image:    [pt(-1,2,"A'"), pt(-4,2,"B'"), pt(-2,5,"C'")],
+      reflectionLine: {type:'vertical', value:0},
+      options: ['The x-axis', 'The line y = 0', 'The y-axis', 'The line x = 1'],
+      answer: 2,
+      explain: 'Only the x-coordinates flipped sign and the y-values stayed the same. That means the line of reflection is the y-axis (x = 0).' },
+
+    { id: 'r13', type: 'mc', topic: 'reflect',
+      title: 'Identify the line of reflection',
+      detail: 'A(3, 4), B(5, 4), C(4, 1) maps to A′(3, −2), B′(5, −2), C′(4, 1).',
+      instr: 'Notice: C didn\'t move. What special location is C on?',
+      original: [pt(3,4,'A'), pt(5,4,'B'), pt(4,1,'C')],
+      image:    [pt(3,-2,"A'"), pt(5,-2,"B'"), pt(4,1,"C'")],
+      reflectionLine: {type:'horizontal', value:1},
+      options: ['The line y = 1', 'The line y = 2', 'The x-axis', 'The line y = 4'],
+      answer: 0,
+      explain: 'C(4, 1) maps to itself, so it\'s ON the line of reflection. Check A(3, 4) → A′(3, −2): midpoint y = 1. The line is y = 1.' },
+
+    { id: 'r14', type: 'mc', topic: 'reflect',
+      title: 'Identify the line of reflection',
+      detail: 'A(−1, 3), B(−1, 5), C(−3, 5) maps to A′(5, 3), B′(5, 5), C′(7, 5).',
+      instr: 'Find the midpoint of x-values for any pair.',
+      original: [pt(-1,3,'A'), pt(-1,5,'B'), pt(-3,5,'C')],
+      image:    [pt(5,3,"A'"), pt(5,5,"B'"), pt(7,5,"C'")],
+      reflectionLine: {type:'vertical', value:2},
+      options: ['The y-axis', 'The line x = 1', 'The line x = 2', 'The line x = 3'],
+      answer: 2,
+      explain: 'A(−1, 3) maps to A′(5, 3). Midpoint x = (−1 + 5)/2 = 2. The line is x = 2.' },
+
+    { id: 'r15', type: 'mc', topic: 'reflect',
+      title: 'Which transformation is shown?',
+      detail: 'A(−3, 2), B(1, 2), C(0, 5) maps to A′(−3, −2), B′(1, −2), C′(0, −5).',
+      instr: 'The y-coordinates flipped sign. What does that mean?',
+      original: [pt(-3,2,'A'), pt(1,2,'B'), pt(0,5,'C')],
+      image:    [pt(-3,-2,"A'"), pt(1,-2,"B'"), pt(0,-5,"C'")],
+      options: ['Translation 4 down', 'Reflection in the y-axis', 'Reflection in the x-axis', 'Rotation 180° about the origin'],
+      answer: 2,
+      explain: 'Each y-coordinate became its opposite while x stayed the same — that\'s the rule (x, y) → (x, −y), reflection in the x-axis.' },
+  ],
+
+  /* ===== ROTATIONS ===== */
+  rotate: [
+    { id: 'rt1', type: 'plot', topic: 'rotate',
+      title: 'Rotate 90° counterclockwise',
+      detail: 'Rotate the triangle <strong>90° counterclockwise</strong> about the origin.',
+      instr: 'Rule: (x, y) → (−y, x). Click each image vertex in order.',
+      original: [pt(1,2,'L'), pt(4,2,'M'), pt(4,5,'N')],
+      transform: pts => pts.map(T.rot90CCW),
+      explain: 'For 90° CCW about the origin: (x, y) → (−y, x).' },
+
+    { id: 'rt2', type: 'plot', topic: 'rotate',
+      title: 'Rotate 180° about the origin',
+      detail: 'Half-turn around the origin.',
+      instr: 'Rule: (x, y) → (−x, −y). Click each image vertex in order.',
+      original: [pt(-3,1,'J'), pt(-1,4,'K'), pt(-1,1,'L')],
+      transform: pts => pts.map(T.rot180),
+      explain: 'A 180° rotation flips both signs. Direction (CW or CCW) doesn\'t matter at 180°.' },
+
+    { id: 'rt3', type: 'plot', topic: 'rotate',
+      title: 'Rotate 90° clockwise',
+      detail: 'Rotate the rectangle <strong>90° clockwise</strong> about the origin.',
+      instr: '90° CW = 270° CCW. Rule: (x, y) → (y, −x).',
+      original: [pt(-3,-3,'A'), pt(1,-3,'B'), pt(1,-5,'C'), pt(-3,-5,'D')],
+      transform: pts => pts.map(T.rot90CW),
+      explain: 'A 90° clockwise rotation = 270° counterclockwise. Rule: (x, y) → (y, −x).' },
+
+    { id: 'rt4', type: 'plot', topic: 'rotate',
+      title: 'Rotate 90° clockwise',
+      detail: 'Rotate the triangle <strong>90° clockwise</strong> about the origin.',
+      instr: 'Rule: (x, y) → (y, −x). Click each image vertex.',
+      original: [pt(2,1,'P'), pt(5,1,'Q'), pt(5,4,'R')],
+      transform: pts => pts.map(T.rot90CW),
+      explain: 'Apply (y, −x) to each vertex.' },
+
+    { id: 'rt5', type: 'plot', topic: 'rotate',
+      title: 'Rotate 90° counterclockwise',
+      detail: 'Rotate the square <strong>90° CCW</strong> about the origin.',
+      instr: 'Rule: (x, y) → (−y, x).',
+      original: [pt(3,1,'A'), pt(5,1,'B'), pt(5,3,'C'), pt(3,3,'D')],
+      transform: pts => pts.map(T.rot90CCW),
+      explain: 'Apply (−y, x) to all four vertices.' },
+
+    { id: 'rt6', type: 'plot', topic: 'rotate',
+      title: 'Rotate 180° about the origin',
+      detail: 'Apply a half-turn.',
+      instr: 'Rule: (x, y) → (−x, −y). 5 vertices.',
+      original: [pt(0,0,'A'), pt(2,0,'B'), pt(3,2,'C'), pt(1,3,'D'), pt(-1,2,'E')],
+      transform: pts => pts.map(T.rot180),
+      explain: 'Negate both coordinates of every vertex.' },
+
+    { id: 'rt7', type: 'plot', topic: 'rotate',
+      title: 'Rotate 90° clockwise',
+      detail: 'Rotate the triangle <strong>90° clockwise</strong>.',
+      instr: 'Rule: (x, y) → (y, −x).',
+      original: [pt(-4,-1,'X'), pt(-1,-1,'Y'), pt(-2,-4,'Z')],
+      transform: pts => pts.map(T.rot90CW),
+      explain: 'Try (−4, −1) → (−1, 4). The y becomes the new x; the negative of the original x becomes the new y.' },
+
+    { id: 'rt8', type: 'plot', topic: 'rotate',
+      title: 'Rotate 90° counterclockwise',
+      detail: 'Rotate the rectangle <strong>90° CCW</strong>.',
+      instr: 'Rule: (x, y) → (−y, x). 4 vertices.',
+      original: [pt(1,-2,'A'), pt(4,-2,'B'), pt(4,-5,'C'), pt(1,-5,'D')],
+      transform: pts => pts.map(T.rot90CCW),
+      explain: 'Test: (1, −2) → (−(−2), 1) = (2, 1). ✓' },
+
+    { id: 'rt9', type: 'plot', topic: 'rotate',
+      title: 'Rotate 90° clockwise',
+      detail: 'Rotate the triangle <strong>90° clockwise</strong>.',
+      instr: 'Rule: (x, y) → (y, −x).',
+      original: [pt(-3,2,'P'), pt(-3,5,'Q'), pt(0,5,'R')],
+      transform: pts => pts.map(T.rot90CW),
+      explain: 'Apply (y, −x) to each vertex.' },
+
+    { id: 'rt10', type: 'plot', topic: 'rotate',
+      title: 'Rotate 180° about the origin',
+      detail: 'Apply a half-turn rotation.',
+      instr: 'Rule: (x, y) → (−x, −y).',
+      original: [pt(4,-3,'A'), pt(2,-1,'B'), pt(5,1,'C')],
+      transform: pts => pts.map(T.rot180),
+      explain: 'Both signs flip.' },
+
+    /* MC questions */
+    { id: 'rt11', type: 'mc', topic: 'rotate',
+      title: 'Identify the rotation',
+      detail: 'A(1, 2), B(4, 2), C(4, 5) rotates to A′(−2, 1), B′(−2, 4), C′(−5, 4).',
+      instr: 'Test each option by plugging in one vertex.',
+      original: [pt(1,2,'A'), pt(4,2,'B'), pt(4,5,'C')],
+      image:    [pt(-2,1,"A'"), pt(-2,4,"B'"), pt(-5,4,"C'")],
+      options: ['90° counterclockwise', '90° clockwise', '180°', '270° counterclockwise'],
+      answer: 0,
+      explain: 'Test A(1, 2) with rule (−y, x): (−2, 1) ✓. That\'s the rule for 90° CCW.' },
+
+    { id: 'rt12', type: 'mc', topic: 'rotate',
+      title: 'Identify the rotation',
+      detail: 'A(−2, 3), B(2, 3), C(2, 5) rotates to A′(3, 2), B′(3, −2), C′(5, −2).',
+      instr: 'Plug A(−2, 3) into each rule and see which gives (3, 2).',
+      original: [pt(-2,3,'A'), pt(2,3,'B'), pt(2,5,'C')],
+      image:    [pt(3,2,"A'"), pt(3,-2,"B'"), pt(5,-2,"C'")],
+      options: ['90° counterclockwise', '90° clockwise', '180°', '360°'],
+      answer: 1,
+      explain: 'A(−2, 3) with rule (y, −x): (3, 2) ✓. That\'s 90° clockwise (also 270° CCW).' },
+
+    { id: 'rt13', type: 'mc', topic: 'rotate',
+      title: 'Identify the rotation',
+      detail: 'A(1, 1), B(3, 1), C(3, 4) rotates to A′(−1, −1), B′(−3, −1), C′(−3, −4).',
+      instr: 'Both signs flipped. What rotation does that?',
+      original: [pt(1,1,'A'), pt(3,1,'B'), pt(3,4,'C')],
+      image:    [pt(-1,-1,"A'"), pt(-3,-1,"B'"), pt(-3,-4,"C'")],
+      options: ['90° counterclockwise', '90° clockwise', '180°', '270° clockwise'],
+      answer: 2,
+      explain: 'Every (x, y) became (−x, −y) — that\'s the 180° rotation rule. Direction doesn\'t matter for 180°.' },
+
+    { id: 'rt14', type: 'mc', topic: 'rotate',
+      title: 'Identify the rotation',
+      detail: 'A(2, 3), B(5, 3), C(5, 1) rotates to A′(−3, 2), B′(−3, 5), C′(−1, 5).',
+      instr: 'Try each rule on A(2, 3).',
+      original: [pt(2,3,'A'), pt(5,3,'B'), pt(5,1,'C')],
+      image:    [pt(-3,2,"A'"), pt(-3,5,"B'"), pt(-1,5,"C'")],
+      options: ['90° clockwise', '180°', '90° counterclockwise', '360°'],
+      answer: 2,
+      explain: 'A(2, 3) with rule (−y, x): (−3, 2) ✓. That\'s 90° counterclockwise.' },
+
+    { id: 'rt15', type: 'mc', topic: 'rotate',
+      title: 'Equivalent rotations',
+      detail: 'Which rotation produces the same image as a <strong>90° clockwise</strong> rotation about the origin?',
+      instr: 'Use the trick: a clockwise rotation of n° = a counterclockwise rotation of (360 − n)°.',
+      options: ['90° counterclockwise', '180° counterclockwise', '270° counterclockwise', '360° counterclockwise'],
+      answer: 2,
+      explain: '90° CW = (360 − 90)° CCW = 270° CCW. Both use the rule (x, y) → (y, −x).' },
+  ]
+};
+
+/* ---------- BOSS SVGs ---------- */
+const BOSS_SVGS = {
+  sphinx: `
+    <svg class="boss-sprite" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- pyramid backdrop -->
+      <polygon points="100,30 30,200 170,200" fill="#d4a574" stroke="#451a03" stroke-width="3"/>
+      <polygon points="100,30 100,200 170,200" fill="#b8895a" stroke="#451a03" stroke-width="3"/>
+      <!-- nemes headdress (striped) -->
+      <path d="M 60 75 Q 60 50 100 50 Q 140 50 140 75 L 145 130 L 55 130 Z"
+            fill="#1e40af" stroke="#451a03" stroke-width="3"/>
+      <rect x="60" y="80" width="80" height="6" fill="#fbbf24"/>
+      <rect x="60" y="93" width="80" height="6" fill="#fbbf24"/>
+      <rect x="60" y="106" width="80" height="6" fill="#fbbf24"/>
+      <rect x="60" y="119" width="80" height="6" fill="#fbbf24"/>
+      <!-- face -->
+      <path d="M 70 90 Q 70 145 100 155 Q 130 145 130 90 Z"
+            fill="#f5d2a0" stroke="#451a03" stroke-width="3"/>
+      <!-- eyes (Egyptian style) -->
+      <ellipse cx="85" cy="110" rx="7" ry="4" fill="#1e1b4b" stroke="#451a03" stroke-width="2"/>
+      <ellipse cx="115" cy="110" rx="7" ry="4" fill="#1e1b4b" stroke="#451a03" stroke-width="2"/>
+      <line x1="92" y1="108" x2="100" y2="105" stroke="#451a03" stroke-width="2"/>
+      <line x1="108" y1="108" x2="100" y2="105" stroke="#451a03" stroke-width="2"/>
+      <!-- nose / mouth -->
+      <path d="M 100 118 L 97 130 L 103 130 Z" fill="none" stroke="#92400e" stroke-width="2"/>
+      <path d="M 92 138 Q 100 142 108 138" fill="none" stroke="#451a03" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- cobra uraeus on forehead -->
+      <ellipse cx="100" cy="78" rx="6" ry="10" fill="#fbbf24" stroke="#451a03" stroke-width="2"/>
+      <circle cx="100" cy="74" r="2.5" fill="#dc2626"/>
+      <!-- chin beard (pharaoh) -->
+      <rect x="95" y="155" width="10" height="22" fill="#1e40af" stroke="#451a03" stroke-width="2.5" rx="2"/>
+    </svg>
+  `,
+
+  kraken: `
+    <svg class="boss-sprite" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- main body -->
+      <ellipse cx="100" cy="105" rx="55" ry="50" fill="#0e7490" stroke="#0c2340" stroke-width="3"/>
+      <!-- tentacles around body -->
+      <path d="M 50 110 Q 25 130 15 100 Q 10 80 25 75" fill="none" stroke="#0c4a6e" stroke-width="14" stroke-linecap="round"/>
+      <path d="M 60 145 Q 50 180 25 185 Q 10 187 5 170" fill="none" stroke="#0c4a6e" stroke-width="14" stroke-linecap="round"/>
+      <path d="M 100 155 Q 100 195 80 205 Q 60 210 55 195" fill="none" stroke="#0c4a6e" stroke-width="14" stroke-linecap="round"/>
+      <path d="M 140 145 Q 150 180 175 185 Q 190 187 195 170" fill="none" stroke="#0c4a6e" stroke-width="14" stroke-linecap="round"/>
+      <path d="M 150 110 Q 175 130 185 100 Q 190 80 175 75" fill="none" stroke="#0c4a6e" stroke-width="14" stroke-linecap="round"/>
+      <path d="M 70 70 Q 50 40 30 45 Q 15 50 20 65" fill="none" stroke="#0c4a6e" stroke-width="14" stroke-linecap="round"/>
+      <path d="M 130 70 Q 150 40 170 45 Q 185 50 180 65" fill="none" stroke="#0c4a6e" stroke-width="14" stroke-linecap="round"/>
+      <!-- suckers on tentacles -->
+      <circle cx="25" cy="100" r="3" fill="#fde68a"/>
+      <circle cx="20" cy="170" r="3" fill="#fde68a"/>
+      <circle cx="65" cy="200" r="3" fill="#fde68a"/>
+      <circle cx="135" cy="200" r="3" fill="#fde68a"/>
+      <circle cx="180" cy="170" r="3" fill="#fde68a"/>
+      <circle cx="175" cy="100" r="3" fill="#fde68a"/>
+      <circle cx="25" cy="50" r="3" fill="#fde68a"/>
+      <circle cx="175" cy="50" r="3" fill="#fde68a"/>
+      <!-- big eye -->
+      <circle cx="100" cy="100" r="28" fill="#fef3c7" stroke="#0c2340" stroke-width="3"/>
+      <circle cx="100" cy="100" r="18" fill="#f59e0b"/>
+      <ellipse cx="100" cy="100" rx="6" ry="14" fill="#0c2340"/>
+      <circle cx="97" cy="93" r="4" fill="white" opacity="0.9"/>
+      <!-- angry eyebrow -->
+      <path d="M 75 80 L 125 75" fill="none" stroke="#0c2340" stroke-width="5" stroke-linecap="round"/>
+      <!-- mouth (small, fierce) -->
+      <path d="M 85 140 Q 100 148 115 140" fill="none" stroke="#0c2340" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 92 142 L 92 146 M 100 144 L 100 148 M 108 142 L 108 146" stroke="#0c2340" stroke-width="2"/>
+    </svg>
+  `,
+
+  dragon: `
+    <svg class="boss-sprite" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+      <!-- lightning bolts behind -->
+      <path d="M 35 30 L 50 55 L 38 60 L 60 95" fill="none" stroke="#facc15" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" opacity="0.8"/>
+      <path d="M 165 30 L 150 55 L 162 60 L 140 95" fill="none" stroke="#facc15" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" opacity="0.8"/>
+      <!-- dragon body (S-curve) -->
+      <path d="M 50 175 Q 60 130 100 130 Q 140 130 145 100 Q 145 75 120 75"
+            fill="none" stroke="#7c3aed" stroke-width="22" stroke-linecap="round"/>
+      <!-- belly highlight -->
+      <path d="M 50 175 Q 60 145 100 145 Q 130 145 138 110"
+            fill="none" stroke="#a78bfa" stroke-width="10" stroke-linecap="round"/>
+      <!-- head -->
+      <ellipse cx="115" cy="70" rx="22" ry="18" fill="#7c3aed" stroke="#1e1b4b" stroke-width="3"/>
+      <!-- snout -->
+      <path d="M 130 65 Q 145 60 145 70 Q 145 78 130 78 Z" fill="#7c3aed" stroke="#1e1b4b" stroke-width="3"/>
+      <!-- horns -->
+      <path d="M 105 55 L 100 35 L 113 50 Z" fill="#facc15" stroke="#1e1b4b" stroke-width="2.5"/>
+      <path d="M 122 55 L 130 35 L 130 52 Z" fill="#facc15" stroke="#1e1b4b" stroke-width="2.5"/>
+      <!-- eye -->
+      <circle cx="115" cy="68" r="5" fill="#facc15"/>
+      <ellipse cx="115" cy="68" rx="2" ry="4" fill="#1e1b4b"/>
+      <!-- teeth -->
+      <path d="M 135 75 L 137 81 L 139 75 M 142 76 L 144 81 L 146 76" fill="#fff" stroke="#1e1b4b" stroke-width="1.5"/>
+      <!-- wings -->
+      <path d="M 95 105 Q 60 80 50 110 Q 60 115 80 115 Z" fill="#ec4899" stroke="#1e1b4b" stroke-width="2.5"/>
+      <path d="M 105 105 Q 140 90 155 120 Q 145 122 130 118 Q 115 115 105 105 Z" fill="#ec4899" stroke="#1e1b4b" stroke-width="2.5"/>
+      <!-- spikes along back -->
+      <polygon points="80,128 85,118 90,128" fill="#facc15" stroke="#1e1b4b" stroke-width="1.5"/>
+      <polygon points="100,128 105,118 110,128" fill="#facc15" stroke="#1e1b4b" stroke-width="1.5"/>
+      <polygon points="120,128 125,118 130,128" fill="#facc15" stroke="#1e1b4b" stroke-width="1.5"/>
+      <!-- tail tip -->
+      <polygon points="48,170 38,180 52,180" fill="#facc15" stroke="#1e1b4b" stroke-width="2"/>
+    </svg>
+  `
+};
+
+/* ---------- THEME / SET CONFIG ---------- */
+const SETS = [
+  {
+    key: 'desert',
+    name: 'The Pharaoh\'s Trial',
+    subtitle: 'Desert Pyramids',
+    icon: '🏜️',
+    bossName: 'The Sphinx',
+    bossLvl: 'Guardian of the Sands',
+    bossHP: 100,
+    bossSvg: BOSS_SVGS.sphinx,
+    intro: 'Deep in the burning desert, the Sphinx blocks your path with riddles of geometry. Solve 15 transformations to defeat it and claim the Crown of the Sands.',
+    transitionWord: 'DESERT',
+    successMsgs: ['📜 Riddle solved!', '☀️ The sands tremble!', '🏺 Ancient wisdom!', '⚱️ The Sphinx wavers!', '🐪 Onward, traveler!'],
+    failMsgs: ['💨 The sandstorm strikes!', '🏺 Lost in the dunes...', '☀️ The sun blazes!'],
+    bgEmojis: ['🏜️', '🐪', '🏺', '⚱️', '🌵', '☀️', '📜']
+  },
+  {
+    key: 'ocean',
+    name: 'Tides of Triumph',
+    subtitle: 'Ocean Voyage',
+    icon: '🌊',
+    bossName: 'The Kraken',
+    bossLvl: 'Terror of the Deep',
+    bossHP: 130,
+    bossSvg: BOSS_SVGS.kraken,
+    intro: 'Storm clouds gather as the Kraken rises from the abyss. Only by mastering 15 more transformations will you sail safely to harbor with the Pearl of Tides.',
+    transitionWord: 'OCEAN',
+    successMsgs: ['🌊 The waves obey!', '🦑 Tentacle severed!', '⚓ Steady as she goes!', '🐚 The Kraken roars!', '🏴‍☠️ Plundered!'],
+    failMsgs: ['🌊 A wave crashes!', '🦑 Pulled under!', '⚓ Off course...'],
+    bgEmojis: ['🌊', '🐚', '⚓', '🐙', '🐳', '🦑', '🏴‍☠️']
+  },
+  {
+    key: 'sky',
+    name: 'Storm of the Skylords',
+    subtitle: 'Sky Citadel',
+    icon: '☁️',
+    bossName: 'Tempest the Storm Dragon',
+    bossLvl: 'Lord of the Skylands',
+    bossHP: 160,
+    bossSvg: BOSS_SVGS.dragon,
+    intro: 'Above the clouds, lightning splits the heavens. Tempest the Storm Dragon defends the Sky Citadel — defeat it with 15 final transformations to claim the Crystal of Storms.',
+    transitionWord: 'SKY',
+    successMsgs: ['⚡ Lightning strikes!', '☁️ Clouds part!', '🌟 Skybound!', '⚡ The dragon shrieks!', '✨ Soaring victory!'],
+    failMsgs: ['⚡ Thunder strikes!', '☁️ Lost in the clouds!', '🌪️ Whirlwind!'],
+    bgEmojis: ['☁️', '⚡', '🌩️', '🌟', '✨', '🌈', '🦅']
+  }
+];
+
+/* ---------- GAME STATE ---------- */
+const state = {
+  sets: [],            // 3 sets, each with {meta, questions[], result}
+  currentSet: 0,
+  currentQ: 0,
+  playerHP: 100, playerMaxHP: 100,
+  bossHP: 0, bossMaxHP: 0,
+  score: 0,
+  streak: 0,
+  bestStreak: 0,
+  pending: [],
+  selectedMC: null,
+  answered: false,
+  setStats: [],        // results per set
+};
+
+const BASE_DAMAGE = 10;
+const STREAK_DAMAGE_BONUS = 3;   // extra damage per streak level (capped)
+const MAX_STREAK_BONUS = 15;
+const PLAYER_HIT_DAMAGE = 12;
+const BASE_POINTS = 10;
+const POINTS_STREAK_BONUS = 3;
+
+/* ---------- DOM HELPERS ---------- */
+const $ = id => document.getElementById(id);
+
+/* ---------- BUILD GAME ---------- */
+function buildSets() {
+  // Shuffle each topic pool, then distribute 5 of each to each set
+  const shuffledT = shuffle(QUESTION_POOL.translate).slice(0, 15);
+  const shuffledR = shuffle(QUESTION_POOL.reflect).slice(0, 15);
+  const shuffledRT = shuffle(QUESTION_POOL.rotate).slice(0, 15);
+
+  state.sets = SETS.map((meta, i) => {
+    const setQuestions = [
+      ...shuffledT.slice(i*5, (i+1)*5),
+      ...shuffledR.slice(i*5, (i+1)*5),
+      ...shuffledRT.slice(i*5, (i+1)*5),
+    ];
+    return {
+      meta,
+      questions: shuffle(setQuestions),
+      result: null
+    };
+  });
+}
+
+/* ---------- THEME APPLICATION ---------- */
+function applyTheme(themeKey) {
+  document.body.setAttribute('data-theme', themeKey);
+}
+
+/* ---------- GRID RENDER ---------- */
+const GRID_MIN = -8, GRID_MAX = 8, CELL = 18;
+function toSvgX(x) { return x * CELL; }
+function toSvgY(y) { return -y * CELL; }
+function fromSvgX(sx) { return Math.round(sx / CELL); }
+function fromSvgY(sy) { return Math.round(-sy / CELL); }
+
+function buildGrid() {
+  const svg = $('gridSvg');
+  const half = GRID_MAX * CELL + 16;
+  svg.setAttribute('viewBox', `${-half} ${-half} ${half*2} ${half*2}`);
+  svg.innerHTML = '';
+  const halfPx = GRID_MAX * CELL;
+
+  // grid lines
+  for (let i = GRID_MIN; i <= GRID_MAX; i++) {
+    const v = document.createElementNS('http://www.w3.org/2000/svg','line');
+    v.setAttribute('x1', toSvgX(i)); v.setAttribute('y1', -halfPx);
+    v.setAttribute('x2', toSvgX(i)); v.setAttribute('y2',  halfPx);
+    v.setAttribute('stroke', i === 0 ? 'var(--grid-axis)' : 'var(--grid)');
+    v.setAttribute('stroke-width', i === 0 ? 1.5 : 0.5);
+    svg.appendChild(v);
+    const h = document.createElementNS('http://www.w3.org/2000/svg','line');
+    h.setAttribute('x1', -halfPx); h.setAttribute('y1', toSvgY(i));
+    h.setAttribute('x2',  halfPx); h.setAttribute('y2', toSvgY(i));
+    h.setAttribute('stroke', i === 0 ? 'var(--grid-axis)' : 'var(--grid)');
+    h.setAttribute('stroke-width', i === 0 ? 1.5 : 0.5);
+    svg.appendChild(h);
+  }
+
+  // axis labels
+  ['x','y'].forEach(axis => {
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('font-family','JetBrains Mono, monospace');
+    lbl.setAttribute('font-size', 11);
+    lbl.setAttribute('fill','var(--grid-axis)');
+    lbl.setAttribute('font-weight', 700);
+    if (axis === 'x') {
+      lbl.setAttribute('x', halfPx + 4); lbl.setAttribute('y', 4); lbl.textContent = 'x';
+    } else {
+      lbl.setAttribute('x', 4); lbl.setAttribute('y', -halfPx - 2); lbl.textContent = 'y';
+    }
+    svg.appendChild(lbl);
+  });
+
+  // tick numbers
+  for (let i = GRID_MIN; i <= GRID_MAX; i += 2) {
+    if (i === 0) continue;
+    const tx = document.createElementNS('http://www.w3.org/2000/svg','text');
+    tx.setAttribute('x', toSvgX(i)); tx.setAttribute('y', 12);
+    tx.setAttribute('text-anchor','middle');
+    tx.setAttribute('font-family','JetBrains Mono, monospace');
+    tx.setAttribute('font-size', 8);
+    tx.setAttribute('fill','var(--ink-soft)');
+    tx.textContent = i;
+    svg.appendChild(tx);
+    const ty = document.createElementNS('http://www.w3.org/2000/svg','text');
+    ty.setAttribute('x', -4); ty.setAttribute('y', toSvgY(i) + 3);
+    ty.setAttribute('text-anchor','end');
+    ty.setAttribute('font-family','JetBrains Mono, monospace');
+    ty.setAttribute('font-size', 8);
+    ty.setAttribute('fill','var(--ink-soft)');
+    ty.textContent = i;
+    svg.appendChild(ty);
+  }
+
+  // click overlay
+  const overlay = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  overlay.setAttribute('x', -halfPx); overlay.setAttribute('y', -halfPx);
+  overlay.setAttribute('width', halfPx*2); overlay.setAttribute('height', halfPx*2);
+  overlay.setAttribute('class','grid-cell'); overlay.setAttribute('id','clickOverlay');
+  svg.appendChild(overlay);
+
+  const layer = document.createElementNS('http://www.w3.org/2000/svg','g');
+  layer.setAttribute('id','shapeLayer');
+  svg.appendChild(layer);
+}
+
+function clearShapeLayer() {
+  const layer = $('shapeLayer');
+  if (layer) layer.innerHTML = '';
+}
+
+function drawPolygon(pts, cls) {
+  if (!pts.length) return;
+  const layer = $('shapeLayer');
+  const ns = 'http://www.w3.org/2000/svg';
+  const poly = document.createElementNS(ns,'polygon');
+  poly.setAttribute('points', pts.map(p => `${toSvgX(p.x)},${toSvgY(p.y)}`).join(' '));
+  poly.setAttribute('class', cls);
+  layer.appendChild(poly);
+}
+
+function drawPolyline(pts, color) {
+  if (pts.length < 2) return;
+  const layer = $('shapeLayer');
+  const ns = 'http://www.w3.org/2000/svg';
+  const poly = document.createElementNS(ns,'polyline');
+  poly.setAttribute('points', pts.map(p => `${toSvgX(p.x)},${toSvgY(p.y)}`).join(' '));
+  poly.setAttribute('fill','none');
+  poly.setAttribute('stroke', color);
+  poly.setAttribute('stroke-width', 2);
+  poly.setAttribute('stroke-dasharray','4 3');
+  layer.appendChild(poly);
+}
+
+function drawVertex(p, cls, label, labelOffset = {dx: 6, dy: -6}) {
+  const layer = $('shapeLayer');
+  const ns = 'http://www.w3.org/2000/svg';
+  const c = document.createElementNS(ns,'circle');
+  c.setAttribute('cx', toSvgX(p.x)); c.setAttribute('cy', toSvgY(p.y));
+  c.setAttribute('r', 4.5); c.setAttribute('class', cls);
+  layer.appendChild(c);
+  if (label) {
+    const t = document.createElementNS(ns,'text');
+    t.setAttribute('x', toSvgX(p.x) + labelOffset.dx);
+    t.setAttribute('y', toSvgY(p.y) + labelOffset.dy);
+    t.setAttribute('font-family','Bungee, sans-serif');
+    t.setAttribute('font-size', 10);
+    t.setAttribute('font-weight', 700);
+    t.setAttribute('fill', 'var(--ink)');
+    t.textContent = label;
+    layer.appendChild(t);
+  }
+}
+
+function drawReflectionLine(line) {
+  const layer = $('shapeLayer');
+  const halfPx = GRID_MAX * CELL;
+  const ns = 'http://www.w3.org/2000/svg';
+  const l = document.createElementNS(ns,'line');
+  if (line.type === 'horizontal') {
+    l.setAttribute('x1', -halfPx); l.setAttribute('x2', halfPx);
+    l.setAttribute('y1', toSvgY(line.value)); l.setAttribute('y2', toSvgY(line.value));
+  } else {
+    l.setAttribute('y1', -halfPx); l.setAttribute('y2', halfPx);
+    l.setAttribute('x1', toSvgX(line.value)); l.setAttribute('x2', toSvgX(line.value));
+  }
+  l.setAttribute('stroke','var(--accent-4)');
+  l.setAttribute('stroke-width', 1.8);
+  l.setAttribute('stroke-dasharray','5 4');
+  layer.appendChild(l);
+
+  const t = document.createElementNS(ns,'text');
+  t.setAttribute('font-family','JetBrains Mono, monospace');
+  t.setAttribute('font-size', 10);
+  t.setAttribute('fill','var(--accent-4)');
+  t.setAttribute('font-weight', 700);
+  if (line.type === 'horizontal') {
+    t.setAttribute('x', halfPx - 4); t.setAttribute('y', toSvgY(line.value) - 4);
+    t.setAttribute('text-anchor','end');
+    t.textContent = `y = ${line.value}`;
+  } else {
+    t.setAttribute('x', toSvgX(line.value) + 4); t.setAttribute('y', -halfPx + 12);
+    t.textContent = `x = ${line.value}`;
+  }
+  layer.appendChild(t);
+}
+
+/* ---------- RENDER QUESTION ---------- */
+function renderQuestion() {
+  const set = state.sets[state.currentSet];
+  const q = set.questions[state.currentQ];
+  state.pending = [];
+  state.selectedMC = null;
+  state.answered = false;
+
+  const tag = $('qTag');
+  tag.className = 'q-tag ' + q.topic;
+  tag.textContent = q.topic === 'translate' ? 'TRANSLATION'
+                  : q.topic === 'reflect'   ? 'REFLECTION'
+                  : 'ROTATION';
+
+  $('qTitle').textContent = q.title;
+  $('qDetail').innerHTML = q.detail;
+  $('qInstr').innerHTML = '<strong>Tip:</strong> ' + q.instr;
+
+  // original coords
+  if (q.original && q.type === 'plot') {
+    $('qOrigCoords').style.display = 'block';
+    $('qOrigCoords').innerHTML = '<strong style="color:var(--accent)">Original:</strong> ' +
+      q.original.map(p => `${p.label}(${p.x}, ${p.y})`).join('  ·  ');
+  } else if (q.original) {
+    $('qOrigCoords').style.display = 'block';
+    let html = '<strong style="color:var(--accent)">Original:</strong> ' + q.original.map(p => `${p.label}(${p.x}, ${p.y})`).join('  ·  ');
+    if (q.image) {
+      html += '<br><strong style="color:var(--accent-2)">Image:</strong> ' + q.image.map(p => `${p.label}(${p.x}, ${p.y})`).join('  ·  ');
+    }
+    $('qOrigCoords').innerHTML = html;
+  } else {
+    $('qOrigCoords').style.display = 'none';
+  }
+
+  buildGrid();
+  clearShapeLayer();
+
+  if (q.original) {
+    drawPolygon(q.original, 'shape-original');
+    q.original.forEach(p => drawVertex(p, 'vertex-original', p.label));
+  }
+  if (q.reflectionLine) drawReflectionLine(q.reflectionLine);
+  if (q.type === 'mc' && q.image) {
+    drawPolygon(q.image, 'shape-image');
+    q.image.forEach(p => drawVertex(p, 'vertex-image', p.label));
+  }
+
+  if (q.type === 'plot') {
+    $('mcWrap').style.display = 'none';
+    $('vertexTracker').style.display = 'flex';
+    $('legendRow').style.display = 'flex';
+    $('resetBtn').style.display = '';
+    setupPlotInteraction(q);
+  } else {
+    $('vertexTracker').style.display = 'none';
+    $('legendRow').style.display = q.image ? 'flex' : 'none';
+    $('mcWrap').style.display = 'grid';
+    $('resetBtn').style.display = 'none';
+    setupMCInteraction(q);
+  }
+
+  renderTracker();
+
+  $('feedback').classList.remove('show','correct','wrong');
+  $('nextBtn').style.display = 'none';
+  $('checkBtn').style.display = '';
+  $('checkBtn').disabled = false;
+
+  // top HUD
+  $('hudQ').textContent = `${state.currentQ+1}/${set.questions.length}`;
+  $('hudSet').textContent = `${state.currentSet+1}/3`;
+  $('hudScore').textContent = state.score;
+  $('hudStreak').textContent = `${state.streak}🔥`;
+}
+
+function renderTracker() {
+  const set = state.sets[state.currentSet];
+  const q = set.questions[state.currentQ];
+  if (q.type !== 'plot') return;
+  const wrap = $('vertexTracker');
+  wrap.innerHTML = '';
+  q.original.forEach((v, i) => {
+    const pill = document.createElement('div');
+    pill.className = 'vt-pill';
+    if (i < state.pending.length) {
+      pill.classList.add('done');
+      pill.textContent = `${v.label}′(${state.pending[i].x}, ${state.pending[i].y})`;
+    } else if (i === state.pending.length) {
+      pill.classList.add('next');
+      pill.textContent = `Place ${v.label}′`;
+    } else {
+      pill.textContent = `${v.label}′`;
+    }
+    wrap.appendChild(pill);
+  });
+}
+
+/* ---------- INTERACTION ---------- */
+function setupPlotInteraction(q) {
+  const overlay = $('clickOverlay');
+  const svg = $('gridSvg');
+  overlay.onclick = (evt) => {
+    if (state.answered) return;
+    if (state.pending.length >= q.original.length) return;
+    const pt = svgPoint(svg, evt);
+    const gx = fromSvgX(pt.x), gy = fromSvgY(pt.y);
+    if (gx < GRID_MIN || gx > GRID_MAX || gy < GRID_MIN || gy > GRID_MAX) return;
+    state.pending.push({x: gx, y: gy});
+    redrawPending(q);
+    renderTracker();
+  };
+}
+
+function svgPoint(svg, evt) {
+  const pt = svg.createSVGPoint();
+  pt.x = evt.clientX; pt.y = evt.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+function redrawPending(q) {
+  clearShapeLayer();
+  if (q.reflectionLine) drawReflectionLine(q.reflectionLine);
+  if (q.original) {
+    drawPolygon(q.original, 'shape-original');
+    q.original.forEach(p => drawVertex(p, 'vertex-original', p.label));
+  }
+  if (state.pending.length === q.original.length) {
+    drawPolygon(state.pending, 'shape-image');
+  } else if (state.pending.length >= 2) {
+    drawPolyline(state.pending, 'var(--accent-2)');
+  }
+  state.pending.forEach((p, i) => {
+    drawVertex(p, state.pending.length === q.original.length ? 'vertex-image' : 'vertex-pending',
+               (q.original[i].label) + "'");
+  });
+}
+
+function setupMCInteraction(q) {
+  const wrap = $('mcWrap');
+  wrap.innerHTML = '';
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'mc-option';
+    btn.textContent = opt;
+    btn.onclick = () => {
+      if (state.answered) return;
+      [...wrap.children].forEach(c => c.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.selectedMC = idx;
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+/* ---------- CHECK ANSWER ---------- */
+function checkAnswer() {
+  const set = state.sets[state.currentSet];
+  const q = set.questions[state.currentQ];
+  let correct = false;
+
+  if (q.type === 'plot') {
+    if (state.pending.length !== q.original.length) {
+      flashFeedback('warn', '⏳ Place all vertices', `Need ${q.original.length - state.pending.length} more.`);
+      return;
+    }
+    const expected = q.transform(q.original);
+    correct = eqShape(state.pending, expected);
+    state.answered = true;
+
+    clearShapeLayer();
+    if (q.reflectionLine) drawReflectionLine(q.reflectionLine);
+    drawPolygon(q.original, 'shape-original');
+    q.original.forEach(p => drawVertex(p, 'vertex-original', p.label));
+
+    if (correct) {
+      drawPolygon(state.pending, 'shape-correct');
+      state.pending.forEach((p,i) => drawVertex(p, 'vertex-image', q.original[i].label + "'"));
+    } else {
+      drawPolygon(state.pending, 'shape-wrong');
+      state.pending.forEach((p,i) => drawVertex(p, 'vertex-image', q.original[i].label + "'"));
+      const layer = $('shapeLayer');
+      const ns = 'http://www.w3.org/2000/svg';
+      const poly = document.createElementNS(ns,'polygon');
+      poly.setAttribute('points', expected.map(p => `${toSvgX(p.x)},${toSvgY(p.y)}`).join(' '));
+      poly.setAttribute('fill','none');
+      poly.setAttribute('stroke','var(--good)');
+      poly.setAttribute('stroke-width', 2.5);
+      poly.setAttribute('stroke-dasharray','4 3');
+      layer.appendChild(poly);
+      expected.forEach((p,i) => drawVertex(p, 'vertex-image', q.original[i].label + "'", {dx: -10, dy: 14}));
+    }
+  } else {
+    if (state.selectedMC === null) {
+      flashFeedback('warn', '⏳ Pick an answer', 'Select one of the four options.');
+      return;
+    }
+    correct = state.selectedMC === q.answer;
+    state.answered = true;
+
+    const options = $('mcWrap').children;
+    [...options].forEach((c, i) => {
+      c.classList.remove('selected');
+      if (i === q.answer) c.classList.add('correct');
+      else if (i === state.selectedMC) c.classList.add('wrong');
+      c.style.pointerEvents = 'none';
+    });
+  }
+
+  // record + score + battle
+  if (correct) {
+    state.streak++;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+    const dmgBonus = Math.min(MAX_STREAK_BONUS, (state.streak - 1) * STREAK_DAMAGE_BONUS);
+    const damage = BASE_DAMAGE + dmgBonus;
+    const isCrit = state.streak >= 3;
+    const finalDmg = isCrit ? Math.round(damage * 1.5) : damage;
+
+    const earned = BASE_POINTS + (state.streak >= 2 ? POINTS_STREAK_BONUS * (state.streak-1) : 0);
+    state.score += earned;
+
+    state.bossHP = Math.max(0, state.bossHP - finalDmg);
+    updateHPBars();
+    flashBossHit(finalDmg, isCrit);
+
+    const setMeta = state.sets[state.currentSet].meta;
+    const successMsg = setMeta.successMsgs[Math.floor(Math.random() * setMeta.successMsgs.length)];
+    flashFeedback('correct', `${successMsg} +${earned} pts` + (state.streak >= 2 ? ` · ${state.streak}× streak!` : ''),
+                  q.explain);
+    if (state.streak >= 3) showStreakFlash(state.streak);
+    confetti(30);
+  } else {
+    state.streak = 0;
+    state.playerHP = Math.max(0, state.playerHP - PLAYER_HIT_DAMAGE);
+    updateHPBars();
+    flashPlayerHit();
+
+    const setMeta = state.sets[state.currentSet].meta;
+    const failMsg = setMeta.failMsgs[Math.floor(Math.random() * setMeta.failMsgs.length)];
+    flashFeedback('wrong', `${failMsg} −${PLAYER_HIT_DAMAGE} HP`, q.explain);
+  }
+
+  // record result
+  set.questions[state.currentQ]._answered = correct;
+
+  // top HUD
+  $('hudScore').textContent = state.score;
+  $('hudStreak').textContent = `${state.streak}🔥`;
+
+  $('checkBtn').style.display = 'none';
+  $('nextBtn').style.display = '';
+  if (state.bossHP === 0) {
+    $('nextBtn').textContent = '🏆 Victory!';
+  } else if (state.playerHP === 0) {
+    $('nextBtn').textContent = '💀 Continue';
+  } else if (state.currentQ === set.questions.length - 1) {
+    $('nextBtn').textContent = 'Final blow! ⚔️';
+  } else {
+    $('nextBtn').textContent = 'Next →';
+  }
+}
+
+function flashFeedback(kind, title, body) {
+  const fb = $('feedback');
+  fb.classList.remove('correct','wrong');
+  if (kind === 'correct') fb.classList.add('correct');
+  if (kind === 'wrong') fb.classList.add('wrong');
+  $('fbTitle').textContent = title;
+  $('fbBody').innerHTML = body;
+  fb.classList.add('show');
+}
+
+function showStreakFlash(n) {
+  const f = $('streakFlash');
+  f.textContent = `${n}× COMBO!`;
+  f.classList.remove('show');
+  void f.offsetWidth;
+  f.classList.add('show');
+}
+
+/* ---------- HP BAR + EFFECTS ---------- */
+function updateHPBars() {
+  const bossPct = (state.bossHP / state.bossMaxHP) * 100;
+  const playerPct = (state.playerHP / state.playerMaxHP) * 100;
+  const bossFill = $('bossHPFill');
+  const playerFill = $('playerHPFill');
+  bossFill.style.width = bossPct + '%';
+  playerFill.style.width = playerPct + '%';
+  bossFill.classList.toggle('low', bossPct < 30);
+  playerFill.classList.toggle('low', playerPct < 30);
+  $('bossHPText').textContent = `${state.bossHP} / ${state.bossMaxHP}`;
+  $('playerHPText').textContent = `${state.playerHP} / ${state.playerMaxHP}`;
+}
+
+function flashBossHit(dmg, isCrit) {
+  const stage = $('battleStage');
+  const boss = $('bossMini');
+  stage.classList.remove('hit-flash');
+  boss.classList.remove('hit');
+  void stage.offsetWidth;
+  stage.classList.add('hit-flash');
+  boss.classList.add('hit');
+
+  // floating damage number
+  const rect = boss.getBoundingClientRect();
+  const dn = document.createElement('div');
+  dn.className = 'damage-num' + (isCrit ? ' crit' : '');
+  dn.textContent = (isCrit ? '💥 ' : '-') + dmg;
+  dn.style.left = (rect.left + rect.width / 2) + 'px';
+  dn.style.top = (rect.top + 10) + 'px';
+  document.body.appendChild(dn);
+  setTimeout(() => dn.remove(), 1300);
+}
+
+function flashPlayerHit() {
+  const row = $('playerRow');
+  row.classList.remove('hurt');
+  void row.offsetWidth;
+  row.classList.add('hurt');
+
+  const rect = row.getBoundingClientRect();
+  const dn = document.createElement('div');
+  dn.className = 'damage-num';
+  dn.textContent = '-' + PLAYER_HIT_DAMAGE;
+  dn.style.color = 'var(--bad)';
+  dn.style.left = (rect.left + rect.width / 2) + 'px';
+  dn.style.top = (rect.top + 10) + 'px';
+  document.body.appendChild(dn);
+  setTimeout(() => dn.remove(), 1300);
+}
+
+/* ---------- PARTICLE FX ---------- */
+const PARTICLE_COLORS = {
+  desert: ['#ea580c','#fbbf24','#dc2626','#1e40af','#92400e'],
+  ocean:  ['#0891b2','#06b6d4','#f59e0b','#be123c','#0c2340'],
+  sky:    ['#7c3aed','#ec4899','#facc15','#06b6d4','#1e1b4b'],
+  neutral:['#ff4d6d','#2dd4bf','#fbbf24','#6366f1','#10b981']
+};
+function confetti(count) {
+  const theme = document.body.getAttribute('data-theme') || 'neutral';
+  const colors = PARTICLE_COLORS[theme] || PARTICLE_COLORS.neutral;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    const left = Math.random() * 100;
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    const dur = 1500 + Math.random()*1500;
+    const drift = (Math.random()-0.5) * 240;
+    const rot = (Math.random()-0.5) * 720;
+    el.style.left = left + 'vw';
+    el.style.background = color;
+    el.style.borderRadius = Math.random()<0.5 ? '0' : '50%';
+    el.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+    document.body.appendChild(el);
+    el.animate(
+      [{ transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+       { transform: `translate(${drift}px, 110vh) rotate(${rot}deg)`, opacity: 0.85 }],
+      { duration: dur, easing: 'cubic-bezier(.2,.6,.4,1)' }
+    ).onfinish = () => el.remove();
+  }
+}
+
+/* ---------- FLOW: SCREENS ---------- */
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(name).classList.add('active');
+}
+
+function startGame() {
+  buildSets();
+  state.currentSet = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.bestStreak = 0;
+  state.setStats = [];
+  showQuestIntro();
+}
+
+function showQuestIntro() {
+  const set = state.sets[state.currentSet];
+  applyTheme(set.meta.key);
+  $('introBanner').textContent = `QUEST ${state.currentSet + 1} OF 3`;
+  $('introName').textContent = set.meta.name;
+  $('introTag').textContent = set.meta.subtitle + '  ·  ' + set.meta.bossLvl;
+  $('introBoss').innerHTML = set.meta.bossSvg;
+  $('introMission').innerHTML = '<span class="label">MISSION</span>' + set.meta.intro;
+  $('introBtn').textContent = `⚔️ Engage ${set.meta.bossName}`;
+  showScreen('introScreen');
+}
+
+function startBattle() {
+  const set = state.sets[state.currentSet];
+  state.currentQ = 0;
+  state.playerHP = state.playerMaxHP;
+  state.bossHP = set.meta.bossHP;
+  state.bossMaxHP = set.meta.bossHP;
+  state.streak = 0;     // fresh streak for each boss
+
+  // Set up battle UI
+  $('bossMini').innerHTML = set.meta.bossSvg;
+  $('bossMini').classList.remove('defeated','hit');
+  $('bossName').textContent = set.meta.bossName;
+  $('bossLvl').textContent = set.meta.bossLvl;
+  $('hudIcon').textContent = set.meta.icon;
+  $('hudTitle').textContent = set.meta.name;
+  $('hudSubtitle').textContent = set.meta.subtitle;
+  updateHPBars();
+
+  showScreen('battleScreen');
+  renderQuestion();
+}
+
+function nextStep() {
+  // Boss defeated → set victory
+  if (state.bossHP === 0) {
+    finishSet(true);
+    return;
+  }
+  // Player defeated → set defeat
+  if (state.playerHP === 0) {
+    finishSet(false);
+    return;
+  }
+  // Otherwise, next question
+  state.currentQ++;
+  const set = state.sets[state.currentSet];
+  if (state.currentQ >= set.questions.length) {
+    // ran out of questions without defeating boss
+    if (state.bossHP > 0) {
+      finishSet(false);
+    } else {
+      finishSet(true);
+    }
+  } else {
+    renderQuestion();
+  }
+}
+
+function finishSet(victorious) {
+  const set = state.sets[state.currentSet];
+  const correctCount = set.questions.filter(q => q._answered).length;
+  state.setStats.push({
+    setKey: set.meta.key,
+    setName: set.meta.name,
+    icon: set.meta.icon,
+    bossName: set.meta.bossName,
+    correctCount,
+    totalQ: set.questions.length,
+    victorious,
+    questionsUsed: state.currentQ + 1
+  });
+  set.result = victorious ? 'victory' : 'defeat';
+
+  // Boss defeat animation if victorious
+  if (victorious) {
+    $('bossMini').classList.add('defeated');
+    setTimeout(() => confetti(80), 200);
+    setTimeout(() => confetti(50), 600);
+  }
+
+  setTimeout(() => {
+    if (victorious) showSetVictory();
+    else showSetDefeat();
+  }, victorious ? 1200 : 600);
+}
+
+function showSetVictory() {
+  const set = state.sets[state.currentSet];
+  const stat = state.setStats[state.setStats.length - 1];
+  $('victoryTitle').textContent = `${set.meta.bossName} Defeated!`;
+  $('victorySub').textContent = `You conquered ${set.meta.name} in ${stat.questionsUsed} ${stat.questionsUsed === 1 ? 'strike' : 'strikes'}.`;
+  $('vsCorrect').textContent = `${stat.correctCount}/${stat.questionsUsed}`;
+  $('vsScore').textContent = state.score;
+  $('vsStreak').textContent = state.bestStreak;
+  $('victoryBtn').textContent = state.currentSet < 2 ? `Continue → ${SETS[state.currentSet+1].icon} ${SETS[state.currentSet+1].subtitle}` : '🏆 See Final Results';
+  showScreen('victoryScreen');
+}
+
+function showSetDefeat() {
+  const set = state.sets[state.currentSet];
+  const stat = state.setStats[state.setStats.length - 1];
+  $('defeatTitle').textContent = 'Defeated...';
+  $('defeatSub').textContent = `${set.meta.bossName} bested you. ${stat.correctCount}/${stat.totalQ} challenges solved.`;
+  $('defeatBtn').textContent = state.currentSet < 2 ? 'Press On (Next Quest) →' : 'See Final Results';
+  showScreen('defeatScreen');
+}
+
+function continueAfterSet() {
+  state.currentSet++;
+  if (state.currentSet >= 3) {
+    showFinal();
+  } else {
+    // Transition wipe
+    const set = state.sets[state.currentSet];
+    const overlay = $('transitionOverlay');
+    $('transitionText').textContent = set.meta.transitionWord;
+    overlay.classList.add('active');
+    setTimeout(() => {
+      applyTheme(set.meta.key);
+      showQuestIntro();
+    }, 700);
+    setTimeout(() => overlay.classList.remove('active'), 1500);
+  }
+}
+
+function showFinal() {
+  applyTheme('neutral');
+  const totalCorrect = state.setStats.reduce((s, x) => s + x.correctCount, 0);
+  const totalAttempted = state.setStats.reduce((s, x) => s + x.questionsUsed, 0);
+  const totalQ = state.setStats.reduce((s, x) => s + x.totalQ, 0);
+  const victories = state.setStats.filter(s => s.victorious).length;
+  const accuracy = totalAttempted ? Math.round((totalCorrect / totalAttempted) * 100) : 0;
+
+  $('finalScore').textContent = state.score;
+  $('finalSubText').textContent = `${victories}/3 bosses defeated  ·  ${totalCorrect} of ${totalAttempted} attempts correct (${accuracy}%)`;
+
+  // grade
+  const pct = totalCorrect / totalQ;
+  let grade, msg, crown;
+  if (pct === 1 && victories === 3)        { grade = 'LEGENDARY'; crown = '👑'; msg = "Flawless. You've mastered every transformation. The realms bow to your name."; }
+  else if (victories === 3)                { grade = 'CHAMPION';  crown = '🏆'; msg = "All three bosses fall. You are the Transformer Supreme."; }
+  else if (victories >= 2 && pct >= 0.85)  { grade = 'HEROIC';    crown = '⚔️'; msg = "Mighty work. A few details to polish, but the realms are mostly yours."; }
+  else if (victories >= 1)                 { grade = 'BRAVE';     crown = '🛡️'; msg = "You won battles but not the war. Review the missed ones and return."; }
+  else if (pct >= 0.5)                     { grade = 'TRAINING';  crown = '📜'; msg = "Solid foundation. Re-read the lesson examples and try again — victory awaits."; }
+  else                                     { grade = 'APPRENTICE'; crown = '🌱'; msg = "Don't sweat it. These rules take repetition. Replay the quest!"; }
+  $('finalCrown').textContent = crown;
+  $('finalGrade').textContent = grade;
+  $('finalMsg').textContent = msg;
+
+  // set results
+  const sr = $('setResults');
+  sr.innerHTML = '';
+  state.setStats.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'sr ' + (s.victorious ? 'victory' : 'defeated');
+    const acc = s.questionsUsed ? Math.round((s.correctCount / s.questionsUsed) * 100) : 0;
+    div.innerHTML = `
+      <div class="sr-icon">${s.icon}</div>
+      <div class="sr-name">${s.setName}</div>
+      <div class="sr-stats">
+        <div><b>${s.correctCount}/${s.questionsUsed}</b><br>strikes</div>
+        <div><b>${s.victorious ? '✓' : '✗'}</b><br>${s.victorious ? 'WON' : 'LOST'}</div>
+      </div>
+    `;
+    sr.appendChild(div);
+  });
+
+  showScreen('finalScreen');
+  if (victories === 3) {
+    setTimeout(() => confetti(100), 200);
+    setTimeout(() => confetti(80), 700);
+    setTimeout(() => confetti(60), 1300);
+  }
+}
+
+/* ---------- TRICKS MODAL ---------- */
+function openTricks() {
+  $('tricksModal').classList.add('active');
+}
+function closeTricks() {
+  $('tricksModal').classList.remove('active');
+}
+
+/* ---------- BIND EVENTS ---------- */
+function bindEvents() {
+  $('startBtn').onclick = startGame;
+  $('introBtn').onclick = startBattle;
+  $('checkBtn').onclick = checkAnswer;
+  $('nextBtn').onclick = nextStep;
+  $('resetBtn').onclick = () => {
+    if (state.answered) return;
+    state.pending = [];
+    redrawPending(state.sets[state.currentSet].questions[state.currentQ]);
+    renderTracker();
+    $('feedback').classList.remove('show');
+  };
+  $('quitBtn').onclick = () => {
+    if (confirm('Quit the quest? All progress will be lost.')) {
+      applyTheme('neutral');
+      showScreen('startScreen');
+    }
+  };
+  $('victoryBtn').onclick = continueAfterSet;
+  $('defeatBtn').onclick = continueAfterSet;
+  $('playAgainBtn').onclick = () => {
+    applyTheme('neutral');
+    showScreen('startScreen');
+  };
+  // Tricks modal
+  $('tricksBtn').onclick = openTricks;
+  $('closeTricksBtn').onclick = closeTricks;
+  $('tricksModal').onclick = (e) => {
+    if (e.target === e.currentTarget) closeTricks();
+  };
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeTricks();
+    else if (e.key === '?' && !$('tricksModal').classList.contains('active')) {
+      // tag === 'INPUT' or 'TEXTAREA' — but we have none; safe to open
+      openTricks();
+    }
+  });
+}
+
+/* ---------- INIT ---------- */
+applyTheme('neutral');
+bindEvents();
+
+</script>
+</body>
+</html>
