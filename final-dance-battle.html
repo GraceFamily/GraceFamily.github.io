@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dance Battle — The Geometry Showcase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@500;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --burgundy: #6b1f2e;
+  --burgundy-deep: #4a1320;
+  --burgundy-light: #8a2a3d;
+  --gold: #d4a574;
+  --gold-bright: #f4c97a;
+  --gold-deep: #a87f4a;
+  --cream: #f5ecd7;
+  --cream-warm: #faf2dd;
+  --parchment: #ede0c4;
+  --spotlight: #ffe066;
+  --ink: #1a0e0e;
+  --ink-soft: #3a2424;
+  --stage-red: #a8324a;
+  --success: #4a7c59;
+  --error: #8b2c2c;
+  --grid-line: rgba(107, 31, 46, 0.18);
+  --shadow-deep: 0 12px 32px rgba(26, 14, 14, 0.35);
+  --shadow-soft: 0 4px 14px rgba(26, 14, 14, 0.18);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  min-height: 100vh;
+  font-family: 'Crimson Pro', Georgia, serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at top, var(--burgundy-light) 0%, var(--burgundy) 35%, var(--burgundy-deep) 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+.curtain-side {
+  position: fixed;
+  top: 0; bottom: 0;
+  width: 60px;
+  background:
+    repeating-linear-gradient(90deg,
+      var(--burgundy-deep) 0px,
+      var(--burgundy) 8px,
+      var(--burgundy-light) 14px,
+      var(--burgundy) 22px,
+      var(--burgundy-deep) 30px
+    );
+  box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+  z-index: 1;
+  pointer-events: none;
+}
+.curtain-side.left { left: 0; }
+.curtain-side.right { right: 0; }
+@media (max-width: 720px) {
+  .curtain-side { width: 24px; }
+}
+
+.stage {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 80px 60px;
+  min-height: 100vh;
+}
+@media (max-width: 720px) {
+  .stage { padding: 24px 36px 40px; }
+}
+
+.spotlight {
+  position: absolute;
+  top: -50px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse at center top, rgba(255, 224, 102, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.marquee-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 900;
+  text-align: center;
+  color: var(--gold-bright);
+  text-shadow:
+    0 2px 0 var(--gold-deep),
+    0 4px 12px rgba(0,0,0,0.5),
+    0 0 30px rgba(255, 224, 102, 0.3);
+  letter-spacing: 0.04em;
+  line-height: 1.05;
+  position: relative;
+  z-index: 1;
+}
+.marquee-title.huge { font-size: clamp(2.2rem, 6vw, 4rem); }
+.marquee-title.big { font-size: clamp(1.6rem, 4vw, 2.6rem); }
+.marquee-title.med { font-size: clamp(1.2rem, 3vw, 1.8rem); }
+
+.subtitle {
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-weight: 500;
+  color: var(--cream);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  margin-top: 12px;
+  opacity: 0.85;
+}
+
+.part-header {
+  text-align: center;
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  letter-spacing: 0.3em;
+  color: var(--gold-bright);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  margin: 40px 0 0;
+  padding: 14px 0;
+  border-top: 1px solid rgba(212, 165, 116, 0.35);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.35);
+}
+
+.poster {
+  background: linear-gradient(180deg, var(--cream-warm) 0%, var(--parchment) 100%);
+  border: 3px solid var(--gold-deep);
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow:
+    var(--shadow-deep),
+    inset 0 0 0 1px var(--gold-bright),
+    inset 0 0 30px rgba(212, 165, 116, 0.15);
+  position: relative;
+}
+.poster::before, .poster::after {
+  content: '✦';
+  position: absolute;
+  font-size: 1.4rem;
+  color: var(--gold-deep);
+  top: 8px;
+}
+.poster::before { left: 14px; }
+.poster::after { right: 14px; }
+
+.posters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+.posters-grid.finale-grid {
+  grid-template-columns: minmax(260px, 460px);
+  justify-content: center;
+}
+
+.lesson-poster {
+  background: linear-gradient(180deg, var(--cream-warm) 0%, var(--parchment) 100%);
+  border: 3px solid var(--gold-deep);
+  border-radius: 6px;
+  padding: 22px 18px;
+  box-shadow: var(--shadow-deep), inset 0 0 0 1px var(--gold-bright);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.lesson-poster:hover:not(.locked) {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.45), inset 0 0 0 1px var(--gold-bright);
+}
+.lesson-poster.locked {
+  cursor: not-allowed;
+  filter: grayscale(0.6) brightness(0.75);
+}
+.lesson-poster .act-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.3em;
+  color: var(--burgundy);
+  margin-bottom: 4px;
+}
+.lesson-poster .lesson-name {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.lesson-poster .lesson-sub {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  opacity: 0.75;
+}
+.lesson-poster .lesson-illustration {
+  width: 100%;
+  height: 130px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lesson-poster .stars-row {
+  margin-top: auto;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  color: var(--gold-deep);
+}
+.lesson-poster .stars-row .filled { color: var(--gold-bright); text-shadow: 0 0 8px rgba(255, 224, 102, 0.6); }
+.lesson-poster .stars-row .empty { color: rgba(168, 127, 74, 0.35); }
+.lesson-poster .status-pill {
+  display: inline-block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+.lesson-poster .status-pill.complete {
+  background: var(--burgundy);
+  color: var(--cream-warm);
+}
+.lesson-poster .status-pill.new {
+  background: var(--gold-bright);
+  color: var(--ink);
+}
+.lock-icon {
+  font-size: 2rem;
+  color: var(--gold-deep);
+  margin: 12px 0;
+}
+
+.btn {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.btn-primary {
+  background: linear-gradient(180deg, var(--stage-red) 0%, var(--burgundy) 100%);
+  color: var(--cream-warm);
+  box-shadow: 0 4px 0 var(--burgundy-deep), var(--shadow-soft);
+  border: 2px solid var(--gold-deep);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--burgundy-deep), var(--shadow-deep); }
+.btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--burgundy-deep); }
+.btn-secondary {
+  background: var(--cream-warm);
+  color: var(--burgundy);
+  border: 2px solid var(--burgundy);
+  box-shadow: 0 3px 0 var(--burgundy);
+}
+.btn-secondary:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--burgundy); }
+.btn-secondary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--burgundy); }
+.btn-ghost {
+  background: transparent;
+  color: var(--cream);
+  border: 1px solid var(--gold);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.08); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+.btn-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.playbook-section { margin-top: 22px; }
+.playbook-section h3 {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--burgundy);
+  border-bottom: 1.5px solid var(--gold-deep);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+.playbook-section p, .playbook-section li {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+.playbook-section ul, .playbook-section ol { padding-left: 22px; }
+.playbook-section ul li, .playbook-section ol li { margin-bottom: 6px; }
+.playbook-section code {
+  font-family: 'Bebas Neue', sans-serif;
+  background: var(--burgundy);
+  color: var(--gold-bright);
+  padding: 1px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+  font-size: 1.02em;
+}
+
+.worked-example {
+  background: rgba(212, 165, 116, 0.18);
+  border-left: 4px solid var(--gold-deep);
+  padding: 14px 18px;
+  margin: 12px 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 1rem;
+}
+.worked-example .ex-label {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-deep);
+  margin-bottom: 6px;
+}
+
+.watch-out {
+  background: linear-gradient(180deg, #fff5d6 0%, #f9e8b5 100%);
+  border: 2px dashed var(--burgundy);
+  padding: 16px 20px;
+  margin: 16px 0;
+  border-radius: 6px;
+  position: relative;
+}
+.watch-out::before {
+  content: '⚠ WATCH OUT';
+  position: absolute;
+  top: -12px; left: 16px;
+  background: var(--burgundy);
+  color: var(--gold-bright);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.25em;
+  padding: 3px 12px;
+  border-radius: 3px;
+}
+.watch-out p { margin-top: 4px; font-size: 1.02rem; }
+
+.question-card { margin-top: 24px; }
+.question-card .q-number {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.3em;
+  color: var(--gold-deep);
+  margin-bottom: 8px;
+}
+.question-card .q-prompt {
+  font-size: 1.18rem;
+  line-height: 1.55;
+  color: var(--ink);
+  margin-bottom: 18px;
+}
+.question-card .q-prompt code {
+  font-family: 'Bebas Neue', sans-serif;
+  background: var(--burgundy);
+  color: var(--gold-bright);
+  padding: 1px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+  font-size: 1.05em;
+}
+
+.choices { display: grid; gap: 10px; }
+.choice {
+  background: var(--cream-warm);
+  border: 2px solid var(--gold-deep);
+  border-radius: 4px;
+  padding: 12px 18px;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.choice:hover:not(:disabled) {
+  background: #fff5dc;
+  border-color: var(--burgundy);
+  transform: translateX(3px);
+}
+.choice .choice-letter {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  background: var(--burgundy);
+  color: var(--gold-bright);
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+.choice.correct { background: #d4e8d8; border-color: var(--success); }
+.choice.correct .choice-letter { background: var(--success); }
+.choice.incorrect { background: #f0d2d2; border-color: var(--error); }
+.choice.incorrect .choice-letter { background: var(--error); }
+.choice:disabled { cursor: default; }
+
+.numeric-input {
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  padding: 12px 18px;
+  border: 2px solid var(--gold-deep);
+  border-radius: 4px;
+  background: var(--cream-warm);
+  color: var(--ink);
+  width: 180px;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.numeric-input:focus { border-color: var(--burgundy); box-shadow: 0 0 0 3px rgba(168, 50, 74, 0.2); }
+.numeric-input.correct { background: #d4e8d8; border-color: var(--success); color: var(--success); }
+.numeric-input.incorrect { background: #f0d2d2; border-color: var(--error); color: var(--error); }
+.numeric-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.coord-row { display: flex; align-items: center; gap: 10px; font-family: 'Cinzel', serif; font-size: 1.6rem; color: var(--burgundy); flex-wrap: wrap; }
+.coord-row .numeric-input { width: 90px; font-size: 1.2rem; }
+
+.feedback {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: 4px;
+  font-size: 1.05rem;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.feedback.correct { background: linear-gradient(180deg, #d4e8d8 0%, #b8d8be 100%); border-left: 5px solid var(--success); color: #1f3d2a; }
+.feedback.incorrect { background: linear-gradient(180deg, #f0d2d2 0%, #e0b8b8 100%); border-left: 5px solid var(--error); color: #3d1a1a; }
+.feedback .icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1.2; }
+.feedback .text strong { font-family: 'Cinzel', serif; letter-spacing: 0.05em; }
+
+.progress-bulbs { display: flex; justify-content: center; gap: 12px; margin: 18px 0 6px; flex-wrap: wrap; }
+.bulb {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(212, 165, 116, 0.25);
+  border: 2px solid var(--gold-deep);
+  transition: all 0.3s ease;
+}
+.bulb.lit { background: radial-gradient(circle at 30% 30%, var(--spotlight), var(--gold-bright) 60%, var(--gold-deep) 100%); box-shadow: 0 0 14px var(--spotlight), 0 0 4px #fff inset; }
+.bulb.current { background: radial-gradient(circle at 30% 30%, #fff, var(--spotlight) 50%, var(--gold) 100%); box-shadow: 0 0 18px var(--spotlight); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+.stars-display { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
+.star { font-size: 3rem; color: rgba(168, 127, 74, 0.3); transition: all 0.3s ease; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+.star.filled { color: var(--gold-bright); filter: drop-shadow(0 0 12px rgba(255, 224, 102, 0.7)) drop-shadow(0 2px 3px rgba(0,0,0,0.3)); animation: starPop 0.5s ease-out; }
+@keyframes starPop { 0% { transform: scale(0) rotate(-180deg); } 60% { transform: scale(1.3) rotate(15deg); } 100% { transform: scale(1) rotate(0); } }
+
+.result-card { text-align: center; padding: 32px 28px; }
+.result-card .verdict { font-family: 'Cinzel Decorative', serif; font-size: 2.2rem; font-weight: 900; color: var(--burgundy); margin: 14px 0; }
+.result-card .score { font-size: 1.3rem; color: var(--ink-soft); margin-bottom: 8px; }
+.result-card .score strong { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: var(--burgundy); letter-spacing: 0.05em; }
+
+.battle-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.battle-header .act-name { font-family: 'Cinzel', serif; font-weight: 700; color: var(--cream); font-size: 1rem; letter-spacing: 0.2em; text-transform: uppercase; }
+.battle-header .act-name span { color: var(--gold-bright); }
+
+.svg-coord { display: block; margin: 0 auto 18px; background: var(--cream); border: 2px solid var(--gold-deep); border-radius: 4px; box-shadow: var(--shadow-soft); }
+
+.back-link { font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-bright); text-decoration: none; border: none; background: transparent; cursor: pointer; padding: 6px 0; }
+.back-link:hover { color: var(--spotlight); }
+
+.hub-intro { text-align: center; color: var(--cream); font-size: 1.1rem; line-height: 1.6; max-width: 620px; margin: 28px auto 0; font-style: italic; opacity: 0.92; }
+
+.lesson-poster.final {
+  background: linear-gradient(180deg, #2a1015 0%, #4a1320 100%);
+  border-color: var(--gold-bright);
+  color: var(--cream-warm);
+}
+.lesson-poster.final.locked { filter: grayscale(0.4) brightness(0.6); }
+.lesson-poster.final .act-label,
+.lesson-poster.final .lesson-name,
+.lesson-poster.final .lesson-sub { color: var(--gold-bright); }
+.lesson-poster.final::before, .lesson-poster.final::after { color: var(--gold-bright); }
+
+.hidden { display: none !important; }
+
+@media (max-width: 540px) {
+  .poster { padding: 20px 18px; }
+  .question-card .q-prompt { font-size: 1.05rem; }
+  .choice { font-size: 0.98rem; padding: 10px 14px; }
+  .stars-display .star { font-size: 2.2rem; }
+  .result-card .verdict { font-size: 1.6rem; }
+  .progress-bulbs .bulb { width: 16px; height: 16px; }
+}
+</style>
+</head>
+<body>
+  <div class="curtain-side left"></div>
+  <div class="curtain-side right"></div>
+  <div id="app" class="stage"></div>
+
+<script>
+/* ========================================================================
+   DANCE BATTLE — THE GEOMETRY SHOWCASE
+   Six acts of geometric transformations + a Grand Finale.
+   ======================================================================== */
+
+/* ---------- STATE ---------- */
+const state = {
+  screen: 'hub',
+  battleId: null,
+  questionIndex: 0,
+  questionDraw: [],
+  answers: [],
+  feedback: null,
+  awaitingNext: false,
+  completed: { a1: 0, a2: 0, a3: 0, a4: 0, a5: 0, a6: 0, final: 0 },
+  bestScore: { a1: 0, a2: 0, a3: 0, a4: 0, a5: 0, a6: 0, final: 0 },
+  attempts: { a1: 0, a2: 0, a3: 0, a4: 0, a5: 0, a6: 0, final: 0 },
+};
+
+/* ---------- UTILITIES ---------- */
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function pickN(arr, n) { return shuffle(arr).slice(0, n); }
+
+function parseNumeric(input) {
+  if (input == null) return NaN;
+  const s = String(input).trim();
+  if (s === '') return NaN;
+  if (/^-?\d+\s*\/\s*-?\d+$/.test(s)) {
+    const [num, den] = s.split('/').map(t => parseFloat(t.trim()));
+    if (den === 0) return NaN;
+    return num / den;
+  }
+  return parseFloat(s);
+}
+function numericMatches(userInput, correctValue, tolerance = 0.01) {
+  const u = parseNumeric(userInput);
+  if (Number.isNaN(u)) return false;
+  return Math.abs(u - correctValue) < tolerance;
+}
+
+/* For finale (12 questions), map raw correct count to a 5-star scale.
+   For 5-question battles, stars = correct count. */
+function calculateStars(correct, total) {
+  if (total <= 5) return correct;
+  const pct = correct / total;
+  if (pct >= 1) return 5;
+  if (pct >= 0.83) return 4;   // 10–11 of 12
+  if (pct >= 0.66) return 3;   // 8–9 of 12
+  if (pct >= 0.5) return 2;    // 6–7 of 12
+  if (pct >= 0.33) return 1;   // 4–5 of 12
+  return 0;
+}
+
+/* ---------- SVG: COORDINATE PLANE ---------- */
+function svgCoordPlane(config) {
+  const size = config.size || 240;
+  const range = config.range || 5;
+  const margin = 18;
+  const inner = size - margin * 2;
+  const unit = inner / (range * 2);
+  const cx = margin + range * unit;
+  const cy = margin + range * unit;
+  const xPx = x => margin + (x + range) * unit;
+  const yPx = y => margin + (range - y) * unit;
+
+  let svg = `<svg class="svg-coord" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">`;
+  // grid
+  for (let i = -range; i <= range; i++) {
+    svg += `<line x1="${xPx(i)}" y1="${margin}" x2="${xPx(i)}" y2="${size - margin}" stroke="rgba(107,31,46,0.12)" stroke-width="1"/>`;
+    svg += `<line x1="${margin}" y1="${yPx(i)}" x2="${size - margin}" y2="${yPx(i)}" stroke="rgba(107,31,46,0.12)" stroke-width="1"/>`;
+  }
+  // axes
+  svg += `<line x1="${margin}" y1="${cy}" x2="${size - margin}" y2="${cy}" stroke="#6b1f2e" stroke-width="1.6"/>`;
+  svg += `<line x1="${cx}" y1="${margin}" x2="${cx}" y2="${size - margin}" stroke="#6b1f2e" stroke-width="1.6"/>`;
+  // arrowheads
+  svg += `<polygon points="${size-margin},${cy} ${size-margin-6},${cy-4} ${size-margin-6},${cy+4}" fill="#6b1f2e"/>`;
+  svg += `<polygon points="${cx},${margin} ${cx-4},${margin+6} ${cx+4},${margin+6}" fill="#6b1f2e"/>`;
+  // axis labels
+  svg += `<text x="${size-margin+4}" y="${cy+10}" font-family="Cinzel, serif" font-size="9" fill="#6b1f2e">x</text>`;
+  svg += `<text x="${cx+5}" y="${margin-2}" font-family="Cinzel, serif" font-size="9" fill="#6b1f2e">y</text>`;
+  // tick numbers
+  const tickStep = Math.max(1, Math.floor(range/4));
+  for (let i = -range; i <= range; i += tickStep) {
+    if (i === 0) continue;
+    svg += `<text x="${xPx(i)}" y="${cy+10}" text-anchor="middle" font-family="Crimson Pro, serif" font-size="8" fill="#3a2424">${i}</text>`;
+    svg += `<text x="${cx-5}" y="${yPx(i)+3}" text-anchor="end" font-family="Crimson Pro, serif" font-size="8" fill="#3a2424">${i}</text>`;
+  }
+  // mirror lines (for reflections)
+  (config.mirrorLines || []).forEach(ml => {
+    if (ml.axis === 'h') {
+      svg += `<line x1="${margin}" y1="${yPx(ml.value)}" x2="${size - margin}" y2="${yPx(ml.value)}" stroke="#4a7c59" stroke-width="1.8" stroke-dasharray="5 3" opacity="0.9"/>`;
+      if (ml.label) svg += `<text x="${size - margin - 4}" y="${yPx(ml.value) - 4}" font-size="9" fill="#2f5e3e" text-anchor="end" font-style="italic" font-weight="700">${ml.label}</text>`;
+    } else if (ml.axis === 'v') {
+      svg += `<line x1="${xPx(ml.value)}" y1="${margin}" x2="${xPx(ml.value)}" y2="${size - margin}" stroke="#4a7c59" stroke-width="1.8" stroke-dasharray="5 3" opacity="0.9"/>`;
+      if (ml.label) svg += `<text x="${xPx(ml.value) + 4}" y="${margin + 10}" font-size="9" fill="#2f5e3e" font-style="italic" font-weight="700">${ml.label}</text>`;
+    }
+  });
+  // center of rotation marker (origin)
+  if (config.centerOfRotation) {
+    svg += `<circle cx="${cx}" cy="${cy}" r="4" fill="#d4a574"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="8" fill="none" stroke="#a87f4a" stroke-width="1.2" opacity="0.7"/>`;
+  }
+  // shapes
+  (config.shapes || []).forEach(shape => {
+    const pts = shape.points.map(([x,y]) => `${xPx(x)},${yPx(y)}`).join(' ');
+    svg += `<polygon points="${pts}" fill="${shape.fill || 'rgba(168,50,74,0.35)'}" stroke="${shape.stroke || '#6b1f2e'}" stroke-width="2" stroke-linejoin="round"/>`;
+    if (shape.labels) {
+      shape.labels.forEach(({at, text}) => {
+        const [x,y] = at;
+        svg += `<text x="${xPx(x)+5}" y="${yPx(y)-5}" font-family="Cinzel, serif" font-weight="700" font-size="11" fill="${shape.stroke || '#6b1f2e'}">${text}</text>`;
+      });
+    }
+  });
+  // extra line annotations
+  (config.lines || []).forEach(line => {
+    svg += `<line x1="${xPx(line.from[0])}" y1="${yPx(line.from[1])}" x2="${xPx(line.to[0])}" y2="${yPx(line.to[1])}" stroke="${line.stroke || '#a87f4a'}" stroke-width="${line.width || 1.5}" stroke-dasharray="${line.dash || '4 3'}"/>`;
+  });
+  // points
+  (config.points || []).forEach(pt => {
+    svg += `<circle cx="${xPx(pt.at[0])}" cy="${yPx(pt.at[1])}" r="4" fill="${pt.fill || '#6b1f2e'}" stroke="#fff" stroke-width="1"/>`;
+    if (pt.label) {
+      svg += `<text x="${xPx(pt.at[0])+7}" y="${yPx(pt.at[1])-6}" font-family="Cinzel, serif" font-weight="700" font-size="11" fill="${pt.fill || '#6b1f2e'}">${pt.label}</text>`;
+    }
+  });
+
+  svg += `</svg>`;
+  return svg;
+}
+
+/* ---------- ILLUSTRATIONS ---------- */
+const ILLUSTRATIONS = {
+  // Act I - The Slide (Translation)
+  a1: `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" width="100%" height="130">
+    <defs><linearGradient id="floor_a1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a87f4a" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#6b1f2e" stop-opacity="0.6"/>
+    </linearGradient></defs>
+    <polygon points="20,115 200,115 215,128 5,128" fill="url(#floor_a1)"/>
+    <!-- ghost (origin) triangle -->
+    <polygon points="35,100 55,60 75,100" fill="#a8324a" stroke="#6b1f2e" stroke-width="1.5" opacity="0.32" stroke-linejoin="round"/>
+    <!-- moved triangle -->
+    <polygon points="135,80 155,40 175,80" fill="#a8324a" stroke="#6b1f2e" stroke-width="2" stroke-linejoin="round"/>
+    <!-- slide arrow -->
+    <line x1="80" y1="78" x2="128" y2="58" stroke="#f4c97a" stroke-width="2.2" stroke-dasharray="5 3"/>
+    <polygon points="128,58 119,57 122,65" fill="#f4c97a"/>
+    <!-- top curtain -->
+    <path d="M 0,0 Q 30,18 55,8 Q 80,22 110,10 Q 140,22 165,8 Q 190,18 220,0 L 220,18 L 0,18 Z" fill="#6b1f2e"/>
+    <circle cx="55" cy="32" r="3" fill="#f4c97a"/>
+    <circle cx="165" cy="32" r="3" fill="#f4c97a"/>
+    <text x="110" y="125" text-anchor="middle" font-family="Bebas Neue, sans-serif" font-size="9" fill="#f5ecd7" letter-spacing="2">→ SLIDE →</text>
+  </svg>`,
+  // Act II - The Mirror (Reflection)
+  a2: `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" width="100%" height="130">
+    <defs><linearGradient id="floor_a2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a87f4a" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#6b1f2e" stop-opacity="0.6"/>
+    </linearGradient></defs>
+    <polygon points="20,115 200,115 215,128 5,128" fill="url(#floor_a2)"/>
+    <line x1="110" y1="22" x2="110" y2="115" stroke="#f4c97a" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <polygon points="50,105 80,55 95,90" fill="#a8324a" stroke="#6b1f2e" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="170,105 140,55 125,90" fill="#a8324a" stroke="#6b1f2e" stroke-width="2" stroke-linejoin="round" opacity="0.55"/>
+    <path d="M 0,0 Q 30,18 55,8 Q 80,22 110,10 Q 140,22 165,8 Q 190,18 220,0 L 220,18 L 0,18 Z" fill="#6b1f2e"/>
+    <circle cx="55" cy="32" r="3" fill="#f4c97a"/>
+    <circle cx="165" cy="32" r="3" fill="#f4c97a"/>
+    <text x="110" y="125" text-anchor="middle" font-family="Bebas Neue, sans-serif" font-size="9" fill="#f5ecd7" letter-spacing="2">↔ MIRRORED ↔</text>
+  </svg>`,
+  // Act III - The Pirouette (Rotation)
+  a3: `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" width="100%" height="130">
+    <defs><linearGradient id="floor_a3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a87f4a" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#6b1f2e" stop-opacity="0.6"/>
+    </linearGradient></defs>
+    <polygon points="20,115 200,115 215,128 5,128" fill="url(#floor_a3)"/>
+    <!-- center of rotation -->
+    <circle cx="110" cy="78" r="4" fill="#f4c97a" stroke="#6b1f2e" stroke-width="1.5"/>
+    <circle cx="110" cy="78" r="9" fill="none" stroke="#f4c97a" stroke-width="0.9" opacity="0.6"/>
+    <!-- rotation arc -->
+    <path d="M 60,55 A 60,60 0 0 1 165,80" fill="none" stroke="#f4c97a" stroke-width="1.8" stroke-dasharray="4 3"/>
+    <polygon points="165,80 158,76 159,84" fill="#f4c97a"/>
+    <!-- ghosted original -->
+    <polygon points="50,55 70,38 78,62" fill="#a8324a" stroke="#6b1f2e" stroke-width="1.5" opacity="0.4" stroke-linejoin="round"/>
+    <!-- rotated -->
+    <polygon points="155,80 178,62 185,86" fill="#a8324a" stroke="#6b1f2e" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M 0,0 Q 30,18 55,8 Q 80,22 110,10 Q 140,22 165,8 Q 190,18 220,0 L 220,18 L 0,18 Z" fill="#6b1f2e"/>
+    <circle cx="55" cy="32" r="3" fill="#f4c97a"/>
+    <circle cx="165" cy="32" r="3" fill="#f4c97a"/>
+    <text x="110" y="125" text-anchor="middle" font-family="Bebas Neue, sans-serif" font-size="9" fill="#f5ecd7" letter-spacing="2">↻ TURN ↺</text>
+  </svg>`,
+  // Act IV - Congruent Figures
+  a4: `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" width="100%" height="130">
+    <defs><linearGradient id="floor_a4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a87f4a" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#6b1f2e" stop-opacity="0.6"/>
+    </linearGradient></defs>
+    <polygon points="20,115 200,115 215,128 5,128" fill="url(#floor_a4)"/>
+    <polygon points="35,100 60,55 85,100" fill="#a8324a" stroke="#6b1f2e" stroke-width="2" stroke-linejoin="round"/>
+    <text x="110" y="84" text-anchor="middle" font-family="Cinzel Decorative, serif" font-weight="900" font-size="24" fill="#f4c97a">≅</text>
+    <polygon points="135,100 160,55 185,100" fill="#a8324a" stroke="#6b1f2e" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M 0,0 Q 30,18 55,8 Q 80,22 110,10 Q 140,22 165,8 Q 190,18 220,0 L 220,18 L 0,18 Z" fill="#6b1f2e"/>
+    <circle cx="60" cy="32" r="3" fill="#f4c97a"/>
+    <circle cx="160" cy="32" r="3" fill="#f4c97a"/>
+    <text x="110" y="125" text-anchor="middle" font-family="Bebas Neue, sans-serif" font-size="9" fill="#f5ecd7" letter-spacing="2">SAME SIZE · SAME SHAPE</text>
+  </svg>`,
+  // Act V - Dilations
+  a5: `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" width="100%" height="130">
+    <defs>
+      <radialGradient id="spot_a5" cx="0.18" cy="0.5" r="0.8">
+        <stop offset="0%" stop-color="#ffe066" stop-opacity="0.7"/>
+        <stop offset="60%" stop-color="#f4c97a" stop-opacity="0.15"/>
+        <stop offset="100%" stop-color="#ffe066" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="floor_a5" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#a87f4a" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#6b1f2e" stop-opacity="0.6"/>
+      </linearGradient>
+    </defs>
+    <polygon points="20,115 200,115 215,128 5,128" fill="url(#floor_a5)"/>
+    <rect x="0" y="0" width="220" height="130" fill="url(#spot_a5)"/>
+    <circle cx="35" cy="80" r="4" fill="#f4c97a" stroke="#6b1f2e" stroke-width="1.5"/>
+    <text x="35" y="98" text-anchor="middle" font-family="Cinzel, serif" font-size="8" fill="#f5ecd7">center</text>
+    <line x1="35" y1="80" x2="180" y2="40" stroke="#f4c97a" stroke-width="1" stroke-dasharray="3 2"/>
+    <line x1="35" y1="80" x2="180" y2="105" stroke="#f4c97a" stroke-width="1" stroke-dasharray="3 2"/>
+    <line x1="35" y1="80" x2="195" y2="75" stroke="#f4c97a" stroke-width="1" stroke-dasharray="3 2"/>
+    <polygon points="75,68 90,80 78,88" fill="#a8324a" stroke="#6b1f2e" stroke-width="1.5" stroke-linejoin="round"/>
+    <polygon points="135,45 195,75 165,105" fill="#a8324a" stroke="#6b1f2e" stroke-width="2" stroke-linejoin="round" opacity="0.85"/>
+    <path d="M 0,0 Q 30,18 55,8 Q 80,22 110,10 Q 140,22 165,8 Q 190,18 220,0 L 220,18 L 0,18 Z" fill="#6b1f2e"/>
+    <text x="145" y="125" text-anchor="middle" font-family="Bebas Neue, sans-serif" font-size="9" fill="#f5ecd7" letter-spacing="2">↗ ENLARGED ↗</text>
+  </svg>`,
+  // Act VI - Similar Figures
+  a6: `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" width="100%" height="130">
+    <defs><linearGradient id="floor_a6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a87f4a" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#6b1f2e" stop-opacity="0.6"/>
+    </linearGradient></defs>
+    <polygon points="20,115 200,115 215,128 5,128" fill="url(#floor_a6)"/>
+    <polygon points="35,108 50,80 60,108" fill="#a8324a" stroke="#6b1f2e" stroke-width="1.5" stroke-linejoin="round"/>
+    <polygon points="90,108 115,65 132,108" fill="#a8324a" stroke="#6b1f2e" stroke-width="1.5" stroke-linejoin="round" opacity="0.85"/>
+    <polygon points="155,108 185,45 207,108" fill="#a8324a" stroke="#6b1f2e" stroke-width="2" stroke-linejoin="round"/>
+    <text x="75" y="124" text-anchor="middle" font-family="Cinzel, serif" font-size="11" fill="#f4c97a">~</text>
+    <text x="143" y="124" text-anchor="middle" font-family="Cinzel, serif" font-size="11" fill="#f4c97a">~</text>
+    <path d="M 0,0 Q 30,18 55,8 Q 80,22 110,10 Q 140,22 165,8 Q 190,18 220,0 L 220,18 L 0,18 Z" fill="#6b1f2e"/>
+    <circle cx="50" cy="32" r="2.5" fill="#f4c97a"/>
+    <circle cx="115" cy="30" r="2.5" fill="#f4c97a"/>
+    <circle cx="185" cy="32" r="2.5" fill="#f4c97a"/>
+  </svg>`,
+  // Grand Finale
+  final: `<svg viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" width="100%" height="130">
+    <defs>
+      <radialGradient id="spotF" cx="0.5" cy="0.4" r="0.6">
+        <stop offset="0%" stop-color="#ffe066" stop-opacity="0.85"/>
+        <stop offset="60%" stop-color="#f4c97a" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#ffe066" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="floorF" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#a87f4a" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#6b1f2e" stop-opacity="0.7"/>
+      </linearGradient>
+    </defs>
+    <polygon points="20,110 200,110 215,128 5,128" fill="url(#floorF)"/>
+    <path d="M 0,0 L 0,128 L 25,128 Q 38,90 30,50 Q 22,20 35,0 Z" fill="#6b1f2e"/>
+    <path d="M 220,0 L 220,128 L 195,128 Q 182,90 190,50 Q 198,20 185,0 Z" fill="#6b1f2e"/>
+    <rect x="0" y="0" width="220" height="130" fill="url(#spotF)"/>
+    <g transform="translate(110, 60)">
+      <polygon points="0,-22 6,-7 22,-7 9,3 14,18 0,9 -14,18 -9,3 -22,-7 -6,-7" fill="#f4c97a" stroke="#6b1f2e" stroke-width="1.5"/>
+    </g>
+    <text x="110" y="100" text-anchor="middle" font-family="Cinzel Decorative, serif" font-size="11" font-weight="900" fill="#f4c97a" letter-spacing="2">FINALE</text>
+    <g fill="#ffe066">
+      <circle cx="40" cy="6" r="2"/><circle cx="60" cy="6" r="2"/><circle cx="80" cy="6" r="2"/>
+      <circle cx="100" cy="6" r="2"/><circle cx="120" cy="6" r="2"/><circle cx="140" cy="6" r="2"/>
+      <circle cx="160" cy="6" r="2"/><circle cx="180" cy="6" r="2"/>
+    </g>
+  </svg>`
+};
+
+/* ---------- QUESTION POOLS ---------- */
+// Question types:
+//   { type:'mc', prompt, visual?, choices, answerIndex, explain }
+//   { type:'num', prompt, visual?, answer, accept?, suffix?, explain }
+//   { type:'coord', prompt, visual?, answer:[x,y], explain }
+
+/* === ACT I — TRANSLATIONS (The Slide) === */
+const POOL_A1 = [
+  { type:'mc',
+    prompt:'The red troupe slides into the blue position. Every dancer moved the same way. Is this a translation?',
+    visual:{ kind:'plane', config:{ size:240, range:7, shapes:[
+      { points:[[1,1],[3,1],[2,3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[4,2],[6,2],[5,4]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ]}},
+    choices:['Yes — a true slide', 'No — they were turned'],
+    answerIndex:0,
+    explain:"Every dancer moved 3 right and 1 up. Same distance, same direction — that's a translation."
+  },
+  { type:'mc',
+    prompt:'Did the red troupe slide into the blue position, or did they spin?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[1,1],[4,1],[2,3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[-1,1],[-1,4],[-3,2]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ]}},
+    choices:['Yes — a slide', 'No — this is a rotation'],
+    answerIndex:1,
+    explain:"The shape's orientation changed. A translation only slides — it never turns."
+  },
+  { type:'coord',
+    prompt:'Apply the rule <code>(x + 3, y − 2)</code> to point <strong>P(−1, 4)</strong>. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:6,
+      points:[{ at:[-1,4], label:'P', fill:'#a8324a' }]
+    }},
+    answer:[2,2],
+    explain:'−1 + 3 = 2 and 4 − 2 = 2, so P′ = (2, 2).'
+  },
+  { type:'coord',
+    prompt:'Triangle ABC has <strong>A(1, 1)</strong>, B(3, 1), C(2, 3). Translate it 2 right and 1 down. What are the coordinates of <em>A′</em>?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[1,1],[3,1],[2,3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e', labels:[{at:[1,1],text:'A'},{at:[3,1],text:'B'},{at:[2,3],text:'C'}] }
+    ]}},
+    answer:[3,0],
+    explain:'Add 2 to x, subtract 1 from y: (1 + 2, 1 − 1) = (3, 0).'
+  },
+  { type:'mc',
+    prompt:'Triangle <em>A(−2, −2), B(0, 2), C(3, 0)</em> is translated 1 left and 2 up. Find the image.',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[-2,-2],[0,2],[3,0]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ]}},
+    choices:[
+      'A′(−3, 0), B′(−1, 4), C′(2, 2)',
+      'A′(−1, −4), B′(1, 0), C′(4, −2)',
+      'A′(−3, −4), B′(−1, 0), C′(2, −2)',
+      'A′(−1, 0), B′(1, 4), C′(4, 2)'
+    ],
+    answerIndex:0,
+    explain:'Subtract 1 from x and add 2 to y: each point shifts left 1 and up 2.'
+  },
+  { type:'mc',
+    prompt:'A square fountain with corners <em>A(1, −2), B(3, −2), C(3, −4), D(1, −4)</em> is moved 4 left and 6 up. Find the image.',
+    visual:{ kind:'plane', config:{ size:240, range:7, shapes:[
+      { points:[[1,-2],[3,-2],[3,-4],[1,-4]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ]}},
+    choices:[
+      'A′(−3, 4), B′(−1, 4), C′(−1, 2), D′(−3, 2)',
+      'A′(5, 4), B′(7, 4), C′(7, 2), D′(5, 2)',
+      'A′(−3, −8), B′(−1, −8), C′(−1, −10), D′(−3, −10)',
+      'A′(−3, 4), B′(−1, 4), C′(−1, −2), D′(−3, −2)'
+    ],
+    answerIndex:0,
+    explain:'(x − 4, y + 6) gives A′(−3, 4), B′(−1, 4), C′(−1, 2), D′(−3, 2).'
+  },
+  { type:'mc',
+    prompt:'Dancer A starts at <strong>(0, 0)</strong> and her image lands at <strong>A′(2, 3)</strong>. Describe the slide.',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[0,0], label:'A', fill:'#a8324a' }, { at:[2,3], label:"A′", fill:'#2c3e75' }]
+    }},
+    choices:['2 right, 3 up', '2 left, 3 down', '3 right, 2 up', '2 right, 3 down'],
+    answerIndex:0,
+    explain:'Going from (0, 0) to (2, 3) means +2 in x and +3 in y.'
+  },
+  { type:'mc',
+    prompt:'A dancer starts at <strong>(3, 1)</strong> and lands at <strong>A′(−1, −2)</strong>. Describe the translation.',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[3,1], label:'A', fill:'#a8324a' }, { at:[-1,-2], label:"A′", fill:'#2c3e75' }]
+    }},
+    choices:['4 left, 3 down', '4 right, 3 up', '4 left, 3 up', '2 left, 3 down'],
+    answerIndex:0,
+    explain:'From x = 3 to x = −1 is 4 left. From y = 1 to y = −2 is 3 down.'
+  },
+  { type:'mc',
+    prompt:'Apply <code>(x + 1, y + 2)</code> to triangle <em>A(1, 3), B(4, 3), C(3, 0)</em>.',
+    visual:{ kind:'plane', config:{ size:240, range:6, shapes:[
+      { points:[[1,3],[4,3],[3,0]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ]}},
+    choices:[
+      'A′(2, 5), B′(5, 5), C′(4, 2)',
+      'A′(0, 1), B′(3, 1), C′(2, −2)',
+      'A′(2, 1), B′(5, 1), C′(4, −2)',
+      'A′(0, 5), B′(3, 5), C′(2, 2)'
+    ],
+    answerIndex:0,
+    explain:'Add 1 to each x and 2 to each y.'
+  },
+  { type:'mc',
+    prompt:'A helicopter flies from <strong>A(−3, −3)</strong> to <strong>B(3, 4)</strong>. Describe the translation.',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[-3,-3], label:'A', fill:'#a8324a' }, { at:[3,4], label:'B', fill:'#2c3e75' }]
+    }},
+    choices:['6 right, 7 up', '6 left, 7 down', '7 right, 6 up', '6 right, 7 down'],
+    answerIndex:0,
+    explain:'x changes from −3 to 3 (6 right). y changes from −3 to 4 (7 up).'
+  },
+  { type:'mc',
+    prompt:'A wide receiver is at <strong>(1, 3)</strong>. The pass lands at <strong>(6, −2)</strong>. Describe the receiver\'s path.',
+    visual:{ kind:'plane', config:{ size:240, range:7,
+      points:[{ at:[1,3], label:'start', fill:'#a8324a' }, { at:[6,-2], label:'end', fill:'#2c3e75' }]
+    }},
+    choices:['5 right, 5 down', '5 left, 5 up', '7 right, 5 down', '5 right, 1 down'],
+    answerIndex:0,
+    explain:'From x = 1 to x = 6 is 5 right. From y = 3 to y = −2 is 5 down.'
+  },
+  { type:'coord',
+    prompt:'Translate the point <strong>(5, −2)</strong> by 3 left and 4 up. Find the image.',
+    visual:{ kind:'plane', config:{ size:240, range:6,
+      points:[{ at:[5,-2], label:'P', fill:'#a8324a' }]
+    }},
+    answer:[2,2],
+    explain:'5 − 3 = 2 and −2 + 4 = 2. Image is (2, 2).'
+  },
+  { type:'coord',
+    prompt:'House A at <strong>(1, −1)</strong> moves to <strong>A′(3, −4)</strong>. Where does House B at <strong>(1, −2)</strong> land using the SAME translation?',
+    visual:{ kind:'plane', config:{ size:240, range:6,
+      points:[
+        { at:[1,-1], label:'A', fill:'#a8324a' },
+        { at:[3,-4], label:"A′", fill:'#2c3e75' },
+        { at:[1,-2], label:'B', fill:'#a8324a' }
+      ]
+    }},
+    answer:[3,-5],
+    explain:'The translation is +2 in x, −3 in y. Applying to B: (1 + 2, −2 − 3) = (3, −5).'
+  },
+  { type:'mc',
+    prompt:'A point starts at the origin <strong>(0, 0)</strong> and ends at <strong>(−3, 5)</strong>. Describe the translation.',
+    visual:{ kind:'plane', config:{ size:240, range:6,
+      points:[{ at:[0,0], label:'start', fill:'#a8324a' }, { at:[-3,5], label:'end', fill:'#2c3e75' }]
+    }},
+    choices:['3 left, 5 up', '3 right, 5 down', '5 left, 3 up', '3 left, 5 down'],
+    answerIndex:0,
+    explain:'x went from 0 to −3 (3 left). y went from 0 to 5 (5 up).'
+  },
+  { type:'mc',
+    prompt:'Did the red figure slide into the blue position?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[2,1],[2,3],[4,2]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[-2,1],[-2,3],[-4,2]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ]}},
+    choices:['Yes — translation', 'No — this is a reflection'],
+    answerIndex:1,
+    explain:"The figure is a mirror image, not a slide. That's a reflection."
+  }
+];
+
+/* === ACT II — REFLECTIONS (The Mirror) === */
+const POOL_A2 = [
+  { type:'mc',
+    prompt:'Is the blue figure a reflection of the red one?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[1,1],[3,1],[2,3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[1,-1],[3,-1],[2,-3]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ]}},
+    choices:['Yes — a true mirror', 'No — they slid'],
+    answerIndex:0,
+    explain:"Each point is the same distance below the x-axis as the original is above. That's a reflection."
+  },
+  { type:'mc',
+    prompt:'Is the blue figure a reflection of the red one?',
+    visual:{ kind:'plane', config:{ size:240, range:6, shapes:[
+      { points:[[1,1],[3,1],[2,3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[3,2],[5,2],[4,4]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ]}},
+    choices:['Yes — a mirror', 'No — they slid'],
+    answerIndex:1,
+    explain:"Same orientation, just shifted right and up. That's a translation, not a reflection."
+  },
+  { type:'coord',
+    prompt:'Reflect <strong>P(3, 5)</strong> across the x-axis. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:6,
+      points:[{ at:[3,5], label:'P', fill:'#a8324a' }],
+      mirrorLines:[{ axis:'h', value:0, label:'x-axis' }]
+    }},
+    answer:[3,-5],
+    explain:'Reflecting in the x-axis flips the sign of y. (3, 5) → (3, −5).'
+  },
+  { type:'coord',
+    prompt:'Reflect <strong>P(−2, 4)</strong> across the y-axis. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[-2,4], label:'P', fill:'#a8324a' }],
+      mirrorLines:[{ axis:'v', value:0, label:'y-axis' }]
+    }},
+    answer:[2,4],
+    explain:'Reflecting in the y-axis flips the sign of x. (−2, 4) → (2, 4).'
+  },
+  { type:'mc',
+    prompt:'Reflect triangle <em>A(1, 1), B(1, 4), C(3, 4)</em> in the x-axis.',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[1,1],[1,4],[3,4]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], mirrorLines:[{ axis:'h', value:0, label:'x-axis' }]}},
+    choices:[
+      'A′(1, −1), B′(1, −4), C′(3, −4)',
+      'A′(−1, 1), B′(−1, 4), C′(−3, 4)',
+      'A′(−1, −1), B′(−1, −4), C′(−3, −4)',
+      'A′(1, 1), B′(1, 4), C′(3, 4)'
+    ],
+    answerIndex:0,
+    explain:'Flip the y of each point. The x-coordinates stay the same.'
+  },
+  { type:'mc',
+    prompt:'Reflect triangle <em>A(1, 1), B(1, 4), C(3, 4)</em> in the y-axis.',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[1,1],[1,4],[3,4]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], mirrorLines:[{ axis:'v', value:0, label:'y-axis' }]}},
+    choices:[
+      'A′(−1, 1), B′(−1, 4), C′(−3, 4)',
+      'A′(1, −1), B′(1, −4), C′(3, −4)',
+      'A′(−1, −1), B′(−1, −4), C′(−3, −4)',
+      'A′(1, 1), B′(1, 4), C′(3, 4)'
+    ],
+    answerIndex:0,
+    explain:'Flip the x of each point. The y-coordinates stay the same.'
+  },
+  { type:'coord',
+    prompt:'Reflect point <strong>P(4, 3)</strong> across the line <code>y = 1</code>. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[4,3], label:'P', fill:'#a8324a' }],
+      mirrorLines:[{ axis:'h', value:1, label:'y = 1' }]
+    }},
+    answer:[4,-1],
+    explain:'P is 2 units above y = 1, so the image is 2 units below: y = 1 − 2 = −1.'
+  },
+  { type:'coord',
+    prompt:'Reflect point <strong>P(5, 2)</strong> across the line <code>x = 2</code>. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:6,
+      points:[{ at:[5,2], label:'P', fill:'#a8324a' }],
+      mirrorLines:[{ axis:'v', value:2, label:'x = 2' }]
+    }},
+    answer:[-1,2],
+    explain:'P is 3 units right of x = 2, so the image is 3 units left: x = 2 − 3 = −1.'
+  },
+  { type:'mc',
+    prompt:'Reflect rectangle <em>A(−4, −3), B(−4, −1), C(−1, −1), D(−1, −3)</em> in the x-axis.',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[-4,-3],[-4,-1],[-1,-1],[-1,-3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], mirrorLines:[{ axis:'h', value:0, label:'x-axis' }]}},
+    choices:[
+      'A′(−4, 3), B′(−4, 1), C′(−1, 1), D′(−1, 3)',
+      'A′(4, −3), B′(4, −1), C′(1, −1), D′(1, −3)',
+      'A′(4, 3), B′(4, 1), C′(1, 1), D′(1, 3)',
+      'A′(−4, −3), B′(−4, −1), C′(−1, −1), D′(−1, −3)'
+    ],
+    answerIndex:0,
+    explain:'Take the opposite of each y-coordinate. x-coordinates do not change.'
+  },
+  { type:'mc',
+    prompt:'Reflect triangle <em>J(−3, −5), K(−2, 2), L(1, −4)</em> in the y-axis.',
+    visual:{ kind:'plane', config:{ size:240, range:6, shapes:[
+      { points:[[-3,-5],[-2,2],[1,-4]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], mirrorLines:[{ axis:'v', value:0, label:'y-axis' }]}},
+    choices:[
+      'J′(3, −5), K′(2, 2), L′(−1, −4)',
+      'J′(−3, 5), K′(−2, −2), L′(1, 4)',
+      'J′(3, 5), K′(2, −2), L′(−1, 4)',
+      'J′(−3, −5), K′(−2, 2), L′(1, −4)'
+    ],
+    answerIndex:0,
+    explain:'Take the opposite of each x-coordinate. y-coordinates do not change.'
+  },
+  { type:'mc',
+    prompt:'Which rule reflects a point <em>(a, b)</em> in the x-axis?',
+    choices:['(a, −b)', '(−a, b)', '(−a, −b)', '(b, a)'],
+    answerIndex:0,
+    explain:'x-axis reflection flips only the y-coordinate.'
+  },
+  { type:'mc',
+    prompt:'Reflect triangle <em>A(4, 5), B(4, 8), C(7, 8)</em> in the line <code>y = 3</code>.',
+    visual:{ kind:'plane', config:{ size:260, range:9, shapes:[
+      { points:[[4,5],[4,8],[7,8]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], mirrorLines:[{ axis:'h', value:3, label:'y = 3' }]}},
+    choices:[
+      'A′(4, 1), B′(4, −2), C′(7, −2)',
+      'A′(4, 8), B′(4, 11), C′(7, 11)',
+      'A′(2, 5), B′(2, 8), C′(−1, 8)',
+      'A′(−4, 5), B′(−4, 8), C′(−7, 8)'
+    ],
+    answerIndex:0,
+    explain:'A is 2 above y = 3 → A′ at y = 1. B and C are 5 above → image at y = −2.'
+  },
+  { type:'mc',
+    prompt:'Reflect triangle <em>A(4, 5), B(4, 8), C(7, 8)</em> in the line <code>x = 3</code>.',
+    visual:{ kind:'plane', config:{ size:260, range:9, shapes:[
+      { points:[[4,5],[4,8],[7,8]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], mirrorLines:[{ axis:'v', value:3, label:'x = 3' }]}},
+    choices:[
+      'A′(2, 5), B′(2, 8), C′(−1, 8)',
+      'A′(4, 1), B′(4, −2), C′(7, −2)',
+      'A′(−4, 5), B′(−4, 8), C′(−7, 8)',
+      'A′(2, −5), B′(2, −8), C′(−1, −8)'
+    ],
+    answerIndex:0,
+    explain:'A and B are 1 right of x = 3 → image at x = 2. C is 4 right of x = 3 → image at x = −1.'
+  },
+  { type:'mc',
+    prompt:'If you reflect the letter <strong>E</strong> across the y-axis, will it look exactly the same?',
+    choices:['No — it will face the other way', 'Yes — perfectly the same', 'Yes — but upside down', 'No — it disappears'],
+    answerIndex:0,
+    explain:'The letter E opens to the right. After a y-axis reflection, it opens to the left — a mirror image.'
+  },
+  { type:'coord',
+    prompt:'Reflect <strong>P(−3, −2)</strong> across the line <code>y = −1</code>. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[-3,-2], label:'P', fill:'#a8324a' }],
+      mirrorLines:[{ axis:'h', value:-1, label:'y = −1' }]
+    }},
+    answer:[-3,0],
+    explain:'P is 1 unit below y = −1, so the image is 1 unit above at y = 0.'
+  }
+];
+
+/* === ACT III — ROTATIONS (The Pirouette) === */
+const POOL_A3 = [
+  { type:'mc',
+    prompt:'The red dancer pirouetted to the blue position around the origin. What rotation is it?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[2,1],[4,1],[3,3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[-1,2],[-1,4],[-3,3]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ], centerOfRotation:true }},
+    choices:['90° counterclockwise', '90° clockwise', '180°', '270° counterclockwise'],
+    answerIndex:0,
+    explain:"Each (x, y) became (−y, x). For example (2, 1) → (−1, 2). That's 90° CCW."
+  },
+  { type:'mc',
+    prompt:'Is the blue figure a rotation of the red figure about the origin?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[1,1],[1,4],[3,4]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[-1,1],[-1,4],[-3,4]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ], centerOfRotation:true }},
+    choices:['No — this is a reflection', 'Yes — 90° CCW', 'Yes — 180°', 'Yes — 90° CW'],
+    answerIndex:0,
+    explain:'The figure is mirrored across the y-axis, not rotated.'
+  },
+  { type:'coord',
+    prompt:'Rotate point <strong>P(3, 4)</strong> 90° counterclockwise about the origin. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[3,4], label:'P', fill:'#a8324a' }],
+      centerOfRotation:true
+    }},
+    answer:[-4,3],
+    explain:'Rule: (x, y) → (−y, x). So (3, 4) → (−4, 3).'
+  },
+  { type:'coord',
+    prompt:'Rotate point <strong>P(3, 4)</strong> 180° about the origin. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[3,4], label:'P', fill:'#a8324a' }],
+      centerOfRotation:true
+    }},
+    answer:[-3,-4],
+    explain:'Rule: (x, y) → (−x, −y). Both signs flip.'
+  },
+  { type:'coord',
+    prompt:'Rotate point <strong>P(3, 4)</strong> 270° counterclockwise about the origin. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[3,4], label:'P', fill:'#a8324a' }],
+      centerOfRotation:true
+    }},
+    answer:[4,-3],
+    explain:'Rule: (x, y) → (y, −x). So (3, 4) → (4, −3).'
+  },
+  { type:'coord',
+    prompt:'Rotate point <strong>P(3, 4)</strong> 360° about the origin. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:5,
+      points:[{ at:[3,4], label:'P', fill:'#a8324a' }],
+      centerOfRotation:true
+    }},
+    answer:[3,4],
+    explain:'A full turn brings every point back to its original spot.'
+  },
+  { type:'mc',
+    prompt:'Rotate triangle <em>A(1, 2), B(3, 5), C(4, 1)</em> 180° about the origin.',
+    visual:{ kind:'plane', config:{ size:240, range:6, shapes:[
+      { points:[[1,2],[3,5],[4,1]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], centerOfRotation:true }},
+    choices:[
+      'A′(−1, −2), B′(−3, −5), C′(−4, −1)',
+      'A′(−2, 1), B′(−5, 3), C′(−1, 4)',
+      'A′(2, −1), B′(5, −3), C′(1, −4)',
+      'A′(1, 2), B′(3, 5), C′(4, 1)'
+    ],
+    answerIndex:0,
+    explain:'180° rule: (x, y) → (−x, −y). Flip both signs.'
+  },
+  { type:'mc',
+    prompt:'Trapezoid <em>W(−4, 2), X(−3, 4), Y(−1, 4), Z(−1, 2)</em> is rotated 180° about the origin. Find the image.',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[-4,2],[-3,4],[-1,4],[-1,2]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], centerOfRotation:true }},
+    choices:[
+      'W′(4, −2), X′(3, −4), Y′(1, −4), Z′(1, −2)',
+      'W′(2, 4), X′(4, 3), Y′(4, 1), Z′(2, 1)',
+      'W′(−4, −2), X′(−3, −4), Y′(−1, −4), Z′(−1, −2)',
+      'W′(4, 2), X′(3, 4), Y′(1, 4), Z′(1, 2)'
+    ],
+    answerIndex:0,
+    explain:'180° about the origin flips both signs of every coordinate.'
+  },
+  { type:'mc',
+    prompt:'A 90° clockwise rotation about the origin is the same as which counterclockwise rotation?',
+    choices:['270° CCW', '90° CCW', '180°', '360° CCW'],
+    answerIndex:0,
+    explain:'360 − 90 = 270. So clockwise n° = counterclockwise (360 − n)°.'
+  },
+  { type:'mc',
+    prompt:'A 270° clockwise rotation about the origin is the same as which counterclockwise rotation?',
+    choices:['90° CCW', '270° CCW', '180°', '360° CCW'],
+    answerIndex:0,
+    explain:'360 − 270 = 90.'
+  },
+  { type:'mc',
+    prompt:'Rotate triangle <em>A(5, 3), B(4, −1), C(1, −1)</em> 90° clockwise about the origin.',
+    visual:{ kind:'plane', config:{ size:240, range:6, shapes:[
+      { points:[[5,3],[4,-1],[1,-1]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], centerOfRotation:true }},
+    choices:[
+      'A′(3, −5), B′(−1, −4), C′(−1, −1)',
+      'A′(−3, 5), B′(1, 4), C′(1, 1)',
+      'A′(−5, −3), B′(−4, 1), C′(−1, 1)',
+      'A′(5, 3), B′(4, −1), C′(1, −1)'
+    ],
+    answerIndex:0,
+    explain:'90° CW = 270° CCW. Rule: (x, y) → (y, −x).'
+  },
+  { type:'coord',
+    prompt:'Rotate point <strong>P(−2, 5)</strong> 90° counterclockwise about the origin. Where does P land?',
+    visual:{ kind:'plane', config:{ size:240, range:6,
+      points:[{ at:[-2,5], label:'P', fill:'#a8324a' }],
+      centerOfRotation:true
+    }},
+    answer:[-5,-2],
+    explain:'Rule (x, y) → (−y, x). (−2, 5) → (−5, −2).'
+  },
+  { type:'mc',
+    prompt:'Rotate rectangle <em>A(−3, −3), B(1, −3), C(1, −5), D(−3, −5)</em> 90° clockwise about the origin.',
+    visual:{ kind:'plane', config:{ size:240, range:6, shapes:[
+      { points:[[-3,-3],[1,-3],[1,-5],[-3,-5]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], centerOfRotation:true }},
+    choices:[
+      'A′(−3, 3), B′(−3, −1), C′(−5, −1), D′(−5, 3)',
+      'A′(3, −3), B′(−3, −1), C′(−5, 1), D′(5, 3)',
+      'A′(3, 3), B′(3, −1), C′(5, −1), D′(5, 3)',
+      'A′(−3, −3), B′(1, −3), C′(1, −5), D′(−3, −5)'
+    ],
+    answerIndex:0,
+    explain:'90° CW = 270° CCW. Rule (x, y) → (y, −x). For example (−3, −3) → (−3, 3).'
+  },
+  { type:'mc',
+    prompt:'Carousel: friends at <em>A(−4, −4), B(−3, 0), C(−1, −2), D(−2, −3)</em> rotate 270° clockwise. Where do they end up?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[-4,-4],[-3,0],[-1,-2],[-2,-3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], centerOfRotation:true }},
+    choices:[
+      'A′(4, −4), B′(0, −3), C′(2, −1), D′(3, −2)',
+      'A′(−4, 4), B′(0, 3), C′(−2, 1), D′(−3, 2)',
+      'A′(4, 4), B′(0, −3), C′(2, 1), D′(3, 2)',
+      'A′(−4, −4), B′(−3, 0), C′(−1, −2), D′(−2, −3)'
+    ],
+    answerIndex:0,
+    explain:'270° CW = 90° CCW. Rule (x, y) → (−y, x). For example (−4, −4) → (4, −4).'
+  },
+  { type:'mc',
+    prompt:'Rotate triangle <em>L(3, 2), M(1, 1), N(1, 5)</em> 90° counterclockwise about the origin.',
+    visual:{ kind:'plane', config:{ size:240, range:6, shapes:[
+      { points:[[3,2],[1,1],[1,5]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ], centerOfRotation:true }},
+    choices:[
+      'L′(−2, 3), M′(−1, 1), N′(−5, 1)',
+      'L′(2, −3), M′(1, −1), N′(5, −1)',
+      'L′(−3, −2), M′(−1, −1), N′(−1, −5)',
+      'L′(3, 2), M′(1, 1), N′(1, 5)'
+    ],
+    answerIndex:0,
+    explain:'Rule (x, y) → (−y, x). For example (3, 2) → (−2, 3).'
+  }
+];
+
+/* === ACT IV — CONGRUENT FIGURES === */
+const POOL_A4 = [
+  { type:'mc',
+    prompt:'Triangle <em>ABC</em> has vertices <code>A(1,1) B(4,1) C(4,3)</code>. Triangle <em>DEF</em> has vertices <code>D(1,-1) E(4,-1) F(4,-3)</code>. Which rigid motion maps △ABC to △DEF?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[1,1],[4,1],[4,3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e', labels:[{at:[1,1],text:'A'},{at:[4,1],text:'B'},{at:[4,3],text:'C'}] },
+      { points:[[1,-1],[4,-1],[4,-3]], fill:'rgba(74,124,89,0.35)', stroke:'#2f5e3e', labels:[{at:[1,-1],text:'D'},{at:[4,-1],text:'E'},{at:[4,-3],text:'F'}] }
+    ]}},
+    choices:['Translation 2 units down', 'Reflection in the x-axis', 'Rotation 90° clockwise', 'Reflection in the y-axis'],
+    answerIndex:1,
+    explain:"Each y-coordinate flips sign while x stays fixed — that's a reflection across the x-axis."
+  },
+  { type:'coord',
+    prompt:'Apply the rule <code>(x, y) → (−y, x)</code> to the point <strong>(3, −2)</strong>. What is the image?',
+    answer:[2,3],
+    explain:'(−y, x) means swap and negate y first: −(−2) = 2, then x = 3. Image is (2, 3). This is a 90° counterclockwise rotation about the origin.'
+  },
+  { type:'coord',
+    prompt:'Apply the rule <code>(x, y) → (x, −y)</code> to the point <strong>(−4, 5)</strong>. What is the image?',
+    answer:[-4,-5],
+    explain:'Keep x = −4, negate y: −(5) = −5. Image is (−4, −5). This is a reflection in the x-axis.'
+  },
+  { type:'mc',
+    prompt:'The red figure was moved to the position of the green figure. Which rigid motion describes this?',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[-4,1],[-2,1],[-3,3]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[1,-2],[3,-2],[2,0]], fill:'rgba(74,124,89,0.35)', stroke:'#2f5e3e' }
+    ]}},
+    choices:['Reflection in the y-axis', 'Translation 5 right and 3 down', 'Rotation 90° counterclockwise', 'Not congruent — different sizes'],
+    answerIndex:1,
+    explain:"Each vertex moved 5 units right and 3 units down with no flip or turn — that's a translation."
+  },
+  { type:'coord',
+    prompt:'Triangle <em>ABC</em> has vertex <strong>B(4, 1)</strong>. Apply the translation <code>(x, y) → (x − 2, y − 3)</code>. What are the coordinates of B′?',
+    answer:[2,-2],
+    explain:'B′ = (4 − 2, 1 − 3) = (2, −2). Just subtract from each coordinate.'
+  },
+  { type:'mc',
+    prompt:'Which of the following transformations is <em>not</em> a rigid motion?',
+    choices:['Translation', 'Reflection', 'Rotation', 'Dilation'],
+    answerIndex:3,
+    explain:'A dilation changes size, so lengths are not preserved. Rigid motions preserve both length and angle measure.'
+  },
+  { type:'coord',
+    prompt:'Reflect the point <strong>(5, −3)</strong> in the <em>y</em>-axis. What is the image?',
+    answer:[-5,-3],
+    explain:'Reflecting in the y-axis flips the sign of x only: (5, −3) → (−5, −3).'
+  },
+  { type:'mc',
+    prompt:'The red figure is reflected to form the blue figure. Describe the rigid motion.',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[1,2],[3,2],[2,4]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[-1,2],[-3,2],[-2,4]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ]}},
+    choices:['Reflection in the x-axis', 'Reflection in the y-axis', 'Translation 4 left', 'Rotation 180°'],
+    answerIndex:1,
+    explain:"The x-coordinates flipped sign while y stayed the same — that's a reflection across the y-axis."
+  },
+  { type:'coord',
+    prompt:'Rotate the point <strong>(2, 5)</strong> 180° about the origin. What is the image?',
+    answer:[-2,-5],
+    explain:'A 180° rotation about the origin uses (x, y) → (−x, −y). So (2, 5) → (−2, −5).'
+  },
+  { type:'mc',
+    prompt:'If △<em>ABC</em> ≅ △<em>DEF</em>, which pair of sides must be congruent?',
+    choices:['AB ≅ DE', 'AB ≅ EF', 'AB ≅ DF', 'Cannot be determined'],
+    answerIndex:0,
+    explain:'In a congruence statement the order of letters tells you correspondence: A↔D, B↔E, C↔F. So AB ≅ DE.'
+  },
+  { type:'num',
+    prompt:'The point (3, 4) is reflected in the <em>x</em>-axis. What is the <strong>y-coordinate</strong> of the image?',
+    answer:-4,
+    explain:'Reflecting in the x-axis flips the sign of y: 4 → −4. The x-coordinate stays at 3.'
+  },
+  { type:'mc',
+    prompt:'△<em>XYZ</em> has vertices <code>X(0, 4) Y(4, 4) Z(4, 2)</code>. △<em>PQR</em> has vertices <code>P(0, −4) Q(4, −4) R(4, −2)</code>. Are they congruent, and if so, by what rigid motion?',
+    choices:['Yes — reflection in the x-axis', 'Yes — translation 8 units down', 'No — they are different shapes', 'Yes — rotation 90° clockwise'],
+    answerIndex:0,
+    explain:"Each y-coordinate is the negative of the original; x stays the same. That's a reflection in the x-axis."
+  },
+  { type:'coord',
+    prompt:'Apply the rule <code>(x, y) → (y, −x)</code> (a 90° clockwise rotation) to the point <strong>(4, 1)</strong>. What is the image?',
+    answer:[1,-4],
+    explain:'(y, −x) gives (1, −4). The new x is the old y, and the new y is the negative of the old x.'
+  },
+  { type:'mc',
+    prompt:'A graphic designer transforms a logo as shown. Describe the rigid motion used.',
+    visual:{ kind:'plane', config:{ size:240, range:5, shapes:[
+      { points:[[-3,0],[-5,4],[-3,3],[-1,4]], fill:'rgba(74,124,89,0.4)', stroke:'#2f5e3e' },
+      { points:[[3,0],[5,4],[3,3],[1,4]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' }
+    ]}},
+    choices:['Reflection in the y-axis', 'Translation 8 right', 'Rotation 180° about origin', 'Reflection in the x-axis'],
+    answerIndex:0,
+    explain:'Each x-coordinate flips sign while y stays the same — reflection across the y-axis.'
+  },
+  { type:'num',
+    prompt:'A rectangle has a perimeter of <strong>18 inches</strong>. After a rigid motion, what is the perimeter of its image?',
+    answer:18,
+    suffix:'inches',
+    explain:'Rigid motions preserve length, so all sides — and therefore the perimeter — stay exactly the same.'
+  }
+];
+
+/* === ACT V — DILATIONS === */
+const POOL_A5 = [
+  { type:'coord',
+    prompt:'Dilate the point <strong>(4, −6)</strong> with respect to the origin by a scale factor of <code>k = 0.5</code>. What is the image?',
+    answer:[2,-3],
+    explain:'Multiply each coordinate by 0.5: (0.5·4, 0.5·(−6)) = (2, −3).'
+  },
+  { type:'coord',
+    prompt:'Dilate the point <strong>(3, 5)</strong> with respect to the origin by a scale factor of <code>k = 4</code>. What is the image?',
+    answer:[12,20],
+    explain:'Multiply each coordinate by 4: (4·3, 4·5) = (12, 20). Since k > 1, this is an enlargement.'
+  },
+  { type:'mc',
+    prompt:'A dilation has a scale factor of <code>k = 0.4</code>. The dilation is a(n)…',
+    choices:['Enlargement', 'Reduction', 'Congruent figure', 'Translation'],
+    answerIndex:1,
+    explain:"When 0 < k < 1, the dilation shrinks the figure — that's a reduction."
+  },
+  { type:'mc',
+    prompt:'A dilation has a scale factor of <code>k = 2.5</code>. The dilation is a(n)…',
+    choices:['Enlargement', 'Reduction', 'Congruent figure', 'Rotation'],
+    answerIndex:0,
+    explain:"When k > 1, the dilation grows the figure — that's an enlargement."
+  },
+  { type:'num',
+    prompt:'Triangle <em>A′B′C′</em> (blue) is a dilation of triangle <em>ABC</em> (red) with respect to the origin. Identify the scale factor <em>k</em>.',
+    visual:{ kind:'plane', config:{ size:260, range:7, shapes:[
+      { points:[[1,1],[2,1],[2,2]], fill:'rgba(168,50,74,0.5)', stroke:'#6b1f2e', labels:[{at:[1,1],text:'A'},{at:[2,1],text:'B'},{at:[2,2],text:'C'}] },
+      { points:[[3,3],[6,3],[6,6]], fill:'rgba(60,90,160,0.3)', stroke:'#2c3e75', labels:[{at:[3,3],text:"A′"},{at:[6,3],text:"B′"},{at:[6,6],text:"C′"}] }
+    ]}},
+    answer:3,
+    explain:'A is at (1, 1) and A′ is at (3, 3). Dividing image by preimage: 3 ÷ 1 = 3. So k = 3.'
+  },
+  { type:'num',
+    prompt:'Point <strong>P(−2, 8)</strong> is dilated to <strong>P′(−1, 4)</strong> with respect to the origin. What is the scale factor <em>k</em>?',
+    answer:0.5,
+    accept:(input) => numericMatches(input, 0.5),
+    explain:'Divide image by preimage: −1 ÷ −2 = 0.5 (or check y: 4 ÷ 8 = 0.5). So k = 1/2.'
+  },
+  { type:'num',
+    prompt:'⭐ A triangle has an area of <strong>8 square feet</strong>. The triangle is dilated by a scale factor of <code>k = 3</code>. What is the area of the image?',
+    suffix:'sq ft',
+    answer:72,
+    explain:'Area scales by k², not k. New area = 8 × 3² = 8 × 9 = 72 sq ft.'
+  },
+  { type:'num',
+    prompt:'⭐ A photograph is dilated so that the area of the image is <strong>9 times greater</strong> than the area of the original. What is the scale factor <em>k</em>?',
+    answer:3,
+    explain:'If area ratio is 9, then k² = 9, so k = √9 = 3.'
+  },
+  { type:'num',
+    prompt:'⭐ A rectangular pasture measures <strong>50 ft × 80 ft</strong>. It is dilated by a scale factor of <code>k = 2</code>. How many MORE square feet does the new pasture cover than the original?',
+    suffix:'sq ft',
+    answer:12000,
+    explain:'Original area = 50 × 80 = 4,000. New area = 4,000 × 2² = 16,000. Increase = 16,000 − 4,000 = 12,000 sq ft.'
+  },
+  { type:'mc',
+    prompt:'In a dilation, which of the following is preserved between the original figure and the image?',
+    choices:['Side lengths only', 'Angle measures only', 'Both side lengths and angle measures', 'Neither'],
+    answerIndex:1,
+    explain:'Dilations preserve angle measures (shape stays the same) but not lengths (size changes by factor k).'
+  },
+  { type:'coord',
+    prompt:'Rectangle <em>WXYZ</em> has vertex <strong>Y(4, 8)</strong>, shown in red. The rectangle is dilated by a scale factor of <code>k = 0.5</code>. What are the coordinates of <em>Y′</em>?',
+    visual:{ kind:'plane', config:{ size:260, range:9, shapes:[
+      { points:[[-4,-6],[-4,8],[4,8],[4,-6]], fill:'rgba(168,50,74,0.3)', stroke:'#6b1f2e', labels:[{at:[-4,-6],text:'W'},{at:[-4,8],text:'X'},{at:[4,8],text:'Y'},{at:[4,-6],text:'Z'}] }
+    ]}},
+    answer:[2,4],
+    explain:'Multiply each coordinate by 0.5: Y′ = (0.5·4, 0.5·8) = (2, 4).'
+  },
+  { type:'mc',
+    prompt:'Look at the two figures shown. Is the blue figure a dilation of the red figure?',
+    visual:{ kind:'plane', config:{ size:260, range:7, shapes:[
+      { points:[[-5,2],[-3,2],[-4,4]], fill:'rgba(168,50,74,0.4)', stroke:'#6b1f2e' },
+      { points:[[2,-3],[4,-3],[3,-1]], fill:'rgba(60,90,160,0.35)', stroke:'#2c3e75' }
+    ]}},
+    choices:['Yes — it is an enlargement', 'Yes — it is a reduction', 'No — it is a translation, not a dilation', 'No — they are not congruent'],
+    answerIndex:2,
+    explain:"Both figures are the same size, just moved. That's a translation. Dilations change size."
+  },
+  { type:'coord',
+    prompt:'A wildlife refuge has a vertex at <strong>K(1, 3)</strong>. An expansion is modeled by a dilation with scale factor <code>k = 1.5</code>. What are the coordinates of <em>K′</em>?',
+    answer:[1.5,4.5],
+    explain:'Multiply each coordinate by 1.5: K′ = (1.5·1, 1.5·3) = (1.5, 4.5).'
+  },
+  { type:'mc',
+    prompt:'When the center of dilation is the origin, the coordinate rule for a dilation with scale factor <em>k</em> is:',
+    choices:['(x, y) → (x + k, y + k)', '(x, y) → (kx, ky)', '(x, y) → (x⁄k, y⁄k)', '(x, y) → (−x, −y)'],
+    answerIndex:1,
+    explain:'To dilate from the origin, multiply both coordinates by the scale factor: (x, y) → (kx, ky).'
+  },
+  { type:'num',
+    prompt:'A rectangle has an area of <strong>24 square centimeters</strong>. It is dilated by a scale factor of <code>k = 1⁄2</code>. What is the area of the image?',
+    suffix:'sq cm',
+    answer:6,
+    explain:'Area scales by k². New area = 24 × (1/2)² = 24 × 1/4 = 6 sq cm.'
+  }
+];
+
+/* === ACT VI — SIMILAR FIGURES === */
+const POOL_A6 = [
+  { type:'num',
+    prompt:'The triangles are similar. Solve the proportion <code>6⁄9 = 8⁄x</code> to find <em>x</em>.',
+    answer:12,
+    explain:'Cross-multiply: 6x = 72, so x = 72 ÷ 6 = 12.'
+  },
+  { type:'num',
+    prompt:'Two figures are similar. Solve <code>14⁄7 = x⁄12</code> to find <em>x</em>.',
+    answer:24,
+    explain:'14/7 = 2, so x/12 = 2, meaning x = 24.'
+  },
+  { type:'num',
+    prompt:"A sailboat's sail is shaped like a right triangle with a base of <strong>9 ft</strong> and a height of <strong>24 ft</strong>. A souvenir model has a similar sail with a height of <strong>3 in</strong>. What is the base of the souvenir's sail?",
+    suffix:'in',
+    answer:1.125,
+    accept:(input) => numericMatches(input, 1.125, 0.005),
+    explain:'Set up proportion 9/24 = b/3. Solving: b = 9 × 3 ÷ 24 = 27/24 = 1.125 in (or 9/8 in).'
+  },
+  { type:'mc',
+    prompt:'Are two figures that have the same size and shape similar?',
+    choices:['Yes — congruent figures are similar with scale factor 1', 'Yes — but only with scale factor 0', 'No — similar figures must be different sizes', 'It depends on the shape'],
+    answerIndex:0,
+    explain:"Congruent figures ARE similar — they're a special case where the scale factor equals 1. Similarity only requires same shape, not different size."
+  },
+  { type:'num',
+    prompt:'The red triangle is similar to the blue triangle. The blue is what scale factor of the red? (red → blue)',
+    visual:{ kind:'plane', config:{ size:260, range:6, shapes:[
+      { points:[[1,1],[2,1],[2,2]], fill:'rgba(168,50,74,0.5)', stroke:'#6b1f2e' },
+      { points:[[2,2],[4,2],[4,4]], fill:'rgba(60,90,160,0.3)', stroke:'#2c3e75' }
+    ]}},
+    answer:2,
+    explain:'Compare matching sides: red has legs of length 1, blue has legs of length 2. Scale factor = 2 ÷ 1 = 2.'
+  },
+  { type:'num',
+    prompt:'Two similar rectangles have the same shape. The small rectangle is <strong>3 by 5</strong> and the large rectangle has a width of <strong>9</strong>. What is the length of the large rectangle?',
+    answer:15,
+    explain:'Scale factor = 9 ÷ 3 = 3. So the length scales the same way: 5 × 3 = 15.'
+  },
+  { type:'mc',
+    prompt:'A similarity transformation is defined as:',
+    choices:['Only a dilation', 'Only a rigid motion', 'A dilation, or a sequence of dilations and rigid motions', 'Only a translation'],
+    answerIndex:2,
+    explain:'A similarity transformation can be a single dilation, or a dilation combined with rigid motions (translations, reflections, rotations).'
+  },
+  { type:'num',
+    prompt:'A triangle has sides of <strong>5, 7, and 9</strong>. A similar triangle has its shortest side equal to <strong>15</strong>. What is the length of its longest side?',
+    answer:27,
+    explain:'Scale factor = 15 ÷ 5 = 3. Longest side: 9 × 3 = 27.'
+  },
+  { type:'coord',
+    prompt:'The original cheerleader formation has vertices <code>A(−4, 4) B(0, 8) C(4, 4) D(0, 6)</code>. A similar formation (scaled with respect to the origin) has <code>J(−2, 2) K(0, 4) L(2, 2)</code>. What are the coordinates of the fourth vertex <em>M</em>?',
+    answer:[0,3],
+    explain:'The scale factor is 1/2 (since J = ½A, K = ½B, L = ½C). So M = ½ · D = ½ · (0, 6) = (0, 3).'
+  },
+  { type:'mc',
+    prompt:'In two similar figures, corresponding angles are…',
+    choices:['Proportional', 'Congruent', 'Supplementary', 'Different sizes'],
+    answerIndex:1,
+    explain:'Similar figures have the same shape, so their corresponding angles are congruent (equal in measure). Only the side lengths are proportional.'
+  },
+  { type:'num',
+    prompt:'A replica of a painting is a scale drawing with a scale factor of <code>1⁄4</code>. The original triangle in the painting has a height of <strong>12 inches</strong>. What is the height of the triangle in the replica?',
+    suffix:'in',
+    answer:3,
+    explain:'Multiply by the scale factor: 12 × 1/4 = 3 inches.'
+  },
+  { type:'mc',
+    prompt:'The red triangle is similar to the blue triangle. Which similarity transformation maps red to blue?',
+    visual:{ kind:'plane', config:{ size:260, range:6, shapes:[
+      { points:[[1,1],[3,1],[2,2]], fill:'rgba(168,50,74,0.5)', stroke:'#6b1f2e' },
+      { points:[[2,2],[6,2],[4,4]], fill:'rgba(60,90,160,0.3)', stroke:'#2c3e75' }
+    ]}},
+    choices:['Dilation by scale factor 2', 'Dilation by scale factor 1/2', 'Dilation by scale factor 3', 'They are not similar'],
+    answerIndex:0,
+    explain:'Each blue coordinate is double the corresponding red coordinate: (1,1)→(2,2), (3,1)→(6,2), (2,2)→(4,4). Scale factor = 2.'
+  },
+  { type:'num',
+    prompt:'On a map, the scale is <strong>1 inch = 50 miles</strong>. Two cities are <strong>4.5 inches</strong> apart on the map. What is the actual distance between the cities, in miles?',
+    suffix:'mi',
+    answer:225,
+    explain:'Multiply: 4.5 × 50 = 225 miles. Map distances scale up by the inverse of the scale factor.'
+  },
+  { type:'mc',
+    prompt:'Two similar figures must have…',
+    choices:['The same size', 'The same shape', 'Both the same size and same shape', 'The same color'],
+    answerIndex:1,
+    explain:'Similar figures must have the same shape but not necessarily the same size. (Same size AND shape would be congruent.)'
+  },
+  { type:'num',
+    prompt:'Two similar triangles have areas of <strong>16 sq cm</strong> and <strong>64 sq cm</strong>. What is the ratio of the corresponding sides (smaller to larger)?',
+    answer:0.5,
+    accept:(input) => numericMatches(input, 0.5),
+    explain:'Area ratio = (side ratio)². So side ratio = √(16/64) = √(1/4) = 1/2 = 0.5.'
+  }
+];
+
+/* ---------- PLAYBOOK CONTENT ---------- */
+const PLAYBOOKS = {
+  a1: {
+    title: 'The Slide',
+    actLabel: 'Act I',
+    tactics: [
+      'A <strong>translation</strong> is a slide. Every dancer takes the same step in the same direction — no turning, no flipping.',
+      'Coordinate rule: <code>(x, y) → (x + a, y + b)</code> where <em>a</em> is the horizontal slide (right is positive, left is negative) and <em>b</em> is the vertical slide (up is positive, down is negative).',
+      'Apply the same <em>a</em> and <em>b</em> to <strong>every vertex</strong> of the figure — don\'t move just one corner.'
+    ],
+    examples: [
+      { label:'Worked Example 1',
+        body:'Slide a triangle. △ABC has A(1, 1), B(3, 1), C(2, 3). Translate 2 right and 1 down. → A′(3, 0), B′(5, 0), C′(4, 2). Add 2 to each x, subtract 1 from each y.' },
+      { label:'Worked Example 2',
+        body:'Working backward. A(0, 0) lands at A′(−3, 5). → x went 0 → −3 (3 left); y went 0 → 5 (5 up). Translation: <strong>3 left, 5 up</strong>, or <code>(x − 3, y + 5)</code>.' }
+    ],
+    watchOut: "Don't translate just one vertex. <strong>Every dancer takes the same step.</strong>"
+  },
+  a2: {
+    title: 'The Mirror',
+    actLabel: 'Act II',
+    tactics: [
+      'A <strong>reflection</strong> is a flip across a line. The image is a mirror image — same shape, opposite-facing.',
+      'The two big rules: <code>(x, y) → (x, −y)</code> reflects across the x-axis · <code>(x, y) → (−x, y)</code> reflects across the y-axis.',
+      'For other lines (y = k or x = h): each point\'s image is the <strong>same distance from the line, on the opposite side</strong>.'
+    ],
+    examples: [
+      { label:'Worked Example 1',
+        body:'Reflect △ABC with A(1,1), B(1,4), C(3,4) in the y-axis. → Flip the sign of each x; y stays the same. <strong>A′(−1, 1), B′(−1, 4), C′(−3, 4)</strong>.' },
+      { label:'Worked Example 2',
+        body:'Reflect P(4, 3) across y = 1. → P is 2 above the line; image is 2 below: y = 1 − 2 = −1. So <strong>P′(4, −1)</strong>.' }
+    ],
+    watchOut: "<strong>Only flip the coordinate that crosses the line.</strong> Reflecting across the x-axis? Don't touch x. Across the y-axis? Don't touch y."
+  },
+  a3: {
+    title: 'The Pirouette',
+    actLabel: 'Act III',
+    tactics: [
+      'A <strong>rotation</strong> is a turn around a fixed point — the <em>center of rotation</em>. Here we always rotate about the origin.',
+      'Counterclockwise rules: <code>90°: (x, y) → (−y, x)</code> · <code>180°: (x, y) → (−x, −y)</code> · <code>270°: (x, y) → (y, −x)</code> · <code>360°: (x, y) → (x, y)</code>.',
+      'For clockwise rotations, convert: <strong>clockwise n° = counterclockwise (360 − n)°</strong>. So 90° CW = 270° CCW.'
+    ],
+    examples: [
+      { label:'Worked Example 1',
+        body:'Rotate P(3, 4) 90° CCW about the origin. → Rule: (−y, x). (3, 4) → <strong>(−4, 3)</strong>.' },
+      { label:'Worked Example 2',
+        body:'Rotate P(2, 5) 90° CW about the origin. → 90° CW = 270° CCW. Rule: (y, −x). (2, 5) → <strong>(5, −2)</strong>.' }
+    ],
+    watchOut: "Always check the <strong>direction</strong>. Clockwise and counterclockwise are opposites — flip the direction by mistake and your answer flips with it."
+  },
+  a4: {
+    title: 'Congruent Figures',
+    actLabel: 'Act IV',
+    tactics: [
+      'Two figures are <strong>congruent</strong> when one can be obtained from the other by a sequence of rigid motions (translation, reflection, or rotation).',
+      'Rigid motions preserve <strong>both length AND angle measure</strong> — the size and shape don\'t change.',
+      'Coordinate rules to memorize: <code>(x, y) → (x + a, y + b)</code> = translate · <code>(x, y) → (x, −y)</code> = reflect in x-axis · <code>(x, y) → (−x, y)</code> = reflect in y-axis · <code>(x, y) → (−y, x)</code> = 90° CCW · <code>(x, y) → (y, −x)</code> = 90° CW · <code>(x, y) → (−x, −y)</code> = 180°.'
+    ],
+    examples: [
+      { label:'Worked Example 1',
+        body:'Apply <code>(x, y) → (−x, y)</code> to the point (3, 4). → New x = −3, y stays at 4. Image is <strong>(−3, 4)</strong>.' },
+      { label:'Worked Example 2',
+        body:'△ABC has A(1, 2). △DEF has D(1, −2). Same x, opposite y → this is a <strong>reflection in the x-axis</strong>.' }
+    ],
+    watchOut: 'When writing a congruence statement like △<em>ABC</em> ≅ △<em>DEF</em>, the <strong>order matters</strong>. A↔D, B↔E, C↔F. So AB ≅ DE — not AB ≅ EF.'
+  },
+  a5: {
+    title: 'Dilations',
+    actLabel: 'Act V',
+    tactics: [
+      'A <strong>dilation</strong> changes size with respect to a center point. In this course, the center is always the <strong>origin</strong> unless stated otherwise.',
+      'Coordinate rule: <code>(x, y) → (kx, ky)</code> — multiply both coordinates by the scale factor <em>k</em>.',
+      'When <strong>k > 1</strong>, the image is bigger (enlargement). When <strong>0 < k < 1</strong>, the image is smaller (reduction).',
+      'Dilations preserve <strong>angle measure</strong> but NOT length. The image and original have the same shape, different sizes.'
+    ],
+    examples: [
+      { label:'Worked Example 1',
+        body:'Dilate (6, −4) by k = 0.5. → (0.5 · 6, 0.5 · −4) = <strong>(3, −2)</strong>. Reduction, since 0 < k < 1.' },
+      { label:'Worked Example 2',
+        body:'Find k if A(2, 3) maps to A′(8, 12). → 8 ÷ 2 = 4 (and 12 ÷ 3 = 4 ✓). So <strong>k = 4</strong>.' }
+    ],
+    watchOut: '<strong>Area scales by k², NOT k.</strong> If a triangle has area 5 sq ft and is dilated by k = 3, the new area is 5 × 3² = <strong>45</strong> sq ft, not 15. Going backwards: if the new area is 16× the original, then k² = 16, so k = 4.'
+  },
+  a6: {
+    title: 'Similar Figures',
+    actLabel: 'Act VI',
+    tactics: [
+      'Two figures are <strong>similar</strong> when one can be obtained from the other by a similarity transformation: a dilation, or a sequence of dilations and rigid motions.',
+      'In similar figures: <strong>corresponding angles are congruent</strong>, and <strong>corresponding sides are proportional</strong>.',
+      'To find a missing side, set up a proportion using corresponding sides: <code>side₁⁄image₁ = side₂⁄image₂</code> — then cross-multiply.',
+      'Scale drawings (maps, replicas, models) are real-world examples of similar figures.'
+    ],
+    examples: [
+      { label:'Worked Example 1',
+        body:'Similar triangles with sides 6 m and 8 m correspond to 9 m and <em>x</em> m. → 6/9 = 8/x → 6x = 72 → <strong>x = 12 m</strong>.' },
+      { label:'Worked Example 2',
+        body:'Map scale: 1 in = 50 mi. Distance on map = 3 in. → Real distance = 3 × 50 = <strong>150 miles</strong>.' }
+    ],
+    watchOut: 'Similar ≠ congruent in general, but <strong>congruent figures ARE similar</strong> (with scale factor 1). Similar figures must have the same SHAPE, but not necessarily the same SIZE.'
+  }
+};
+
+/* ---------- BATTLE METADATA ---------- */
+const BATTLES = {
+  a1: { title:'The Slide', actLabel:'Act I', pool:() => POOL_A1, illustration:'a1', subtitle:'Translations' },
+  a2: { title:'The Mirror', actLabel:'Act II', pool:() => POOL_A2, illustration:'a2', subtitle:'Reflections' },
+  a3: { title:'The Pirouette', actLabel:'Act III', pool:() => POOL_A3, illustration:'a3', subtitle:'Rotations' },
+  a4: { title:'Congruent Figures', actLabel:'Act IV', pool:() => POOL_A4, illustration:'a4', subtitle:'Mirrored Performers' },
+  a5: { title:'Dilations', actLabel:'Act V', pool:() => POOL_A5, illustration:'a5', subtitle:'Grand & Petite' },
+  a6: { title:'Similar Figures', actLabel:'Act VI', pool:() => POOL_A6, illustration:'a6', subtitle:'Shape in Trio' },
+  final: { title:'Grand Finale', actLabel:'Finale', pool:() => null, illustration:'final', subtitle:'All Acts Combined' }
+};
+
+/* For finale: 2 random questions from each of the 6 act pools, then shuffled together */
+function drawFinale() {
+  const draw = [];
+  ['a1','a2','a3','a4','a5','a6'].forEach(id => {
+    draw.push(...pickN(BATTLES[id].pool(), 2));
+  });
+  return shuffle(draw);
+}
+
+/* ---------- ROUTING ---------- */
+function go(screen, opts = {}) {
+  state.screen = screen;
+  if (opts.battleId !== undefined) state.battleId = opts.battleId;
+  if (opts.questionIndex !== undefined) state.questionIndex = opts.questionIndex;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startBattle(battleId, skipPlaybook = false) {
+  state.battleId = battleId;
+  state.attempts[battleId]++;
+  if (battleId === 'final') {
+    state.questionDraw = drawFinale();
+  } else {
+    state.questionDraw = pickN(BATTLES[battleId].pool(), 5);
+  }
+  state.questionIndex = 0;
+  state.answers = [];
+  state.feedback = null;
+  state.awaitingNext = false;
+  // First-time players see the playbook; on retries, can skip. Finale has no playbook.
+  if (!skipPlaybook && battleId !== 'final' && state.attempts[battleId] === 1) {
+    go('playbook');
+  } else {
+    go('battle');
+  }
+}
+
+function goToPlaybookFromBattle() {
+  go('playbook');
+}
+
+function submitAnswer(value) {
+  const q = state.questionDraw[state.questionIndex];
+  let correct = false;
+  if (q.type === 'mc') {
+    correct = (value === q.answerIndex);
+  } else if (q.type === 'num') {
+    correct = q.accept ? q.accept(value) : numericMatches(value, q.answer);
+  } else if (q.type === 'coord') {
+    correct = numericMatches(value.x, q.answer[0]) && numericMatches(value.y, q.answer[1]);
+  }
+  state.answers.push({ correct });
+  state.feedback = { correct, message: q.explain };
+  state.awaitingNext = true;
+  render();
+}
+
+function nextQuestion() {
+  state.feedback = null;
+  state.awaitingNext = false;
+  if (state.questionIndex + 1 >= state.questionDraw.length) {
+    // Battle over — record stars (highest ever) and raw score
+    const correctCount = state.answers.filter(a => a.correct).length;
+    const total = state.answers.length;
+    const stars = calculateStars(correctCount, total);
+    if (stars > state.completed[state.battleId]) {
+      state.completed[state.battleId] = stars;
+    }
+    if (correctCount > state.bestScore[state.battleId]) {
+      state.bestScore[state.battleId] = correctCount;
+    }
+    go('result');
+  } else {
+    state.questionIndex++;
+    render();
+  }
+}
+
+/* Finale unlocks when each of the 6 acts has earned at least 3 stars */
+function allBattlesCompleted() {
+  return state.completed.a1 >= 3 && state.completed.a2 >= 3 && state.completed.a3 >= 3
+      && state.completed.a4 >= 3 && state.completed.a5 >= 3 && state.completed.a6 >= 3;
+}
+
+/* ---------- RENDERERS ---------- */
+function renderStarsInline(filled, total) {
+  let s = '';
+  for (let i = 0; i < total; i++) {
+    s += `<span class="${i < filled ? 'filled' : 'empty'}">★</span>`;
+  }
+  return s;
+}
+
+function renderHub() {
+  const finalLocked = !allBattlesCompleted();
+  const battleCard = (id) => {
+    const meta = BATTLES[id];
+    const stars = state.completed[id];
+    const completed = stars > 0;
+    const isFinal = id === 'final';
+    const locked = isFinal && finalLocked;
+    const cls = `lesson-poster ${isFinal ? 'final' : ''} ${locked ? 'locked' : ''}`;
+    const totalStars = 5;
+    const bestLabel = isFinal && state.bestScore[id] > 0
+      ? `BEST: ${state.bestScore[id]}/12`
+      : `BEST: ${stars}/5`;
+    return `
+      <div class="${cls}" ${locked ? '' : `onclick="startBattle('${id}', false)"`} role="button" tabindex="${locked ? -1 : 0}" aria-label="${meta.title}, ${locked ? 'locked' : (completed ? `${stars} of ${totalStars} stars` : 'not yet attempted')}">
+        <div class="act-label">${meta.actLabel}</div>
+        <div class="lesson-name">${meta.title}</div>
+        <div class="lesson-sub">${meta.subtitle}</div>
+        <div class="lesson-illustration">${locked ? '<div class="lock-icon">🔒</div>' : ILLUSTRATIONS[meta.illustration]}</div>
+        ${locked
+          ? `<div style="font-family:'Cinzel',serif; font-size:0.78rem; color:var(--gold-deep); letter-spacing:0.12em; text-align:center; line-height:1.5;">EARN 3+ STARS<br/>IN ALL SIX ACTS<br/>TO UNLOCK</div>`
+          : `<div class="stars-row">${renderStarsInline(stars, totalStars)}</div>
+             <div class="status-pill ${completed ? 'complete' : 'new'}">${completed ? bestLabel : 'NEW'}</div>`}
+      </div>`;
+  };
+
+  return `
+    <div class="spotlight"></div>
+    <h1 class="marquee-title huge">Dance Battle</h1>
+    <div class="subtitle">★ The Geometry Showcase ★</div>
+    <p class="hub-intro">Six acts of geometric transformation — three rigid motions, then congruence and similarity. Each battle reshuffles, so no two performances are alike.</p>
+
+    <div class="part-header">— Part I · Rigid Motions —</div>
+    <div class="posters-grid">
+      ${battleCard('a1')}
+      ${battleCard('a2')}
+      ${battleCard('a3')}
+    </div>
+
+    <div class="part-header">— Part II · Congruence &amp; Similarity —</div>
+    <div class="posters-grid">
+      ${battleCard('a4')}
+      ${battleCard('a5')}
+      ${battleCard('a6')}
+    </div>
+
+    <div class="part-header">— Grand Finale —</div>
+    <div class="posters-grid finale-grid">
+      ${battleCard('final')}
+    </div>
+  `;
+}
+
+function renderPlaybook() {
+  const meta = BATTLES[state.battleId];
+  const pb = PLAYBOOKS[state.battleId];
+  return `
+    <button class="back-link" onclick="go('hub')">← Back to Marquee</button>
+    <div style="margin-top: 24px;">
+      <div class="subtitle" style="text-align:left; margin-top:0;">${meta.actLabel} · Playbook</div>
+      <h1 class="marquee-title big" style="text-align:left; margin-top:6px;">${pb.title}: Battle Playbook</h1>
+    </div>
+    <div class="poster" style="margin-top: 28px;">
+      <div class="playbook-section">
+        <h3>⚔ Tactics</h3>
+        <ul>
+          ${pb.tactics.map(t => `<li>${t}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="playbook-section">
+        <h3>📜 Worked Examples</h3>
+        ${pb.examples.map(ex => `
+          <div class="worked-example">
+            <div class="ex-label">${ex.label}</div>
+            <div>${ex.body}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="watch-out">
+        <p>${pb.watchOut}</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="go('battle')">⚐ Raise the Curtain ⚐</button>
+        <button class="btn btn-secondary" onclick="go('hub')">← Back to Marquee</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderBattle() {
+  const meta = BATTLES[state.battleId];
+  const q = state.questionDraw[state.questionIndex];
+  const total = state.questionDraw.length;
+  const idx = state.questionIndex;
+  const showingFeedback = state.awaitingNext;
+
+  // Progress bulbs
+  let bulbs = '';
+  for (let i = 0; i < total; i++) {
+    let cls = 'bulb';
+    if (i < idx) cls += ' lit';
+    else if (i === idx && !showingFeedback) cls += ' current';
+    else if (i === idx && showingFeedback) cls += state.answers[idx].correct ? ' lit' : '';
+    bulbs += `<div class="${cls}"></div>`;
+  }
+
+  // Visual SVG (if any)
+  let visualHtml = '';
+  if (q.visual && q.visual.kind === 'plane') {
+    visualHtml = svgCoordPlane(q.visual.config);
+  }
+
+  // Question body — depends on type
+  let answerArea = '';
+  if (q.type === 'mc') {
+    answerArea = `<div class="choices">
+      ${q.choices.map((choice, i) => {
+        let cls = 'choice';
+        if (showingFeedback) {
+          if (i === q.answerIndex) cls += ' correct';
+          else if (state.answers[idx] && !state.answers[idx].correct && state.lastMcPick === i) cls += ' incorrect';
+        }
+        const letter = String.fromCharCode(65 + i);
+        return `<button class="${cls}" ${showingFeedback ? 'disabled' : ''} onclick="handleMcClick(${i})">
+          <span class="choice-letter">${letter}</span>
+          <span>${choice}</span>
+        </button>`;
+      }).join('')}
+    </div>`;
+  } else if (q.type === 'num') {
+    const val = state.lastNumInput || '';
+    const cls = showingFeedback ? (state.answers[idx].correct ? 'numeric-input correct' : 'numeric-input incorrect') : 'numeric-input';
+    answerArea = `<div class="numeric-row">
+      <input type="text" id="numInput" class="${cls}" value="${val}" placeholder="?" ${showingFeedback ? 'disabled' : ''} onkeydown="handleNumKey(event)" autocomplete="off" inputmode="decimal" />
+      ${q.suffix ? `<span style="font-family:'Cinzel',serif; font-size:1.1rem; color:var(--burgundy);">${q.suffix}</span>` : ''}
+      ${!showingFeedback ? `<button class="btn btn-primary" style="padding:10px 20px;" onclick="handleNumSubmit()">Submit</button>` : ''}
+    </div>`;
+  } else if (q.type === 'coord') {
+    const vx = state.lastCoordInput?.x || '';
+    const vy = state.lastCoordInput?.y || '';
+    const correctClass = showingFeedback ? (state.answers[idx].correct ? 'correct' : 'incorrect') : '';
+    answerArea = `<div class="coord-row">
+      <span>(</span>
+      <input type="text" id="coordX" class="numeric-input ${correctClass}" value="${vx}" placeholder="x" ${showingFeedback ? 'disabled' : ''} onkeydown="handleCoordKey(event)" autocomplete="off" inputmode="decimal" />
+      <span>,</span>
+      <input type="text" id="coordY" class="numeric-input ${correctClass}" value="${vy}" placeholder="y" ${showingFeedback ? 'disabled' : ''} onkeydown="handleCoordKey(event)" autocomplete="off" inputmode="decimal" />
+      <span>)</span>
+      ${!showingFeedback ? `<button class="btn btn-primary" style="padding:10px 20px;" onclick="handleCoordSubmit()">Submit</button>` : ''}
+    </div>`;
+  }
+
+  // Feedback area
+  let feedbackHtml = '';
+  if (showingFeedback) {
+    const f = state.feedback;
+    let correctAnswerText = '';
+    if (!f.correct) {
+      if (q.type === 'mc') correctAnswerText = `Correct answer: <strong>${q.choices[q.answerIndex]}</strong>. `;
+      else if (q.type === 'num') correctAnswerText = `Correct answer: <strong>${q.answer}${q.suffix ? ' ' + q.suffix : ''}</strong>. `;
+      else if (q.type === 'coord') correctAnswerText = `Correct answer: <strong>(${q.answer[0]}, ${q.answer[1]})</strong>. `;
+    }
+    feedbackHtml = `
+      <div class="feedback ${f.correct ? 'correct' : 'incorrect'}">
+        <div class="icon">${f.correct ? '★' : '✗'}</div>
+        <div class="text">
+          <strong>${f.correct ? 'Bravo!' : 'Not quite.'}</strong>
+          ${correctAnswerText ? '<br/>' + correctAnswerText : ' '}
+          ${f.message}
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="nextQuestion()">${state.questionIndex + 1 >= total ? 'Finish ▸' : 'Next ▸'}</button>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="battle-header">
+      <div class="act-name"><span>${meta.actLabel}</span> · ${meta.title}</div>
+      <button class="back-link" onclick="confirmExitBattle()">↩ Exit Battle</button>
+    </div>
+    <h1 class="marquee-title big">${meta.title}</h1>
+    <div class="progress-bulbs">${bulbs}</div>
+    <div class="poster question-card">
+      <div class="q-number">Question ${idx + 1} of ${total}</div>
+      <div class="q-prompt">${q.prompt}</div>
+      ${visualHtml}
+      ${answerArea}
+      ${feedbackHtml}
+    </div>
+    ${state.battleId !== 'final' && PLAYBOOKS[state.battleId] ? `
+      <div style="text-align:center; margin-top:18px;">
+        <button class="btn-ghost btn" style="font-size:0.8rem; padding:8px 16px;" onclick="goToPlaybookFromBattle()">📖 View Playbook</button>
+      </div>` : ''}
+  `;
+}
+
+function confirmExitBattle() {
+  if (state.questionIndex > 0 || state.answers.length > 0) {
+    if (!confirm('Exit this battle? Your progress in this round will be lost.')) return;
+  }
+  go('hub');
+}
+
+function renderResult() {
+  const meta = BATTLES[state.battleId];
+  const correctCount = state.answers.filter(a => a.correct).length;
+  const total = state.answers.length;
+  const stars = calculateStars(correctCount, total);
+
+  let verdict;
+  if (stars === 5) verdict = 'Standing Ovation!';
+  else if (stars === 4) verdict = 'Encore Worthy!';
+  else if (stars === 3) verdict = 'A Solid Show.';
+  else if (stars === 2) verdict = 'The Curtain Falls.';
+  else if (stars === 1) verdict = 'A Rough Night.';
+  else verdict = 'Back to Rehearsal.';
+
+  const isFinal = state.battleId === 'final';
+  const allDone = allBattlesCompleted();
+  // "Just unlocked" if this run took us to all-three-star territory
+  const justUnlockedFinal = !isFinal && allDone && state.completed.final === 0
+    && stars >= 3 && state.completed[state.battleId] >= 3;
+
+  let starsHtml = '';
+  for (let i = 0; i < 5; i++) {
+    starsHtml += `<span class="star ${i < stars ? 'filled' : ''}" style="animation-delay: ${i * 0.15}s">★</span>`;
+  }
+
+  return `
+    <div class="spotlight"></div>
+    <div class="subtitle">${meta.actLabel} · Curtain Call</div>
+    <h1 class="marquee-title big" style="margin-top:8px;">${meta.title}</h1>
+    <div class="poster result-card" style="margin-top: 28px;">
+      <div class="stars-display">${starsHtml}</div>
+      <div class="verdict">${verdict}</div>
+      <div class="score">You scored <strong>${correctCount}</strong> out of <strong>${total}</strong></div>
+      ${justUnlockedFinal ? `<div style="margin-top:18px; padding:14px; background:rgba(255,224,102,0.25); border:2px dashed var(--gold-deep); border-radius:6px; font-family:'Cinzel',serif; color:var(--burgundy);">🔓 <strong>The Grand Finale is unlocked!</strong></div>` : ''}
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="startBattle('${state.battleId}', true)">⟲ Retry Battle</button>
+        <button class="btn btn-secondary" onclick="go('hub')">← Marquee</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- INPUT HANDLERS ---------- */
+function handleMcClick(i) {
+  state.lastMcPick = i;
+  submitAnswer(i);
+}
+function handleNumSubmit() {
+  const el = document.getElementById('numInput');
+  const v = el ? el.value : '';
+  state.lastNumInput = v;
+  submitAnswer(v);
+}
+function handleNumKey(e) {
+  if (e.key === 'Enter') { e.preventDefault(); handleNumSubmit(); }
+}
+function handleCoordSubmit() {
+  const x = document.getElementById('coordX')?.value || '';
+  const y = document.getElementById('coordY')?.value || '';
+  state.lastCoordInput = { x, y };
+  submitAnswer({ x, y });
+}
+function handleCoordKey(e) {
+  if (e.key === 'Enter') { e.preventDefault(); handleCoordSubmit(); }
+}
+
+/* ---------- MAIN RENDER ---------- */
+function render() {
+  const app = document.getElementById('app');
+  // Reset transient input state when entering a fresh question
+  if (state.screen === 'battle' && !state.awaitingNext) {
+    state.lastMcPick = undefined;
+    state.lastNumInput = '';
+    state.lastCoordInput = { x: '', y: '' };
+  }
+  let html = '';
+  if (state.screen === 'hub') html = renderHub();
+  else if (state.screen === 'playbook') html = renderPlaybook();
+  else if (state.screen === 'battle') html = renderBattle();
+  else if (state.screen === 'result') html = renderResult();
+  app.innerHTML = html;
+
+  // Auto-focus inputs
+  if (state.screen === 'battle' && !state.awaitingNext) {
+    const q = state.questionDraw[state.questionIndex];
+    setTimeout(() => {
+      if (q.type === 'num') document.getElementById('numInput')?.focus();
+      else if (q.type === 'coord') document.getElementById('coordX')?.focus();
+    }, 50);
+  }
+}
+
+// First render
+render();
+
+</script>
+</body>
+</html>
