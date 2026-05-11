@@ -433,6 +433,43 @@
     margin-top: 8px;
   }
 
+  .question-diagram {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 14px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .question-diagram svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .question-emoji-large {
+    font-size: 3.5rem;
+  }
+
+  .question-prompt {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .pi-tag {
+    display: inline-block;
+    background: white;
+    border: 2px dashed var(--pink-3);
+    color: var(--pink-5);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+
   .answer-input-group {
     display: flex;
     justify-content: center;
@@ -690,6 +727,8 @@
       </div>
 
       <div class="question-card">
+        <div class="question-diagram" id="question-diagram"></div>
+        <div class="question-prompt" id="question-prompt"></div>
         <div class="question-text" id="question-text"></div>
         <div class="answer-input-group">
           <input type="number" step="any" class="answer-input" id="answer-input" placeholder="?" autocomplete="off">
@@ -716,116 +755,118 @@
 // ====================================================
 
 // Lesson 10.1 Pool — 24 questions
+// type: 'circle-r' (circle with radius shown), 'circle-d' (diameter shown), 'semicircle' (semicircle with straight side)
+// prompt: what to ask. label: text on diagram. piNote: π info if needed
 const POOL_1 = [
-  // Radius from diameter
-  { q: "The diameter of a circle is 10 inches. Find the radius.", a: 5, unit: "in", hint: "r = d ÷ 2", explain: "r = 10 ÷ 2 = 5 in" },
-  { q: "The diameter of a circle is 16 cm. Find the radius.", a: 8, unit: "cm", hint: "r = d ÷ 2", explain: "r = 16 ÷ 2 = 8 cm" },
-  { q: "The diameter of a circle is 24 ft. Find the radius.", a: 12, unit: "ft", hint: "r = d ÷ 2", explain: "r = 24 ÷ 2 = 12 ft" },
-  { q: "The diameter of a circle is 18 m. Find the radius.", a: 9, unit: "m", hint: "r = d ÷ 2", explain: "r = 18 ÷ 2 = 9 m" },
-  { q: "The diameter of a circle is 30 yd. Find the radius.", a: 15, unit: "yd", hint: "r = d ÷ 2", explain: "r = 30 ÷ 2 = 15 yd" },
-  { q: "The diameter of a circle is 7 mm. Find the radius.", a: 3.5, unit: "mm", hint: "r = d ÷ 2", explain: "r = 7 ÷ 2 = 3.5 mm" },
-  // Diameter from radius
-  { q: "The radius of a circle is 9 yd. Find the diameter.", a: 18, unit: "yd", hint: "d = 2r", explain: "d = 2 × 9 = 18 yd" },
-  { q: "The radius of a circle is 11 m. Find the diameter.", a: 22, unit: "m", hint: "d = 2r", explain: "d = 2 × 11 = 22 m" },
-  { q: "The radius of a circle is 6 cm. Find the diameter.", a: 12, unit: "cm", hint: "d = 2r", explain: "d = 2 × 6 = 12 cm" },
-  { q: "The radius of a circle is 13 in. Find the diameter.", a: 26, unit: "in", hint: "d = 2r", explain: "d = 2 × 13 = 26 in" },
-  { q: "The radius of a circle is 4.5 ft. Find the diameter.", a: 9, unit: "ft", hint: "d = 2r", explain: "d = 2 × 4.5 = 9 ft" },
-  { q: "The radius of a circle is 20 mm. Find the diameter.", a: 40, unit: "mm", hint: "d = 2r", explain: "d = 2 × 20 = 40 mm" },
+  // Radius from diameter (diagram shows diameter)
+  { type: "circle-d", label: "10 in", prompt: "Find the radius.", a: 5, unit: "in", hint: "r = d ÷ 2", explain: "r = 10 ÷ 2 = 5 in" },
+  { type: "circle-d", label: "16 cm", prompt: "Find the radius.", a: 8, unit: "cm", hint: "r = d ÷ 2", explain: "r = 16 ÷ 2 = 8 cm" },
+  { type: "circle-d", label: "24 ft", prompt: "Find the radius.", a: 12, unit: "ft", hint: "r = d ÷ 2", explain: "r = 24 ÷ 2 = 12 ft" },
+  { type: "circle-d", label: "18 m", prompt: "Find the radius.", a: 9, unit: "m", hint: "r = d ÷ 2", explain: "r = 18 ÷ 2 = 9 m" },
+  { type: "circle-d", label: "30 yd", prompt: "Find the radius.", a: 15, unit: "yd", hint: "r = d ÷ 2", explain: "r = 30 ÷ 2 = 15 yd" },
+  { type: "circle-d", label: "7 mm", prompt: "Find the radius.", a: 3.5, unit: "mm", hint: "r = d ÷ 2", explain: "r = 7 ÷ 2 = 3.5 mm" },
+  // Diameter from radius (diagram shows radius)
+  { type: "circle-r", label: "9 yd", prompt: "Find the diameter.", a: 18, unit: "yd", hint: "d = 2r", explain: "d = 2 × 9 = 18 yd" },
+  { type: "circle-r", label: "11 m", prompt: "Find the diameter.", a: 22, unit: "m", hint: "d = 2r", explain: "d = 2 × 11 = 22 m" },
+  { type: "circle-r", label: "6 cm", prompt: "Find the diameter.", a: 12, unit: "cm", hint: "d = 2r", explain: "d = 2 × 6 = 12 cm" },
+  { type: "circle-r", label: "13 in", prompt: "Find the diameter.", a: 26, unit: "in", hint: "d = 2r", explain: "d = 2 × 13 = 26 in" },
+  { type: "circle-r", label: "4.5 ft", prompt: "Find the diameter.", a: 9, unit: "ft", hint: "d = 2r", explain: "d = 2 × 4.5 = 9 ft" },
+  { type: "circle-r", label: "20 mm", prompt: "Find the diameter.", a: 40, unit: "mm", hint: "d = 2r", explain: "d = 2 × 20 = 40 mm" },
   // Circumference with 3.14
-  { q: "Find the circumference of a circle with radius 3 ft. Use 3.14 for π.", a: 18.84, unit: "ft", hint: "C = 2πr", explain: "C = 2 × 3.14 × 3 = 18.84 ft" },
-  { q: "Find the circumference of a circle with radius 5 in. Use 3.14 for π.", a: 31.4, unit: "in", hint: "C = 2πr", explain: "C = 2 × 3.14 × 5 = 31.4 in" },
-  { q: "Find the circumference of a circle with diameter 8 m. Use 3.14 for π.", a: 25.12, unit: "m", hint: "C = πd", explain: "C = 3.14 × 8 = 25.12 m" },
-  { q: "Find the circumference of a circle with diameter 12 cm. Use 3.14 for π.", a: 37.68, unit: "cm", hint: "C = πd", explain: "C = 3.14 × 12 = 37.68 cm" },
+  { type: "circle-r", label: "3 ft", prompt: "Find the circumference.", piNote: "Use 3.14 for π.", a: 18.84, unit: "ft", hint: "C = 2πr", explain: "C = 2 × 3.14 × 3 = 18.84 ft" },
+  { type: "circle-r", label: "5 in", prompt: "Find the circumference.", piNote: "Use 3.14 for π.", a: 31.4, unit: "in", hint: "C = 2πr", explain: "C = 2 × 3.14 × 5 = 31.4 in" },
+  { type: "circle-d", label: "8 m", prompt: "Find the circumference.", piNote: "Use 3.14 for π.", a: 25.12, unit: "m", hint: "C = πd", explain: "C = 3.14 × 8 = 25.12 m" },
+  { type: "circle-d", label: "12 cm", prompt: "Find the circumference.", piNote: "Use 3.14 for π.", a: 37.68, unit: "cm", hint: "C = πd", explain: "C = 3.14 × 12 = 37.68 cm" },
   // Circumference with 22/7
-  { q: "Find the circumference of a circle with radius 7 m. Use 22/7 for π.", a: 44, unit: "m", hint: "Radius is a multiple of 7!", explain: "C = 2 × 22/7 × 7 = 44 m" },
-  { q: "Find the circumference of a circle with diameter 14 ft. Use 22/7 for π.", a: 44, unit: "ft", hint: "Diameter is a multiple of 7!", explain: "C = 22/7 × 14 = 44 ft" },
-  { q: "Find the circumference of a circle with diameter 28 mm. Use 22/7 for π.", a: 88, unit: "mm", hint: "Diameter is a multiple of 7!", explain: "C = 22/7 × 28 = 88 mm" },
-  { q: "Find the circumference of a circle with radius 21 yd. Use 22/7 for π.", a: 132, unit: "yd", hint: "Radius is a multiple of 7!", explain: "C = 2 × 22/7 × 21 = 132 yd" },
+  { type: "circle-r", label: "7 m", prompt: "Find the circumference.", piNote: "Use 22/7 for π.", a: 44, unit: "m", hint: "Radius is a multiple of 7!", explain: "C = 2 × 22/7 × 7 = 44 m" },
+  { type: "circle-d", label: "14 ft", prompt: "Find the circumference.", piNote: "Use 22/7 for π.", a: 44, unit: "ft", hint: "Diameter is a multiple of 7!", explain: "C = 22/7 × 14 = 44 ft" },
+  { type: "circle-d", label: "28 mm", prompt: "Find the circumference.", piNote: "Use 22/7 for π.", a: 88, unit: "mm", hint: "Diameter is a multiple of 7!", explain: "C = 22/7 × 28 = 88 mm" },
+  { type: "circle-r", label: "21 yd", prompt: "Find the circumference.", piNote: "Use 22/7 for π.", a: 132, unit: "yd", hint: "Radius is a multiple of 7!", explain: "C = 2 × 22/7 × 21 = 132 yd" },
   // Perimeter of semicircle
-  { q: "Find the perimeter of a semicircular region with a straight side of 8 cm. Use 3.14 for π.", a: 20.56, unit: "cm", hint: "P = d + (πd)/2", explain: "P = 8 + (3.14 × 8)/2 = 8 + 12.56 = 20.56 cm" },
-  { q: "Find the perimeter of a semicircular region with a straight side of 6 m. Use 3.14 for π.", a: 15.42, unit: "m", hint: "P = d + (πd)/2", explain: "P = 6 + (3.14 × 6)/2 = 6 + 9.42 = 15.42 m" },
-  { q: "Find the perimeter of a semicircular region with a straight side of 4 ft. Use 3.14 for π.", a: 10.28, unit: "ft", hint: "P = d + (πd)/2", explain: "P = 4 + (3.14 × 4)/2 = 4 + 6.28 = 10.28 ft" },
-  // Word problem
-  { q: "A circle has a circumference of 31.4 inches. Find the radius. Use 3.14 for π.", a: 5, unit: "in", hint: "C = 2πr, so r = C ÷ (2π)", explain: "r = 31.4 ÷ (2 × 3.14) = 31.4 ÷ 6.28 = 5 in" }
+  { type: "semicircle", label: "8 cm", prompt: "Find the perimeter.", piNote: "Use 3.14 for π.", a: 20.56, unit: "cm", hint: "P = d + (πd)/2", explain: "P = 8 + (3.14 × 8)/2 = 8 + 12.56 = 20.56 cm" },
+  { type: "semicircle", label: "6 m", prompt: "Find the perimeter.", piNote: "Use 3.14 for π.", a: 15.42, unit: "m", hint: "P = d + (πd)/2", explain: "P = 6 + (3.14 × 6)/2 = 6 + 9.42 = 15.42 m" },
+  { type: "semicircle", label: "4 ft", prompt: "Find the perimeter.", piNote: "Use 3.14 for π.", a: 10.28, unit: "ft", hint: "P = d + (πd)/2", explain: "P = 4 + (3.14 × 4)/2 = 4 + 6.28 = 10.28 ft" },
+  // Word problem (text-based since it's working backward from circumference)
+  { type: "word", emoji: "📏", prompt: "A circle has a circumference of 31.4 in. Find the radius.", piNote: "Use 3.14 for π.", a: 5, unit: "in", hint: "C = 2πr, so r = C ÷ (2π)", explain: "r = 31.4 ÷ (2 × 3.14) = 31.4 ÷ 6.28 = 5 in" }
 ];
 
 // Lesson 10.2 Pool — 24 questions
 const POOL_2 = [
   // Area with 3.14, given radius
-  { q: "Find the area of a circle with radius 5 ft. Use 3.14 for π.", a: 78.5, unit: "sq ft", hint: "A = πr²", explain: "A = 3.14 × 5² = 3.14 × 25 = 78.5 sq ft" },
-  { q: "Find the area of a circle with radius 3 cm. Use 3.14 for π.", a: 28.26, unit: "sq cm", hint: "A = πr²", explain: "A = 3.14 × 3² = 3.14 × 9 = 28.26 sq cm" },
-  { q: "Find the area of a circle with radius 10 in. Use 3.14 for π.", a: 314, unit: "sq in", hint: "A = πr²", explain: "A = 3.14 × 10² = 3.14 × 100 = 314 sq in" },
-  { q: "Find the area of a circle with radius 6 m. Use 3.14 for π.", a: 113.04, unit: "sq m", hint: "A = πr²", explain: "A = 3.14 × 6² = 3.14 × 36 = 113.04 sq m" },
-  { q: "Find the area of a circle with radius 2 yd. Use 3.14 for π.", a: 12.56, unit: "sq yd", hint: "A = πr²", explain: "A = 3.14 × 2² = 3.14 × 4 = 12.56 sq yd" },
-  { q: "Find the area of a circle with radius 8 mm. Use 3.14 for π.", a: 200.96, unit: "sq mm", hint: "A = πr²", explain: "A = 3.14 × 8² = 3.14 × 64 = 200.96 sq mm" },
+  { type: "circle-r", label: "5 ft", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 78.5, unit: "sq ft", hint: "A = πr²", explain: "A = 3.14 × 5² = 3.14 × 25 = 78.5 sq ft" },
+  { type: "circle-r", label: "3 cm", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 28.26, unit: "sq cm", hint: "A = πr²", explain: "A = 3.14 × 3² = 3.14 × 9 = 28.26 sq cm" },
+  { type: "circle-r", label: "10 in", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 314, unit: "sq in", hint: "A = πr²", explain: "A = 3.14 × 10² = 3.14 × 100 = 314 sq in" },
+  { type: "circle-r", label: "6 m", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 113.04, unit: "sq m", hint: "A = πr²", explain: "A = 3.14 × 6² = 3.14 × 36 = 113.04 sq m" },
+  { type: "circle-r", label: "2 yd", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 12.56, unit: "sq yd", hint: "A = πr²", explain: "A = 3.14 × 2² = 3.14 × 4 = 12.56 sq yd" },
+  { type: "circle-r", label: "8 mm", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 200.96, unit: "sq mm", hint: "A = πr²", explain: "A = 3.14 × 8² = 3.14 × 64 = 200.96 sq mm" },
   // Area with 22/7
-  { q: "Find the area of a circle with radius 7 cm. Use 22/7 for π.", a: 154, unit: "sq cm", hint: "Radius is 7!", explain: "A = 22/7 × 7² = 22/7 × 49 = 154 sq cm" },
-  { q: "Find the area of a circle with radius 14 ft. Use 22/7 for π.", a: 616, unit: "sq ft", hint: "Radius is a multiple of 7!", explain: "A = 22/7 × 14² = 22/7 × 196 = 616 sq ft" },
-  { q: "Find the area of a circle with radius 21 m. Use 22/7 for π.", a: 1386, unit: "sq m", hint: "Radius is a multiple of 7!", explain: "A = 22/7 × 21² = 22/7 × 441 = 1386 sq m" },
-  { q: "Find the area of a circle with diameter 14 in. Use 22/7 for π.", a: 154, unit: "sq in", hint: "First find r = d/2", explain: "r = 7, A = 22/7 × 49 = 154 sq in" },
+  { type: "circle-r", label: "7 cm", prompt: "Find the area.", piNote: "Use 22/7 for π.", a: 154, unit: "sq cm", hint: "Radius is 7!", explain: "A = 22/7 × 7² = 22/7 × 49 = 154 sq cm" },
+  { type: "circle-r", label: "14 ft", prompt: "Find the area.", piNote: "Use 22/7 for π.", a: 616, unit: "sq ft", hint: "Radius is a multiple of 7!", explain: "A = 22/7 × 14² = 22/7 × 196 = 616 sq ft" },
+  { type: "circle-r", label: "21 m", prompt: "Find the area.", piNote: "Use 22/7 for π.", a: 1386, unit: "sq m", hint: "Radius is a multiple of 7!", explain: "A = 22/7 × 21² = 22/7 × 441 = 1386 sq m" },
+  { type: "circle-d", label: "14 in", prompt: "Find the area.", piNote: "Use 22/7 for π.", a: 154, unit: "sq in", hint: "First find r = d/2", explain: "r = 7, A = 22/7 × 49 = 154 sq in" },
   // Area given diameter
-  { q: "Find the area of a circle with diameter 20 ft. Use 3.14 for π.", a: 314, unit: "sq ft", hint: "First find r = d/2", explain: "r = 10, A = 3.14 × 100 = 314 sq ft" },
-  { q: "Find the area of a circle with diameter 12 m. Use 3.14 for π.", a: 113.04, unit: "sq m", hint: "First find r = d/2", explain: "r = 6, A = 3.14 × 36 = 113.04 sq m" },
-  { q: "Find the area of a circle with diameter 8 cm. Use 3.14 for π.", a: 50.24, unit: "sq cm", hint: "First find r = d/2", explain: "r = 4, A = 3.14 × 16 = 50.24 sq cm" },
-  { q: "Find the area of a circle with diameter 30 in. Use 3.14 for π.", a: 706.5, unit: "sq in", hint: "First find r = d/2", explain: "r = 15, A = 3.14 × 225 = 706.5 sq in" },
-  { q: "Find the area of a circle with diameter 4 yd. Use 3.14 for π.", a: 12.56, unit: "sq yd", hint: "First find r = d/2", explain: "r = 2, A = 3.14 × 4 = 12.56 sq yd" },
-  { q: "Find the area of a circle with diameter 18 mm. Use 3.14 for π.", a: 254.34, unit: "sq mm", hint: "First find r = d/2", explain: "r = 9, A = 3.14 × 81 = 254.34 sq mm" },
+  { type: "circle-d", label: "20 ft", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 314, unit: "sq ft", hint: "First find r = d/2", explain: "r = 10, A = 3.14 × 100 = 314 sq ft" },
+  { type: "circle-d", label: "12 m", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 113.04, unit: "sq m", hint: "First find r = d/2", explain: "r = 6, A = 3.14 × 36 = 113.04 sq m" },
+  { type: "circle-d", label: "8 cm", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 50.24, unit: "sq cm", hint: "First find r = d/2", explain: "r = 4, A = 3.14 × 16 = 50.24 sq cm" },
+  { type: "circle-d", label: "30 in", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 706.5, unit: "sq in", hint: "First find r = d/2", explain: "r = 15, A = 3.14 × 225 = 706.5 sq in" },
+  { type: "circle-d", label: "4 yd", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 12.56, unit: "sq yd", hint: "First find r = d/2", explain: "r = 2, A = 3.14 × 4 = 12.56 sq yd" },
+  { type: "circle-d", label: "18 mm", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 254.34, unit: "sq mm", hint: "First find r = d/2", explain: "r = 9, A = 3.14 × 81 = 254.34 sq mm" },
   // Area of semicircle given diameter
-  { q: "Find the area of a semicircle with a diameter of 16 cm. Use 3.14 for π.", a: 100.48, unit: "sq cm", hint: "A = (πr²)/2", explain: "r = 8, A = (3.14 × 64)/2 = 100.48 sq cm" },
-  { q: "Find the area of a semicircle with a diameter of 10 m. Use 3.14 for π.", a: 39.25, unit: "sq m", hint: "A = (πr²)/2", explain: "r = 5, A = (3.14 × 25)/2 = 39.25 sq m" },
-  { q: "Find the area of a semicircle with a diameter of 20 ft. Use 3.14 for π.", a: 157, unit: "sq ft", hint: "A = (πr²)/2", explain: "r = 10, A = (3.14 × 100)/2 = 157 sq ft" },
-  { q: "Find the area of a semicircle with a diameter of 6 in. Use 3.14 for π.", a: 14.13, unit: "sq in", hint: "A = (πr²)/2", explain: "r = 3, A = (3.14 × 9)/2 = 14.13 sq in" },
-  // Area of semicircle given radius
-  { q: "Find the area of a semicircle with a radius of 11 cm. Use 3.14 for π.", a: 189.97, unit: "sq cm", hint: "A = (πr²)/2", explain: "A = (3.14 × 121)/2 = 189.97 sq cm" },
-  { q: "Find the area of a semicircle with a radius of 4 m. Use 3.14 for π.", a: 25.12, unit: "sq m", hint: "A = (πr²)/2", explain: "A = (3.14 × 16)/2 = 25.12 sq m" },
-  // Word problems
-  { q: "A circular rug has a diameter of 6 ft. Find the area of the rug. Use 3.14 for π.", a: 28.26, unit: "sq ft", hint: "r = d/2, then A = πr²", explain: "r = 3, A = 3.14 × 9 = 28.26 sq ft" },
-  { q: "A tsunami siren can be heard up to 5 miles in all directions. From how many square miles can it be heard? Use 3.14 for π.", a: 78.5, unit: "sq mi", hint: "Circular region with r = 5", explain: "A = 3.14 × 25 = 78.5 sq mi" }
+  { type: "semicircle", label: "16 cm", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 100.48, unit: "sq cm", hint: "A = (πr²)/2", explain: "r = 8, A = (3.14 × 64)/2 = 100.48 sq cm" },
+  { type: "semicircle", label: "10 m", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 39.25, unit: "sq m", hint: "A = (πr²)/2", explain: "r = 5, A = (3.14 × 25)/2 = 39.25 sq m" },
+  { type: "semicircle", label: "20 ft", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 157, unit: "sq ft", hint: "A = (πr²)/2", explain: "r = 10, A = (3.14 × 100)/2 = 157 sq ft" },
+  { type: "semicircle", label: "6 in", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 14.13, unit: "sq in", hint: "A = (πr²)/2", explain: "r = 3, A = (3.14 × 9)/2 = 14.13 sq in" },
+  // Area of semicircle given radius (vertical, labeled with r)
+  { type: "semicircle-r", label: "11 cm", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 189.97, unit: "sq cm", hint: "A = (πr²)/2", explain: "A = (3.14 × 121)/2 = 189.97 sq cm" },
+  { type: "semicircle-r", label: "4 m", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 25.12, unit: "sq m", hint: "A = (πr²)/2", explain: "A = (3.14 × 16)/2 = 25.12 sq m" },
+  // Word problems with themed visuals
+  { type: "word-circle-d", emoji: "🟫", label: "6 ft", prompt: "A circular rug has the diameter shown. Find the area of the rug.", piNote: "Use 3.14 for π.", a: 28.26, unit: "sq ft", hint: "r = d/2, then A = πr²", explain: "r = 3, A = 3.14 × 9 = 28.26 sq ft" },
+  { type: "word-circle-r", emoji: "🌊", label: "5 mi", prompt: "A tsunami siren is heard up to this distance in all directions. Find the area covered.", piNote: "Use 3.14 for π.", a: 78.5, unit: "sq mi", hint: "Circular region", explain: "A = 3.14 × 25 = 78.5 sq mi" }
 ];
 
 // FINAL Battle Pool — 30 brand new questions (no reuse from Pool 1 or 2)
 const POOL_FINAL = [
   // Radius/diameter conversions (5)
-  { q: "The diameter of a circle is 50 cm. Find the radius.", a: 25, unit: "cm", hint: "r = d ÷ 2", explain: "r = 50 ÷ 2 = 25 cm" },
-  { q: "The radius of a circle is 17 ft. Find the diameter.", a: 34, unit: "ft", hint: "d = 2r", explain: "d = 2 × 17 = 34 ft" },
-  { q: "The diameter of a circle is 9 in. Find the radius.", a: 4.5, unit: "in", hint: "r = d ÷ 2", explain: "r = 9 ÷ 2 = 4.5 in" },
-  { q: "The radius of a circle is 25 m. Find the diameter.", a: 50, unit: "m", hint: "d = 2r", explain: "d = 2 × 25 = 50 m" },
-  { q: "The diameter of a circle is 100 mm. Find the radius.", a: 50, unit: "mm", hint: "r = d ÷ 2", explain: "r = 100 ÷ 2 = 50 mm" },
+  { type: "circle-d", label: "50 cm", prompt: "Find the radius.", a: 25, unit: "cm", hint: "r = d ÷ 2", explain: "r = 50 ÷ 2 = 25 cm" },
+  { type: "circle-r", label: "17 ft", prompt: "Find the diameter.", a: 34, unit: "ft", hint: "d = 2r", explain: "d = 2 × 17 = 34 ft" },
+  { type: "circle-d", label: "9 in", prompt: "Find the radius.", a: 4.5, unit: "in", hint: "r = d ÷ 2", explain: "r = 9 ÷ 2 = 4.5 in" },
+  { type: "circle-r", label: "25 m", prompt: "Find the diameter.", a: 50, unit: "m", hint: "d = 2r", explain: "d = 2 × 25 = 50 m" },
+  { type: "circle-d", label: "100 mm", prompt: "Find the radius.", a: 50, unit: "mm", hint: "r = d ÷ 2", explain: "r = 100 ÷ 2 = 50 mm" },
 
   // Circumference (6)
-  { q: "Find the circumference of a circle with radius 4 cm. Use 3.14 for π.", a: 25.12, unit: "cm", hint: "C = 2πr", explain: "C = 2 × 3.14 × 4 = 25.12 cm" },
-  { q: "Find the circumference of a circle with diameter 5 ft. Use 3.14 for π.", a: 15.7, unit: "ft", hint: "C = πd", explain: "C = 3.14 × 5 = 15.7 ft" },
-  { q: "Find the circumference of a circle with diameter 35 mm. Use 22/7 for π.", a: 110, unit: "mm", hint: "Diameter is a multiple of 7!", explain: "C = 22/7 × 35 = 110 mm" },
-  { q: "Find the circumference of a circle with radius 35 in. Use 22/7 for π.", a: 220, unit: "in", hint: "Radius is a multiple of 7!", explain: "C = 2 × 22/7 × 35 = 220 in" },
-  { q: "Find the circumference of a circle with radius 9 m. Use 3.14 for π.", a: 56.52, unit: "m", hint: "C = 2πr", explain: "C = 2 × 3.14 × 9 = 56.52 m" },
-  { q: "Find the circumference of a circle with diameter 22 yd. Use 3.14 for π.", a: 69.08, unit: "yd", hint: "C = πd", explain: "C = 3.14 × 22 = 69.08 yd" },
+  { type: "circle-r", label: "4 cm", prompt: "Find the circumference.", piNote: "Use 3.14 for π.", a: 25.12, unit: "cm", hint: "C = 2πr", explain: "C = 2 × 3.14 × 4 = 25.12 cm" },
+  { type: "circle-d", label: "5 ft", prompt: "Find the circumference.", piNote: "Use 3.14 for π.", a: 15.7, unit: "ft", hint: "C = πd", explain: "C = 3.14 × 5 = 15.7 ft" },
+  { type: "circle-d", label: "35 mm", prompt: "Find the circumference.", piNote: "Use 22/7 for π.", a: 110, unit: "mm", hint: "Diameter is a multiple of 7!", explain: "C = 22/7 × 35 = 110 mm" },
+  { type: "circle-r", label: "35 in", prompt: "Find the circumference.", piNote: "Use 22/7 for π.", a: 220, unit: "in", hint: "Radius is a multiple of 7!", explain: "C = 2 × 22/7 × 35 = 220 in" },
+  { type: "circle-r", label: "9 m", prompt: "Find the circumference.", piNote: "Use 3.14 for π.", a: 56.52, unit: "m", hint: "C = 2πr", explain: "C = 2 × 3.14 × 9 = 56.52 m" },
+  { type: "circle-d", label: "22 yd", prompt: "Find the circumference.", piNote: "Use 3.14 for π.", a: 69.08, unit: "yd", hint: "C = πd", explain: "C = 3.14 × 22 = 69.08 yd" },
 
   // Perimeter of semicircle (4)
-  { q: "Find the perimeter of a semicircular region with a straight side of 10 cm. Use 3.14 for π.", a: 25.7, unit: "cm", hint: "P = d + (πd)/2", explain: "P = 10 + (3.14 × 10)/2 = 10 + 15.7 = 25.7 cm" },
-  { q: "Find the perimeter of a semicircular region with a straight side of 12 m. Use 3.14 for π.", a: 30.84, unit: "m", hint: "P = d + (πd)/2", explain: "P = 12 + (3.14 × 12)/2 = 12 + 18.84 = 30.84 m" },
-  { q: "Find the perimeter of a semicircular region with a straight side of 2 ft. Use 3.14 for π.", a: 5.14, unit: "ft", hint: "P = d + (πd)/2", explain: "P = 2 + (3.14 × 2)/2 = 2 + 3.14 = 5.14 ft" },
-  { q: "Find the perimeter of a semicircular region with a straight side of 20 in. Use 3.14 for π.", a: 51.4, unit: "in", hint: "P = d + (πd)/2", explain: "P = 20 + (3.14 × 20)/2 = 20 + 31.4 = 51.4 in" },
+  { type: "semicircle", label: "10 cm", prompt: "Find the perimeter.", piNote: "Use 3.14 for π.", a: 25.7, unit: "cm", hint: "P = d + (πd)/2", explain: "P = 10 + (3.14 × 10)/2 = 10 + 15.7 = 25.7 cm" },
+  { type: "semicircle", label: "12 m", prompt: "Find the perimeter.", piNote: "Use 3.14 for π.", a: 30.84, unit: "m", hint: "P = d + (πd)/2", explain: "P = 12 + (3.14 × 12)/2 = 12 + 18.84 = 30.84 m" },
+  { type: "semicircle", label: "2 ft", prompt: "Find the perimeter.", piNote: "Use 3.14 for π.", a: 5.14, unit: "ft", hint: "P = d + (πd)/2", explain: "P = 2 + (3.14 × 2)/2 = 2 + 3.14 = 5.14 ft" },
+  { type: "semicircle", label: "20 in", prompt: "Find the perimeter.", piNote: "Use 3.14 for π.", a: 51.4, unit: "in", hint: "P = d + (πd)/2", explain: "P = 20 + (3.14 × 20)/2 = 20 + 31.4 = 51.4 in" },
 
   // Area of circle (6)
-  { q: "Find the area of a circle with radius 4 m. Use 3.14 for π.", a: 50.24, unit: "sq m", hint: "A = πr²", explain: "A = 3.14 × 16 = 50.24 sq m" },
-  { q: "Find the area of a circle with radius 9 in. Use 3.14 for π.", a: 254.34, unit: "sq in", hint: "A = πr²", explain: "A = 3.14 × 81 = 254.34 sq in" },
-  { q: "Find the area of a circle with radius 28 cm. Use 22/7 for π.", a: 2464, unit: "sq cm", hint: "Radius is a multiple of 7!", explain: "A = 22/7 × 28² = 22/7 × 784 = 2464 sq cm" },
-  { q: "Find the area of a circle with diameter 16 ft. Use 3.14 for π.", a: 200.96, unit: "sq ft", hint: "First find r = d/2", explain: "r = 8, A = 3.14 × 64 = 200.96 sq ft" },
-  { q: "Find the area of a circle with diameter 24 m. Use 3.14 for π.", a: 452.16, unit: "sq m", hint: "First find r = d/2", explain: "r = 12, A = 3.14 × 144 = 452.16 sq m" },
-  { q: "Find the area of a circle with diameter 42 in. Use 22/7 for π.", a: 1386, unit: "sq in", hint: "First find r = d/2 (multiple of 7!)", explain: "r = 21, A = 22/7 × 441 = 1386 sq in" },
+  { type: "circle-r", label: "4 m", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 50.24, unit: "sq m", hint: "A = πr²", explain: "A = 3.14 × 16 = 50.24 sq m" },
+  { type: "circle-r", label: "9 in", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 254.34, unit: "sq in", hint: "A = πr²", explain: "A = 3.14 × 81 = 254.34 sq in" },
+  { type: "circle-r", label: "28 cm", prompt: "Find the area.", piNote: "Use 22/7 for π.", a: 2464, unit: "sq cm", hint: "Radius is a multiple of 7!", explain: "A = 22/7 × 28² = 22/7 × 784 = 2464 sq cm" },
+  { type: "circle-d", label: "16 ft", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 200.96, unit: "sq ft", hint: "First find r = d/2", explain: "r = 8, A = 3.14 × 64 = 200.96 sq ft" },
+  { type: "circle-d", label: "24 m", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 452.16, unit: "sq m", hint: "First find r = d/2", explain: "r = 12, A = 3.14 × 144 = 452.16 sq m" },
+  { type: "circle-d", label: "42 in", prompt: "Find the area.", piNote: "Use 22/7 for π.", a: 1386, unit: "sq in", hint: "First find r = d/2 (multiple of 7!)", explain: "r = 21, A = 22/7 × 441 = 1386 sq in" },
 
   // Area of semicircle (4)
-  { q: "Find the area of a semicircle with a diameter of 12 ft. Use 3.14 for π.", a: 56.52, unit: "sq ft", hint: "A = (πr²)/2", explain: "r = 6, A = (3.14 × 36)/2 = 56.52 sq ft" },
-  { q: "Find the area of a semicircle with a radius of 8 cm. Use 3.14 for π.", a: 100.48, unit: "sq cm", hint: "A = (πr²)/2", explain: "A = (3.14 × 64)/2 = 100.48 sq cm" },
-  { q: "Find the area of a semicircle with a diameter of 24 in. Use 3.14 for π.", a: 226.08, unit: "sq in", hint: "A = (πr²)/2", explain: "r = 12, A = (3.14 × 144)/2 = 226.08 sq in" },
-  { q: "Find the area of a semicircle with a radius of 6 m. Use 3.14 for π.", a: 56.52, unit: "sq m", hint: "A = (πr²)/2", explain: "A = (3.14 × 36)/2 = 56.52 sq m" },
+  { type: "semicircle", label: "12 ft", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 56.52, unit: "sq ft", hint: "A = (πr²)/2", explain: "r = 6, A = (3.14 × 36)/2 = 56.52 sq ft" },
+  { type: "semicircle-r", label: "8 cm", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 100.48, unit: "sq cm", hint: "A = (πr²)/2", explain: "A = (3.14 × 64)/2 = 100.48 sq cm" },
+  { type: "semicircle", label: "24 in", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 226.08, unit: "sq in", hint: "A = (πr²)/2", explain: "r = 12, A = (3.14 × 144)/2 = 226.08 sq in" },
+  { type: "semicircle-r", label: "6 m", prompt: "Find the area.", piNote: "Use 3.14 for π.", a: 56.52, unit: "sq m", hint: "A = (πr²)/2", explain: "A = (3.14 × 36)/2 = 56.52 sq m" },
 
-  // Word problems / real-life (5)
-  { q: "A gumball machine has a circular base with a radius of 10 in. Find the circumference of the base. Use 3.14 for π.", a: 62.8, unit: "in", hint: "C = 2πr", explain: "C = 2 × 3.14 × 10 = 62.8 in" },
-  { q: "A pizza has a diameter of 14 in. Find the area of the pizza. Use 22/7 for π.", a: 154, unit: "sq in", hint: "r = 7 (multiple of 7!)", explain: "r = 7, A = 22/7 × 49 = 154 sq in" },
-  { q: "A sprinkler waters a circular region with a radius of 15 ft. Find the area watered. Use 3.14 for π.", a: 706.5, unit: "sq ft", hint: "A = πr²", explain: "A = 3.14 × 225 = 706.5 sq ft" },
-  { q: "A circular fountain has a diameter of 8 m. Find the distance around the fountain. Use 3.14 for π.", a: 25.12, unit: "m", hint: "C = πd", explain: "C = 3.14 × 8 = 25.12 m" },
-  { q: "A bicycle wheel has a diameter of 26 in. Find the distance the wheel travels in one rotation. Use 3.14 for π.", a: 81.64, unit: "in", hint: "One rotation = circumference", explain: "C = 3.14 × 26 = 81.64 in" }
+  // Word problems / real-life (5) — with themed emoji + diagram
+  { type: "word-circle-r", emoji: "🍬", label: "10 in", prompt: "A gumball machine has a circular base. Find the circumference.", piNote: "Use 3.14 for π.", a: 62.8, unit: "in", hint: "C = 2πr", explain: "C = 2 × 3.14 × 10 = 62.8 in" },
+  { type: "word-circle-d", emoji: "🍕", label: "14 in", prompt: "A pizza has the diameter shown. Find the area.", piNote: "Use 22/7 for π.", a: 154, unit: "sq in", hint: "r = 7 (multiple of 7!)", explain: "r = 7, A = 22/7 × 49 = 154 sq in" },
+  { type: "word-circle-r", emoji: "💦", label: "15 ft", prompt: "A sprinkler waters a circular region. Find the area watered.", piNote: "Use 3.14 for π.", a: 706.5, unit: "sq ft", hint: "A = πr²", explain: "A = 3.14 × 225 = 706.5 sq ft" },
+  { type: "word-circle-d", emoji: "⛲", label: "8 m", prompt: "A circular fountain has the diameter shown. Find the distance around it.", piNote: "Use 3.14 for π.", a: 25.12, unit: "m", hint: "C = πd", explain: "C = 3.14 × 8 = 25.12 m" },
+  { type: "word-circle-d", emoji: "🚲", label: "26 in", prompt: "A bicycle wheel has the diameter shown. Find the distance traveled in one rotation.", piNote: "Use 3.14 for π.", a: 81.64, unit: "in", hint: "One rotation = circumference", explain: "C = 3.14 × 26 = 81.64 in" }
 ];
 
 // ====================================================
@@ -1116,7 +1157,80 @@ function enterPlaybook(battleId) {
 }
 
 // ====================================================
-// BATTLE LOGIC
+// DIAGRAM RENDERER (SVG)
+// ====================================================
+function renderDiagram(q) {
+  const PINK_FILL = "#ffb6d9";
+  const PINK_STROKE = "#d6388a";
+  const RED = "#e63950";
+  const DOT = "#4a1d3d";
+  const LABEL_BG = "#fff8f0";
+  const LABEL_TEXT = "#4a1d3d";
+
+  let emoji = '';
+  if (q.emoji) {
+    emoji = `<span class="question-emoji-large">${q.emoji}</span>`;
+  }
+
+  let svg = '';
+
+  if (q.type === 'circle-r' || q.type === 'word-circle-r') {
+    // Circle with radius line from center to right edge
+    svg = `
+      <svg viewBox="0 0 200 180" width="200" height="180" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="90" r="70" fill="${PINK_FILL}" stroke="${PINK_STROKE}" stroke-width="3"/>
+        <line x1="100" y1="90" x2="170" y2="90" stroke="${RED}" stroke-width="3"/>
+        <circle cx="100" cy="90" r="4" fill="${DOT}"/>
+        <rect x="115" y="72" width="50" height="22" rx="6" fill="${LABEL_BG}" stroke="${PINK_STROKE}" stroke-width="1.5"/>
+        <text x="140" y="88" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="14" font-weight="600" fill="${LABEL_TEXT}">${q.label}</text>
+      </svg>
+    `;
+  } else if (q.type === 'circle-d' || q.type === 'word-circle-d') {
+    // Circle with horizontal diameter line, label above the line near center
+    svg = `
+      <svg viewBox="0 0 200 180" width="200" height="180" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="90" r="70" fill="${PINK_FILL}" stroke="${PINK_STROKE}" stroke-width="3"/>
+        <line x1="30" y1="90" x2="170" y2="90" stroke="${RED}" stroke-width="3"/>
+        <circle cx="100" cy="90" r="4" fill="${DOT}"/>
+        <rect x="55" y="55" width="65" height="22" rx="6" fill="${LABEL_BG}" stroke="${PINK_STROKE}" stroke-width="1.5"/>
+        <text x="87" y="71" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="14" font-weight="600" fill="${LABEL_TEXT}">${q.label}</text>
+      </svg>
+    `;
+  } else if (q.type === 'semicircle') {
+    // Semicircle (dome) with labeled straight base
+    svg = `
+      <svg viewBox="0 0 220 150" width="220" height="150" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 30 110 A 80 80 0 0 1 190 110 L 30 110 Z" fill="${PINK_FILL}" stroke="${PINK_STROKE}" stroke-width="3"/>
+        <line x1="30" y1="125" x2="190" y2="125" stroke="${DOT}" stroke-width="1.5"/>
+        <line x1="30" y1="120" x2="30" y2="130" stroke="${DOT}" stroke-width="1.5"/>
+        <line x1="190" y1="120" x2="190" y2="130" stroke="${DOT}" stroke-width="1.5"/>
+        <rect x="85" y="130" width="50" height="20" rx="6" fill="${LABEL_BG}" stroke="${PINK_STROKE}" stroke-width="1.5"/>
+        <text x="110" y="145" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="14" font-weight="600" fill="${LABEL_TEXT}">${q.label}</text>
+      </svg>
+    `;
+  } else if (q.type === 'semicircle-r') {
+    // Vertical semicircle (left half of circle), labeled with radius (vertical line on flat side)
+    svg = `
+      <svg viewBox="0 0 180 200" width="180" height="200" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 140 20 A 90 90 0 0 0 140 200 L 140 20 Z" fill="${PINK_FILL}" stroke="${PINK_STROKE}" stroke-width="3"/>
+        <line x1="140" y1="110" x2="140" y2="20" stroke="${RED}" stroke-width="3"/>
+        <line x1="135" y1="20" x2="145" y2="20" stroke="${RED}" stroke-width="2"/>
+        <line x1="135" y1="110" x2="145" y2="110" stroke="${RED}" stroke-width="2"/>
+        <circle cx="140" cy="110" r="4" fill="${DOT}"/>
+        <rect x="80" y="55" width="50" height="22" rx="6" fill="${LABEL_BG}" stroke="${PINK_STROKE}" stroke-width="1.5"/>
+        <text x="105" y="71" text-anchor="middle" font-family="Fredoka, sans-serif" font-size="14" font-weight="600" fill="${LABEL_TEXT}">${q.label}</text>
+      </svg>
+    `;
+  } else if (q.type === 'word') {
+    // Pure word problem (no diagram, just an emoji)
+    return `<span class="question-emoji-large">${q.emoji || '❓'}</span>`;
+  }
+
+  return emoji + svg;
+}
+
+// ====================================================
+// SHUFFLE
 // ====================================================
 function shuffle(arr) {
   const a = arr.slice();
@@ -1171,9 +1285,15 @@ function renderBattle() {
 
   // Question
   const q = c.questions[c.qIndex];
-  let html = q.q;
-  if (q.hint) html += `<span class="hint">💡 Hint: ${q.hint}</span>`;
-  document.getElementById('question-text').innerHTML = html;
+  // Diagram
+  document.getElementById('question-diagram').innerHTML = renderDiagram(q);
+  // Prompt (main ask)
+  document.getElementById('question-prompt').innerHTML = q.prompt || '';
+  // Sub-text: piNote + hint
+  let subText = '';
+  if (q.piNote) subText += `<span class="pi-tag">π note: ${q.piNote}</span>`;
+  if (q.hint) subText += `<span class="hint">💡 Hint: ${q.hint}</span>`;
+  document.getElementById('question-text').innerHTML = subText;
   document.getElementById('unit-label').textContent = q.unit;
   const input = document.getElementById('answer-input');
   input.value = '';
